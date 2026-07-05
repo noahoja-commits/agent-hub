@@ -29,6 +29,7 @@ from agents.email_agent import EmailAgent
 from agents.research_agent import ResearchAgent
 from agents.content_agent import ContentAgent
 from agents.fixit_agent import FixitAgent
+from agents.orchestrator_agent import OrchestratorAgent
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -98,6 +99,7 @@ def _init_agents() -> None:
     _agents["research"] = ResearchAgent()
     _agents["content"] = ContentAgent()
     _agents["fixit"] = FixitAgent()
+    _agents["orchestrator"] = OrchestratorAgent(agent_registry=_agents)
     logger.info("Agents initialized: %s", list(_agents.keys()))
 
 
@@ -276,12 +278,18 @@ async def telegram_webhook(request: Request) -> JSONResponse:
         return JSONResponse({"status": "unknown command"})
 
     agent_name = parts[0].lower()
-    action_and_params = parts[1] if len(parts) > 1 else ""
 
+    # If the first word isn't a known agent, treat the whole thing as a natural language goal
     if agent_name not in _agents:
-        available = ", ".join(_agents.keys())
-        await _send_telegram(chat_id, f"Unknown agent: {agent_name}. Available: {available}")
-        return JSONResponse({"status": "unknown_agent"})
+        # Route to orchestrator for intelligent handling
+        task = await db.create_task("orchestrator", "solve", {"goal": text})
+        params = {"_reply_telegram_chat_id": str(chat_id)}
+        await db.update_task(task["id"], params=params)
+        asyncio.create_task(_execute_cloud(task))
+        await _send_telegram(chat_id, f"🤔 Thinking about: {text[:200]}...")
+        return JSONResponse({"status": "ok", "task_id": task["id"], "routed_to": "orchestrator"})
+
+    action_and_params = parts[1] if len(parts) > 1 else ""
 
     # Parse action
     action_parts = action_and_params.split(maxsplit=1)
