@@ -20,10 +20,12 @@ class ResearchAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "search": "Search the web and return a curated summary with sources",
-            "deep_research": "Multi-step research — gather sources, analyze, synthesize a report",
-            "summarize_url": "Fetch and summarize a specific URL",
-            "compare": "Research and compare two or more topics/options",
+            "search": "Search the web via DuckDuckGo and return results with sources",
+            "deep_research": "Multi-step research — break into sub-questions, search each, synthesize findings",
+            "summarize_url": "Fetch any URL, extract main content, and summarize key points",
+            "compare": "Research multiple topics and produce a structured comparison",
+            "extract_facts": "Extract specific facts, dates, numbers, and claims from search results",
+            "find_sources": "Find authoritative sources on a topic (academic papers, official docs, etc.)",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -127,6 +129,104 @@ class ResearchAgent(BaseAgent):
         comparison = await self._ai_compare(topics, findings)
 
         return self._ok(summary=comparison, data={"topics": topics, "findings": findings})
+
+    async def _handle_extract_facts(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Extract specific facts from search results."""
+        query = params.get("query", "")
+        num_results = params.get("num_results", 8)
+        fact_types = params.get("fact_types", "dates,numbers,claims,statistics")
+
+        if not query:
+            return self._fail("query is required")
+
+        results = await self._web_search(query, num_results)
+        if not results:
+            return self._ok(summary=f"No results for: {query}", data={"facts": [], "count": 0})
+
+        # Build fact extraction prompt
+        sources_text = "\n".join(f"- {r['title']}: {r['snippet']}" for r in results[:8])
+        prompt = f"""Extract specific facts from these search results. Focus on: {fact_types}.
+
+Query: {query}
+
+Sources:
+{sources_text}
+
+Return a JSON object with:
+- "facts": list of specific facts found, each with "claim" and "source_title"
+- "key_numbers": any statistics or numbers found
+- "key_dates": any dates mentioned
+- "confidence": "high" | "medium" | "low" based on source quality
+
+Only return the JSON object."""
+
+        try:
+            import litellm
+            response = litellm.completion(
+                model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2, max_tokens=1500,
+            )
+            text = response.choices[0].message.content.strip()
+        except Exception:
+            # Fallback: return raw snippets
+            return self._ok(
+                summary=f"Extracted {len(results)} raw results for: {query}",
+                data={"facts": [{"claim": r["snippet"], "source_title": r["title"]} for r in results[:5]], "count": len(results)},
+            )
+
+        try:
+            import json as _json
+            start = text.index("{")
+            end = text.rindex("}") + 1
+            facts_data = _json.loads(text[start:end])
+        except Exception:
+            facts_data = {"facts": [{"claim": r["snippet"], "source_title": r["title"]} for r in results[:3]]}
+
+        fact_count = len(facts_data.get("facts", []))
+        summary = f"Extracted {fact_count} facts about: {query}\n"
+        for f in facts_data.get("facts", [])[:5]:
+            summary += f"\n• {f.get('claim', '')[:120]}"
+
+        return self._ok(summary=summary, data={"query": query, **facts_data, "source_count": len(results)})
+
+    async def _handle_find_sources(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Find authoritative sources on a topic."""
+        topic = params.get("query", "")
+        source_type = params.get("source_type", "all")  # academic, official, news, all
+
+        if not topic:
+            return self._fail("query is required")
+
+        # Build queries targeting different source types
+        queries = []
+        if source_type in ("academic", "all"):
+            queries.append(f"{topic} site:scholar.google.com OR site:arxiv.org OR site:researchgate.net")
+        if source_type in ("official", "all"):
+            queries.append(f"{topic} site:.gov OR site:.edu OR site:docs.python.org OR site:github.com")
+        if source_type in ("news", "all"):
+            queries.append(f"{topic} news")
+
+        all_results = []
+        for q in queries[:3]:
+            results = await self._web_search(q, 3)
+            all_results.extend(results)
+
+        # Deduplicate
+        seen = set()
+        unique = []
+        for r in all_results:
+            if r["url"] not in seen:
+                seen.add(r["url"])
+                unique.append(r)
+
+        lines = []
+        for i, r in enumerate(unique[:8], 1):
+            domain = r["url"].split("/")[2] if "/" in r["url"] else r["url"]
+            lines.append(f"{i}. **{r['title'][:80]}**\n   {domain}\n   {r['snippet'][:150]}")
+
+        summary = f"Authoritative sources for: {topic}\n\n" + "\n\n".join(lines)
+        return self._ok(summary=summary, data={"topic": topic, "sources": unique, "count": len(unique)})
 
     # ------------------------------------------------------------------
     # Web search

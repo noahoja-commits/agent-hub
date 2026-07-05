@@ -102,9 +102,11 @@ class EmailAgent(BaseAgent):
     def get_capabilities(self) -> dict[str, str]:
         return {
             "check_inbox": "Summarize recent Gmail emails in your inbox",
+            "triage_inbox": "Categorize inbox emails by urgency and type (urgent, newsletter, personal, spam)",
             "read_thread": "Read a specific email thread by Gmail thread_id",
+            "summarize_thread": "AI-powered summary of an entire email thread",
             "draft_reply": "AI-draft a reply to an email and save as Gmail draft",
-            "search_emails": "Search Gmail by keyword, sender, or subject",
+            "search_emails": "Search Gmail by keyword, sender, subject, or date range",
             "send_draft": "Send a Gmail draft (requires approval)",
         }
 
@@ -297,6 +299,119 @@ class EmailAgent(BaseAgent):
         lines = [f"{i+1}. **{e['from'].split('<')[0].strip()[:30]}**: {e['subject'][:60]}" for i, e in enumerate(emails)]
         summary = f"Found {len(emails)} emails matching '{query}':\n\n" + "\n".join(lines)
         return self._ok(summary=summary, data={"emails": emails, "count": len(emails)})
+
+    async def _handle_triage_inbox(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Categorize inbox emails by urgency and type."""
+        limit = params.get("limit", 20)
+
+        resp = await _gmail_request("GET", "/users/me/messages", params={"q": "in:inbox", "maxResults": min(limit, 50)})
+        messages = resp.get("messages", [])
+
+        if not messages:
+            return self._ok(summary="Inbox empty or Gmail not configured.", data={"categories": {}, "count": 0})
+
+        # Fetch subjects and senders
+        emails = []
+        for msg in messages[:limit]:
+            detail = await _gmail_request("GET", f"/users/me/messages/{msg['id']}", params={"format": "metadata", "metadataHeaders": ["From", "Subject", "Date"]})
+            if detail:
+                headers = {}
+                for h in detail.get("payload", {}).get("headers", []):
+                    headers[h["name"].lower()] = h["value"]
+                emails.append({
+                    "id": detail["id"], "from": headers.get("from", ""),
+                    "subject": headers.get("subject", ""), "date": headers.get("date", ""),
+                    "snippet": detail.get("snippet", "")[:100],
+                })
+
+        # AI categorization
+        email_list = "\n".join(f"- {e['from'][:40]} | {e['subject'][:60]}" for e in emails[:15])
+        try:
+            import litellm
+            prompt = f"""Categorize these {len(emails)} emails. Return JSON with categories:
+- "urgent": needs immediate attention
+- "important": should read today
+- "newsletter": subscriptions and updates
+- "promotional": marketing and ads
+- "personal": from real people
+- "spam_likely": looks like spam
+
+Emails:
+{email_list}
+
+Return: {{"categories": {{"urgent": [list of indices], "important": [...], "newsletter": [...], "promotional": [...], "personal": [...], "spam_likely": [...]}}, "summary": "one-line summary"}}"""
+
+            response = litellm.completion(
+                model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2, max_tokens=800,
+            )
+            text = response.choices[0].message.content.strip()
+            import json as _json
+            start = text.index("{")
+            end = text.rindex("}") + 1
+            cat_data = _json.loads(text[start:end])
+        except Exception:
+            cat_data = {"categories": {"all": list(range(len(emails)))}, "summary": f"{len(emails)} emails in inbox"}
+
+        # Build readable summary
+        cats = cat_data.get("categories", {})
+        summary = f"📊 Inbox triage — {len(emails)} emails:\n"
+        for cat, indices in cats.items():
+            if indices:
+                count = len(indices) if isinstance(indices, list) else 1
+                summary += f"  {cat}: {count}\n"
+        summary += f"\n{cat_data.get('summary', '')}"
+
+        return self._ok(summary=summary, data={"emails": emails, "categories": cats, "count": len(emails)})
+
+    async def _handle_summarize_thread(self, params: dict[str, Any]) -> dict[str, Any]:
+        """AI-powered summary of an email thread."""
+        thread_id = params.get("thread_id", "")
+        if not thread_id:
+            return self._fail("thread_id is required")
+
+        resp = await _gmail_request("GET", f"/users/me/threads/{thread_id}", params={"format": "full"})
+        if not resp:
+            return self._fail(f"Thread {thread_id} not found or Gmail not configured")
+
+        messages = []
+        for msg in resp.get("messages", []):
+            headers = {}
+            for h in msg.get("payload", {}).get("headers", []):
+                headers[h["name"].lower()] = h["value"]
+            messages.append({
+                "from": headers.get("from", "?"),
+                "date": headers.get("date", ""),
+                "body": msg.get("snippet", "")[:500],
+            })
+
+        # AI summary
+        thread_text = "\n\n".join(f"[{m['date'][:16]}] {m['from']}: {m['body']}" for m in messages)
+        try:
+            import litellm
+            prompt = f"""Summarize this email thread in 3-5 bullet points. Include who said what and any decisions or action items.
+
+Thread:
+{thread_text[:3000]}
+
+Format:
+- Key topic: ...
+- Main points: ...
+- Decisions made: ...
+- Action items: ...
+- Next steps: ..."""
+
+            response = litellm.completion(
+                model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3, max_tokens=600,
+            )
+            summary = response.choices[0].message.content.strip()
+        except Exception:
+            summary = f"Thread with {len(messages)} messages. First message from {messages[0]['from']}."
+
+        return self._ok(summary=summary, data={"thread_id": thread_id, "message_count": len(messages), "participants": list(set(m['from'] for m in messages))})
 
     async def _handle_send_draft(self, params: dict[str, Any]) -> dict[str, Any]:
         draft_id = params.get("draft_id", "")

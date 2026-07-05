@@ -21,12 +21,15 @@ class FixitAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "analyze_code": "Analyze code for bugs, anti-patterns, and improvements",
-            "suggest_fix": "Suggest a fix for a specific error or bug",
-            "review_pr": "Review a pull request or code diff",
+            "analyze_code": "Analyze code for bugs, anti-patterns, security issues, and improvements",
+            "suggest_fix": "Suggest a fix for a specific error or bug with root cause analysis",
+            "review_pr": "Review a pull request or code diff with structured feedback",
             "run_verifiers": "Run project verifiers (tests, lints) — requires local PC agent",
-            "explain_code": "Explain what a piece of code does",
-            "optimize": "Suggest performance or structure optimizations",
+            "explain_code": "Explain what a piece of code does in plain language",
+            "optimize": "Suggest performance or structure optimizations with before/after",
+            "generate_tests": "Generate unit tests for given code or function",
+            "security_audit": "Scan code for security vulnerabilities (OWASP Top 10, injection, auth)",
+            "refactor": "Suggest refactoring to improve readability and maintainability",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -131,6 +134,94 @@ class FixitAgent(BaseAgent):
             summary=optimization,
             data={"goal": goal, "code_length": len(code)},
         )
+
+    async def _handle_generate_tests(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Generate unit tests for code."""
+        code = params.get("code", "") or params.get("query", "")
+        language = params.get("language", "python")
+        framework = params.get("framework", "pytest")
+
+        if not code:
+            return self._fail("code is required")
+
+        prompt = f"""Generate comprehensive unit tests for this {language} code using {framework}.
+
+```{language}
+{code[:4000]}
+```
+
+Include:
+- Tests for normal/expected behavior
+- Edge cases and boundary conditions
+- Error/exception handling tests
+- Mock external dependencies where needed
+- Clear test function names that describe what's being tested
+
+Return only the test code with a brief comment at the top explaining the test strategy."""
+        tests = await self._ai_call(prompt, max_tokens=2000, temperature=0.3)
+        return self._ok(summary=tests, data={"language": language, "framework": framework, "tests": tests})
+
+    async def _handle_security_audit(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Scan code for security vulnerabilities."""
+        code = params.get("code", "") or params.get("query", "")
+        language = params.get("language", "")
+
+        if not code:
+            return self._fail("code is required")
+
+        prompt = f"""Perform a security audit of this {language} code. Check for OWASP Top 10 vulnerabilities:
+
+```{language}
+{code[:5000]}
+```
+
+For each vulnerability found, report:
+- Severity: 🔴 CRITICAL / 🟡 HIGH / 🟠 MEDIUM / 🟢 LOW
+- Type: (injection, XSS, auth bypass, etc.)
+- Location: which line(s)
+- Explanation: why it's vulnerable
+- Fix: specific code to remediate
+
+Also check for:
+- Hardcoded secrets or credentials
+- Unsafe deserialization
+- Missing input validation
+- Insecure cryptography
+- Race conditions
+
+If the code appears secure, say so explicitly."""
+        result = await self._ai_call(prompt, max_tokens=2000, temperature=0.2)
+        return self._ok(summary=result, data={"language": language, "code_length": len(code)})
+
+    async def _handle_refactor(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Suggest refactoring improvements."""
+        code = params.get("code", "") or params.get("query", "")
+        language = params.get("language", "")
+        goal = params.get("goal", "readability and maintainability")
+
+        if not code:
+            return self._fail("code is required")
+
+        prompt = f"""Refactor this {language} code for {goal}. 
+
+```{language}
+{code[:4000]}
+```
+
+Provide:
+1. What's wrong with the current code (specific issues)
+2. The refactored version
+3. A diff-style comparison (OLD → NEW for each change)
+4. Why each change improves the code
+
+Focus on:
+- Reducing complexity and nesting
+- Improving variable/function naming
+- Extracting reusable functions
+- Removing duplication
+- Making the code self-documenting"""
+        result = await self._ai_call(prompt, max_tokens=2000, temperature=0.3)
+        return self._ok(summary=result, data={"language": language, "goal": goal})
 
     # ------------------------------------------------------------------
     # AI reasoning

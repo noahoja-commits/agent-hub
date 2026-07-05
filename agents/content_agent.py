@@ -30,12 +30,14 @@ class ContentAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "create_doc": "Create a Lark Doc with AI-generated content on any topic",
-            "create_spreadsheet": "Create a Lark spreadsheet with structured data",
-            "create_slides": "Create a Lark slide deck with AI-generated outline and content",
-            "write_blog_post": "Generate a blog post on any topic",
+            "create_doc": "Create a document with AI-generated content on any topic",
+            "create_spreadsheet": "Create a spreadsheet with structured data and formulas",
+            "create_slides": "Create a slide deck with AI-generated outline and content",
+            "write_blog_post": "Generate a blog post on any topic with SEO optimization",
             "format_report": "Generate a formatted report with sections, data tables, and conclusions",
             "generate_email_template": "Generate an email template for common scenarios",
+            "generate_code": "Generate code snippets, scripts, or functions based on description",
+            "translate_format": "Convert content between formats (markdown, HTML, plain text, JSON)",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -156,6 +158,45 @@ class ContentAgent(BaseAgent):
             summary=f"Email template: {scenario}\n\n{template[:500]}{'...' if len(template) > 500 else ''}",
             data={"scenario": scenario, "template": template},
         )
+
+    async def _handle_generate_code(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Generate code based on description."""
+        description = params.get("query", "") or params.get("description", "")
+        language = params.get("language", "python")
+        if not description:
+            return self._fail("query is required — describe what code to generate")
+
+        prompt = f"""Write {language} code that: {description}
+
+Include:
+- Clean, well-commented code
+- Error handling where appropriate
+- Type hints if the language supports them
+- A brief explanation of how it works
+
+Return the code in a ```{language} code block followed by the explanation."""
+        code = await self._ai_generate(prompt, max_tokens=2000, temperature=0.3)
+        return self._ok(summary=code, data={"language": language, "description": description, "code": code})
+
+    async def _handle_translate_format(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Convert content between formats."""
+        content = params.get("content", "") or params.get("query", "")
+        from_fmt = params.get("from", "auto")
+        to_fmt = params.get("to", "markdown")
+
+        if not content:
+            return self._fail("content is required")
+
+        prompt = f"""Convert the following content from {from_fmt} to {to_fmt} format.
+Preserve all information, structure, and meaning.
+
+Content:
+{content[:5000]}
+
+Return ONLY the converted content, no explanations."""
+        converted = await self._ai_generate(prompt, max_tokens=2000, temperature=0.1)
+        return self._ok(summary=f"Converted to {to_fmt}:\n\n{converted[:600]}",
+                        data={"from": from_fmt, "to": to_fmt, "converted": converted})
 
     # ------------------------------------------------------------------
     # AI generation
