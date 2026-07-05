@@ -244,7 +244,106 @@ async def health() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Lark Bot webhook
+# Telegram Bot webhook
+# ---------------------------------------------------------------------------
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+
+
+@app.post("/api/bot/telegram")
+async def telegram_webhook(request: Request) -> JSONResponse:
+    """Receive commands from a Telegram bot and create tasks. Replies with results."""
+    _init_agents()
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid json"}, status_code=400)
+
+    message = body.get("message", {})
+    chat = message.get("chat", {})
+    chat_id = chat.get("id", "")
+    text = (message.get("text", "") or "").strip()
+
+    if not text or not chat_id:
+        return JSONResponse({"status": "no action"})
+
+    # Parse: "/agents research search python async" or just "/search python"
+    text = text.lstrip("/")
+    if text.startswith("agents "):
+        text = text[7:]
+    parts = text.split(maxsplit=1)
+
+    if not parts:
+        return JSONResponse({"status": "unknown command"})
+
+    agent_name = parts[0].lower()
+    action_and_params = parts[1] if len(parts) > 1 else ""
+
+    if agent_name not in _agents:
+        available = ", ".join(_agents.keys())
+        await _send_telegram(chat_id, f"Unknown agent: {agent_name}. Available: {available}")
+        return JSONResponse({"status": "unknown_agent"})
+
+    # Parse action
+    action_parts = action_and_params.split(maxsplit=1)
+    action = action_parts[0] if action_parts else list(_agents[agent_name].get_capabilities().keys())[0]
+    query = action_parts[1] if len(action_parts) > 1 else ""
+
+    params = {}
+    if action in ("search", "deep_research", "compare", "check_inbox", "search_emails",
+                   "create_doc", "create_spreadsheet", "create_slides", "write_blog_post",
+                   "format_report", "analyze_code", "suggest_fix", "explain_code"):
+        params["query"] = query
+    elif action == "draft_reply":
+        params["thread_id"] = query
+
+    task = await db.create_task(agent_name, action, params)
+    params["_reply_telegram_chat_id"] = str(chat_id)
+    await db.update_task(task["id"], params=params)
+
+    asyncio.create_task(_execute_cloud(task))
+    await _send_telegram(chat_id, f"⏳ Working on: {agent_name}/{action}... Task {task['id'][:8]}")
+    return JSONResponse({"status": "ok", "task_id": task["id"]})
+
+
+async def _send_telegram(chat_id: str | int, text: str) -> None:
+    """Send a message via Telegram bot."""
+    if not TELEGRAM_TOKEN:
+        return
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=10) as client:
+            await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                json={"chat_id": chat_id, "text": text[:4000], "parse_mode": "Markdown"},
+            )
+    except Exception as exc:
+        logger.warning("Telegram send failed: %s", exc)
+
+
+@app.get("/api/bot/telegram/setup")
+async def telegram_setup_info() -> JSONResponse:
+    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    return JSONResponse({
+        "setup_steps": [
+            "1. Open Telegram and message @BotFather",
+            "2. Send /newbot and follow prompts",
+            "3. Copy the bot token",
+            "4. Set TELEGRAM_BOT_TOKEN on Railway",
+            f"5. Set webhook: curl https://api.telegram.org/bot<TOKEN>/setWebhook?url={base_url}/api/bot/telegram",
+            "6. Message your bot!",
+        ],
+        "webhook_url": f"{base_url}/api/bot/telegram",
+        "commands": [
+            "/research search <query>", "/research deep_research <query>",
+            "/email check_inbox", "/email search_emails <query>",
+            "/content write_blog_post <topic>", "/content create_doc <topic>",
+            "/fixit analyze_code", "/fixit explain_code",
+        ],
+    })
+
+
+# ---------------------------------------------------------------------------
+# Lark Bot webhook (backward compat)
 # ---------------------------------------------------------------------------
 @app.post("/api/bot/lark")
 async def lark_bot_webhook(request: Request) -> JSONResponse:
@@ -473,10 +572,17 @@ async def _on_task_completed(task: dict[str, Any], result: dict[str, Any]) -> No
         if webhook_url:
             asyncio.create_task(_fire_webhook(webhook_url, task, result))
 
-    # 3. Lark bot reply
+    # 3. Lark bot reply (backward compat)
     chat_id = params.get("_reply_chat_id")
     if chat_id:
         asyncio.create_task(_send_lark_reply(chat_id, task, result))
+
+    # 4. Telegram bot reply
+    tg_chat_id = params.get("_reply_telegram_chat_id")
+    if tg_chat_id:
+        summary = str(result.get("summary", "Done"))[:1000]
+        status_emoji = "✅" if result.get("status") == "completed" else "❌"
+        asyncio.create_task(_send_telegram(tg_chat_id, f"{status_emoji} **{task['agent']}/{task['action']}**\n\n{summary}"))
 
 
 async def _on_task_failed(task: dict[str, Any], error: str) -> None:
