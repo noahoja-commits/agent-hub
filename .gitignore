@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+
+# Test artifacts
+_*.py
+_smoke*.py
+_check*.py
+_verify*.py
+_audit*.py
+
+# OS
+Thumbs.db
+.DS_Store

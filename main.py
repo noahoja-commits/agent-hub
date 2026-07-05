@@ -1,0 +1,669 @@
+"""
+Agent Hub — Cloud Agent Orchestrator
+FastAPI backend for managing AI agents that handle email, research,
+content creation, code fixes, and system maintenance.
+
+Phase 3: Auth middleware, mobile dashboard, Lark bot setup, local agent auto-start.
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import os
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
+import db
+from agents.base import BaseAgent
+from agents.email_agent import EmailAgent
+from agents.research_agent import ResearchAgent
+from agents.content_agent import ContentAgent
+from agents.fixit_agent import FixitAgent
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("agent-hub")
+
+# ---------------------------------------------------------------------------
+# App
+# ---------------------------------------------------------------------------
+app = FastAPI(
+    title="Agent Hub",
+    version="0.3.0",
+    description="Cloud agent orchestrator — email, research, content, fixes, local PC bridge, Lark bot",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------------------------------------------------------------------------
+# Auth middleware (simple bearer token)
+# ---------------------------------------------------------------------------
+API_TOKEN = os.environ.get("AGENT_HUB_TOKEN", "")
+PUBLIC_PATHS = {"/", "/api/health", "/api/bot/lark", "/api/bot/lark/setup", "/ws", "/favicon.ico"}
+
+
+class AuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        # Allow public paths without auth
+        if path in PUBLIC_PATHS or path.startswith("/templates") or path.startswith("/static") or path.startswith("/api/bot/"):
+            return await call_next(request)
+        # Skip auth if no token configured
+        if not API_TOKEN:
+            return await call_next(request)
+        # Check Authorization header
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer ") or auth.removeprefix("Bearer ") != API_TOKEN:
+            return Response(
+                content='{"error":"unauthorized","hint":"Set Authorization: Bearer <token> header"}',
+                status_code=401,
+                media_type="application/json",
+            )
+        return await call_next(request)
+
+
+app.add_middleware(AuthMiddleware)
+
+# ---------------------------------------------------------------------------
+# Agent registry
+# ---------------------------------------------------------------------------
+_agents: dict[str, BaseAgent] = {}
+_connected_pc_agents: dict[str, WebSocket] = {}  # agent_id → websocket
+_start_time: datetime | None = None
+
+
+def _init_agents() -> None:
+    if _agents:
+        return
+    _agents["email"] = EmailAgent()
+    _agents["research"] = ResearchAgent()
+    _agents["content"] = ContentAgent()
+    _agents["fixit"] = FixitAgent()
+    logger.info("Agents initialized: %s", list(_agents.keys()))
+
+
+# ---------------------------------------------------------------------------
+# API: Tasks (SQLite-backed)
+# ---------------------------------------------------------------------------
+class CreateTaskRequest(BaseModel):
+    agent: str
+    action: str
+    params: dict[str, Any] = {}
+    route_to: str | None = None  # "cloud" | "local" | agent_id
+    chain: dict[str, Any] | None = None  # {"on_complete": {"agent":"...","action":"..."}, "on_failure": {...}}
+    notify: dict[str, Any] | None = None  # {"webhook_url": "...", "lark_chat_id": "..."}
+    reply_chat_id: str | None = None  # Lark chat ID to send results back to
+
+
+@app.post("/api/tasks")
+async def create_task(req: CreateTaskRequest) -> JSONResponse:
+    _init_agents()
+
+    if req.agent not in _agents:
+        raise HTTPException(400, f"Unknown agent: {req.agent}. Available: {list(_agents.keys())}")
+
+    agent = _agents[req.agent]
+    caps = agent.get_capabilities()
+    if req.action not in caps:
+        raise HTTPException(400, f"Unknown action '{req.action}' for '{req.agent}'. Available: {list(caps.keys())}")
+
+    task = await db.create_task(req.agent, req.action, req.params)
+
+    # Store chain, notify, reply metadata in params for later
+    meta = {}
+    if req.chain:
+        meta["_chain"] = req.chain
+    if req.notify:
+        meta["_notify"] = req.notify
+    if req.reply_chat_id:
+        meta["_reply_chat_id"] = req.reply_chat_id
+    if meta:
+        task["params"] = {**task["params"], **meta}
+
+    # Route to local PC agent if requested
+    if req.route_to == "local" and _connected_pc_agents:
+        target_ws = next(iter(_connected_pc_agents.values()))
+        await _dispatch_to_local(target_ws, task)
+    elif req.route_to and req.route_to in _connected_pc_agents:
+        await _dispatch_to_local(_connected_pc_agents[req.route_to], task)
+    else:
+        asyncio.create_task(_execute_cloud(task))
+
+    logger.info("Task %s created: %s/%s", task["id"], req.agent, req.action)
+    return JSONResponse(task, status_code=201)
+
+
+@app.get("/api/tasks")
+async def list_tasks(
+    agent: str | None = None,
+    status: str | None = None,
+    limit: int = 50,
+) -> JSONResponse:
+    _init_agents()
+    tasks = await db.list_tasks(agent=agent, status=status, limit=limit)
+    return JSONResponse(tasks)
+
+
+@app.get("/api/tasks/{task_id}")
+async def get_task(task_id: str) -> JSONResponse:
+    task = await db.get_task(task_id)
+    if not task:
+        raise HTTPException(404, f"Task not found: {task_id}")
+    return JSONResponse(task)
+
+
+@app.post("/api/tasks/{task_id}/approve")
+async def approve_task(task_id: str) -> JSONResponse:
+    task = await db.get_task(task_id)
+    if not task:
+        raise HTTPException(404, f"Task not found: {task_id}")
+    if task["status"] != "awaiting_approval":
+        raise HTTPException(400, f"Task is not awaiting approval (status: {task['status']})")
+
+    await db.update_task(task_id, status="running")
+    asyncio.create_task(_execute_cloud(task_id=task_id, approved=True))
+    logger.info("Task %s approved and resumed", task_id)
+    return JSONResponse({"status": "approved"})
+
+
+@app.post("/api/tasks/{task_id}/cancel")
+async def cancel_task(task_id: str) -> JSONResponse:
+    task = await db.get_task(task_id)
+    if not task:
+        raise HTTPException(404, f"Task not found: {task_id}")
+    if task["status"] not in ("queued", "running", "awaiting_approval"):
+        raise HTTPException(400, f"Cannot cancel task with status: {task['status']}")
+
+    await db.update_task(task_id, status="failed", error="Cancelled by user")
+    logger.info("Task %s cancelled", task_id)
+    return JSONResponse({"status": "cancelled"})
+
+
+# ---------------------------------------------------------------------------
+# API: Agents
+# ---------------------------------------------------------------------------
+@app.get("/api/agents")
+async def list_agents() -> JSONResponse:
+    _init_agents()
+    result = {}
+    for name, agent in _agents.items():
+        result[name] = {
+            "name": agent.name,
+            "description": agent.description,
+            "capabilities": agent.get_capabilities(),
+        }
+    return JSONResponse(result)
+
+
+@app.get("/api/local-agents")
+async def list_local_agents() -> JSONResponse:
+    return JSONResponse({
+        "count": len(_connected_pc_agents),
+        "agents": list(_connected_pc_agents.keys()),
+    })
+
+
+# ---------------------------------------------------------------------------
+# API: Health
+# ---------------------------------------------------------------------------
+@app.get("/api/health")
+async def health() -> dict[str, Any]:
+    total = await db.get_task_count()
+    active = await db.get_task_count("queued") + await db.get_task_count("running")
+    return {
+        "status": "ok",
+        "version": "0.3.0",
+        "auth_enabled": bool(API_TOKEN),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "agents": list(_agents.keys()) if _agents else [],
+        "local_agents": len(_connected_pc_agents),
+        "tasks_total": total,
+        "tasks_active": active,
+        "db": db.DB_PATH,
+        "uptime_seconds": (datetime.now(timezone.utc) - _start_time).total_seconds() if _start_time else 0,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Lark Bot webhook
+# ---------------------------------------------------------------------------
+@app.post("/api/bot/lark")
+async def lark_bot_webhook(request: Request) -> JSONResponse:
+    """Receive commands from a Lark bot and create tasks."""
+    _init_agents()
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid json"}, status_code=400)
+
+    # Handle URL verification challenge
+    if body.get("type") == "url_verification":
+        return JSONResponse({"challenge": body.get("challenge", "")})
+
+    # Extract message text
+    event = body.get("event", {})
+    text = event.get("text", "").strip()
+
+    if not text:
+        return JSONResponse({"status": "no action"})
+
+    # Parse command: "/agents email check_inbox" or "research search python async"
+    text = text.lstrip("/").lstrip("agents").strip()
+    parts = text.split(maxsplit=1)
+
+    if not parts:
+        return JSONResponse({"status": "unknown command", "text": text})
+
+    agent_name = parts[0].lower()
+    action_and_params = parts[1] if len(parts) > 1 else ""
+
+    if agent_name not in _agents:
+        available = ", ".join(_agents.keys())
+        return JSONResponse({
+            "status": "unknown_agent",
+            "text": f"Unknown agent: {agent_name}. Available: {available}",
+        })
+
+    # Determine action and params
+    action_parts = action_and_params.split(maxsplit=1)
+    action = action_parts[0] if action_parts else list(_agents[agent_name].get_capabilities().keys())[0]
+    query = action_parts[1] if len(action_parts) > 1 else ""
+
+    params = {}
+    if action in ("search", "deep_research", "compare", "check_inbox", "search_emails",
+                   "create_doc", "create_spreadsheet", "create_slides", "write_blog_post",
+                   "format_report", "analyze_code", "suggest_fix", "explain_code"):
+        params["query"] = query
+    elif action == "draft_reply":
+        params["thread_id"] = query
+
+    # Get chat_id for reply
+    chat_id = event.get("message", {}).get("chat_id", "") or body.get("event", {}).get("sender", {}).get("sender_id", {}).get("open_id", "")
+
+    task = await db.create_task(agent_name, action, params)
+
+    # Store reply metadata so the bot can respond when done
+    if chat_id:
+        params["_reply_chat_id"] = chat_id
+        await db.update_task(task["id"], params=params)
+
+    asyncio.create_task(_execute_cloud(task))
+
+    # Send immediate acknowledgment
+    asyncio.create_task(_send_lark_reply(chat_id, task, {
+        "status": "running",
+        "summary": f"⏳ Working on: {agent_name}/{action}... Task {task['id'][:8]}",
+    }))
+
+    return JSONResponse({
+        "status": "task_created",
+        "task_id": task["id"],
+        "agent": agent_name,
+        "action": action,
+    })
+
+
+@app.get("/api/bot/lark/setup")
+async def lark_bot_setup_info() -> JSONResponse:
+    """Return Lark bot setup instructions and event subscription info."""
+    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    return JSONResponse({
+        "webhook_url": f"{base_url}/api/bot/lark",
+        "verification_note": "This endpoint handles Lark's URL verification challenge automatically.",
+        "setup_steps": [
+            "1. Go to https://open.feishu.cn/app and create a Bot app",
+            "2. Under 'Event Subscriptions', set the Request URL to the webhook_url above",
+            "3. Subscribe to 'im.message.receive_v1' event",
+            "4. Add bot permissions: im:message, im:message:send_as_bot",
+            "5. Publish the app and add the bot to a chat",
+            "6. Send commands like: /agents email check_inbox",
+        ],
+        "supported_commands": [
+            "/agents email check_inbox — check inbox",
+            "/agents email draft_reply <thread_id> — draft a reply",
+            "/agents email search_emails <query> — search emails",
+            "/agents research search <query> — web search",
+            "/agents research deep_research <query> — multi-step research",
+            "/agents content create_doc <topic> — create a document",
+            "/agents content write_blog_post <topic> — write a blog post",
+            "/agents fixit analyze_code — analyze code (paste code after)",
+            "/agents fixit suggest_fix <error> — suggest a fix",
+        ],
+    })
+
+
+# ---------------------------------------------------------------------------
+# WebSocket: Local PC Agent bridge
+# ---------------------------------------------------------------------------
+@app.websocket("/ws")
+async def ws_local_agent(ws: WebSocket) -> None:
+    """WebSocket endpoint for local PC agents to connect and receive tasks."""
+    await ws.accept()
+    agent_id = "unknown"
+    agent_info: dict[str, Any] = {}
+
+    try:
+        while True:
+            data = await ws.receive_json()
+            msg_type = data.get("type", "")
+
+            if msg_type == "register":
+                agent_id = data.get("agent_id", f"pc-{uuid.uuid4().hex[:6]}")
+                agent_info = data
+                _connected_pc_agents[agent_id] = ws
+                logger.info("Local agent connected: %s (host: %s)", agent_id, agent_info.get("hostname", "?"))
+
+                # Acknowledge registration
+                await ws.send_json({
+                    "type": "registered",
+                    "agent_id": agent_id,
+                    "message": f"Connected to Agent Hub. {len(_connected_pc_agents)} local agent(s) online.",
+                })
+
+            elif msg_type == "task_result":
+                task_id = data.get("task_id", "")
+                result = data.get("result", {})
+                if task_id:
+                    status = "completed" if result.get("status") == "completed" else "failed"
+                    await db.update_task(task_id, status=status, result=result)
+                    logger.info("Task %s result from %s: %s", task_id, agent_id, status)
+
+            elif msg_type == "heartbeat":
+                pass  # Keepalive — no action needed
+
+            elif msg_type == "pong":
+                pass
+
+    except WebSocketDisconnect:
+        logger.info("Local agent disconnected: %s", agent_id)
+    except Exception as exc:
+        logger.exception("WebSocket error for %s: %s", agent_id, exc)
+    finally:
+        _connected_pc_agents.pop(agent_id, None)
+
+
+async def _dispatch_to_local(ws: WebSocket, task: dict[str, Any]) -> None:
+    """Send a task to a connected local PC agent."""
+    try:
+        await ws.send_json({"type": "task", "task": task})
+        await db.update_task(task["id"], status="running")
+    except Exception as exc:
+        logger.warning("Failed to dispatch task %s to local agent: %s", task["id"], exc)
+        await db.update_task(task["id"], status="failed", error=f"Dispatch failed: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Task execution (cloud agents) — with chaining, notifications, bot replies
+# ---------------------------------------------------------------------------
+async def _execute_cloud(task: dict[str, Any] | None = None, task_id: str | None = None, approved: bool = False) -> None:
+    """Execute a task via a cloud agent. Handles chaining, notifications, and Lark replies."""
+    if task_id and not task:
+        task = await db.get_task(task_id)
+    if not task:
+        return
+
+    tid = task["id"]
+    params = task.get("params", {})
+    await db.update_task(tid, status="running")
+
+    agent = _agents.get(task["agent"])
+    if not agent:
+        await db.update_task(tid, status="failed", error=f"Agent '{task['agent']}' not found")
+        return
+
+    try:
+        result = await agent.execute(action=task["action"], params=params)
+
+        if result.get("status") == "awaiting_approval":
+            await db.update_task(tid, status="awaiting_approval", result=result)
+            logger.info("Task %s awaiting approval: %s", tid, result.get("summary"))
+            return
+
+        await db.update_task(tid, status="completed", result=result)
+        logger.info("Task %s completed: %s/%s", tid, task["agent"], task["action"])
+
+        # Post-completion hooks
+        asyncio.create_task(_on_task_completed(task, result))
+
+    except Exception as exc:
+        logger.exception("Task %s failed", tid)
+        await db.update_task(tid, status="failed", error=str(exc))
+        asyncio.create_task(_on_task_failed(task, str(exc)))
+
+
+async def _on_task_completed(task: dict[str, Any], result: dict[str, Any]) -> None:
+    """Handle post-completion: chain next task, fire notifications, reply to Lark."""
+    params = task.get("params", {})
+    tid = task["id"]
+
+    # 1. Task chaining
+    chain = params.get("_chain")
+    if chain:
+        next_task = chain.get("on_complete")
+        if next_task:
+            # Merge result data into next task params
+            next_params = {**next_task.get("params", {}), "_parent_result": result}
+            nt = await db.create_task(next_task["agent"], next_task["action"], next_params)
+            asyncio.create_task(_execute_cloud(nt))
+            logger.info("Chain: task %s → %s/%s (%s)", tid, next_task["agent"], next_task["action"], nt["id"])
+
+    # 2. Notification webhooks
+    notify = params.get("_notify")
+    if notify:
+        webhook_url = notify.get("webhook_url")
+        if webhook_url:
+            asyncio.create_task(_fire_webhook(webhook_url, task, result))
+
+    # 3. Lark bot reply
+    chat_id = params.get("_reply_chat_id")
+    if chat_id:
+        asyncio.create_task(_send_lark_reply(chat_id, task, result))
+
+
+async def _on_task_failed(task: dict[str, Any], error: str) -> None:
+    """Handle post-failure: chain failure handler, notify."""
+    params = task.get("params", {})
+    tid = task["id"]
+
+    chain = params.get("_chain")
+    if chain:
+        fallback = chain.get("on_failure")
+        if fallback:
+            fb_params = {**fallback.get("params", {}), "_error": error}
+            nt = await db.create_task(fallback["agent"], fallback["action"], fb_params)
+            asyncio.create_task(_execute_cloud(nt))
+            logger.info("Chain (failure): task %s → fallback %s/%s", tid, fallback["agent"], fallback["action"])
+
+    notify = params.get("_notify")
+    if notify:
+        webhook_url = notify.get("webhook_url")
+        if webhook_url:
+            asyncio.create_task(_fire_webhook(webhook_url, task, {"status": "failed", "error": error}))
+
+    chat_id = params.get("_reply_chat_id")
+    if chat_id:
+        asyncio.create_task(_send_lark_reply(chat_id, task, {"status": "failed", "summary": f"❌ Failed: {error[:200]}"}))
+
+
+async def _fire_webhook(url: str, task: dict[str, Any], result: dict[str, Any]) -> None:
+    """Fire a notification webhook (Slack/Discord/Lark compatible format)."""
+    try:
+        import httpx
+
+        payload = {
+            "event": "task_completed" if result.get("status") == "completed" else "task_failed",
+            "task_id": task["id"],
+            "agent": task["agent"],
+            "action": task["action"],
+            "summary": str(result.get("summary", ""))[:500],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(url, json=payload)
+            logger.info("Webhook %s → %d", url[:60], resp.status_code)
+    except Exception as exc:
+        logger.warning("Webhook failed for %s: %s", url[:60], exc)
+
+
+async def _send_lark_reply(chat_id: str, task: dict[str, Any], result: dict[str, Any]) -> None:
+    """Send a task result back to a Lark chat."""
+    lark_app_id = os.environ.get("LARK_APP_ID", "")
+    lark_app_secret = os.environ.get("LARK_APP_SECRET", "")
+
+    if not lark_app_id or not lark_app_secret:
+        logger.debug("Lark reply skipped — no LARK_APP_ID/SECRET configured")
+        return
+
+    try:
+        import httpx
+
+        # Get tenant access token
+        async with httpx.AsyncClient(timeout=10) as client:
+            token_resp = await client.post(
+                "https://open.larksuite.com/open-apis/auth/v3/tenant_access_token/internal",
+                json={"app_id": lark_app_id, "app_secret": lark_app_secret},
+            )
+            if token_resp.status_code != 200:
+                return
+            token = token_resp.json().get("tenant_access_token", "")
+
+            # Build message
+            summary = str(result.get("summary", "Done"))[:800]
+            status_emoji = "✅" if result.get("status") == "completed" else "❌"
+            msg_text = f"{status_emoji} **{task['agent']}/{task['action']}** complete\n\n{summary}"
+
+            # Send message
+            msg_resp = await client.post(
+                "https://open.larksuite.com/open-apis/im/v1/messages",
+                params={"receive_id_type": "chat_id"},
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={
+                    "receive_id": chat_id,
+                    "msg_type": "text",
+                    "content": json.dumps({"text": msg_text}),
+                },
+            )
+            logger.info("Lark reply to %s → %d", chat_id[:20], msg_resp.status_code)
+    except Exception as exc:
+        logger.warning("Lark reply failed: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Scheduler
+# ---------------------------------------------------------------------------
+_scheduler_started = False
+
+
+async def _start_scheduler() -> None:
+    """Start APScheduler for recurring tasks if enabled."""
+    global _scheduler_started
+    if _scheduler_started:
+        return
+    if os.environ.get("SCHEDULER_ENABLED", "true").lower() not in ("true", "1", "yes"):
+        return
+    _scheduler_started = True
+
+    try:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        from apscheduler.triggers.cron import CronTrigger
+
+        scheduler = AsyncIOScheduler()
+        briefing_time = os.environ.get("DAILY_BRIEFING_TIME", "08:00")
+        hour, minute = briefing_time.split(":")
+        scheduler.add_job(
+            _daily_briefing,
+            CronTrigger(hour=int(hour), minute=int(minute)),
+            id="daily_briefing",
+            name="Daily briefing",
+        )
+        # Hourly cleanup of old tasks
+        scheduler.add_job(
+            lambda: db.cleanup_old_tasks(30),
+            CronTrigger(hour="*/6"),
+            id="cleanup_old_tasks",
+            name="Cleanup old tasks",
+        )
+        scheduler.start()
+        logger.info("Scheduler started (daily briefing at %s UTC, cleanup every 6h)", briefing_time)
+    except ImportError:
+        logger.warning("apscheduler not installed — scheduler disabled")
+    except Exception as exc:
+        logger.warning("Scheduler failed to start: %s", exc)
+
+
+async def _daily_briefing() -> None:
+    """Generate a daily briefing task."""
+    _init_agents()
+    try:
+        # Run email inbox check
+        email_task = await db.create_task("email", "check_inbox", {"limit": 5})
+        asyncio.create_task(_execute_cloud(email_task))
+
+        # Run a research summary of top news
+        research_task = await db.create_task("research", "search", {
+            "query": "top technology news today",
+            "num_results": 5,
+        })
+        asyncio.create_task(_execute_cloud(research_task))
+
+        logger.info("Daily briefing tasks created: %s, %s", email_task["id"], research_task["id"])
+    except Exception as exc:
+        logger.exception("Daily briefing failed: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Startup / Shutdown
+# ---------------------------------------------------------------------------
+@app.on_event("startup")
+async def on_startup() -> None:
+    """Initialize database and scheduler on startup."""
+    global _start_time
+    _start_time = datetime.now(timezone.utc)
+    await db.get_db()  # Ensure migrations run
+    _init_agents()
+    await _start_scheduler()
+    logger.info("Agent Hub v0.3.0 started")
+
+
+@app.on_event("shutdown")
+async def on_shutdown() -> None:
+    await db.close_db()
+    logger.info("Agent Hub shut down")
+
+
+# ---------------------------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------------------------
+@app.get("/", response_class=HTMLResponse)
+async def dashboard() -> HTMLResponse:
+    template_path = Path(__file__).parent / "templates" / "dashboard.html"
+    return HTMLResponse(template_path.read_text(encoding="utf-8"))
+
+
+# ---------------------------------------------------------------------------
+# Entrypoint
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.environ.get("PORT", "5679"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
