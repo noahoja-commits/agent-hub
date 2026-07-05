@@ -225,6 +225,105 @@ async def list_local_agents() -> JSONResponse:
 
 
 # ---------------------------------------------------------------------------
+# API: Workflow Templates
+# ---------------------------------------------------------------------------
+WORKFLOW_TEMPLATES = {
+    "morning_briefing": {
+        "name": "Morning Briefing",
+        "description": "Check email, get news, summarize your day ahead",
+        "steps": [
+            {"agent": "email", "action": "check_inbox", "params": {"limit": 5}},
+            {"agent": "research", "action": "search", "params": {"query": "top technology news today", "num_results": 3}},
+        ],
+    },
+    "deep_research_report": {
+        "name": "Deep Research Report",
+        "description": "Research a topic in depth and generate a formatted report",
+        "steps": [
+            {"agent": "research", "action": "deep_research", "params": {}, "chain_to_next": True},
+            {"agent": "content", "action": "format_report", "params": {}, "chain_to_next": True},
+        ],
+    },
+    "code_review_pipeline": {
+        "name": "Code Review Pipeline",
+        "description": "Analyze code, check security, suggest improvements",
+        "steps": [
+            {"agent": "fixit", "action": "analyze_code", "params": {}},
+            {"agent": "fixit", "action": "security_audit", "params": {}},
+            {"agent": "fixit", "action": "refactor", "params": {}},
+        ],
+    },
+    "inbox_triage": {
+        "name": "Inbox Triage & Reply",
+        "description": "Categorize your inbox and draft replies to urgent emails",
+        "steps": [
+            {"agent": "email", "action": "triage_inbox", "params": {"limit": 20}},
+        ],
+    },
+    "content_pipeline": {
+        "name": "Content Creation Pipeline",
+        "description": "Research a topic and create a blog post about it",
+        "steps": [
+            {"agent": "research", "action": "search", "params": {}, "chain_to_next": True},
+            {"agent": "content", "action": "write_blog_post", "params": {}, "chain_to_next": True},
+        ],
+    },
+    "security_scan": {
+        "name": "Security Scan",
+        "description": "Full security audit of code + generate fix suggestions",
+        "steps": [
+            {"agent": "fixit", "action": "security_audit", "params": {}},
+            {"agent": "fixit", "action": "suggest_fix", "params": {}, "chain_to_next": True},
+        ],
+    },
+}
+
+
+@app.get("/api/templates")
+async def list_templates() -> JSONResponse:
+    """List available workflow templates."""
+    return JSONResponse({
+        name: {"name": t["name"], "description": t["description"], "steps": len(t["steps"])}
+        for name, t in WORKFLOW_TEMPLATES.items()
+    })
+
+
+@app.post("/api/templates/{template_name}/run")
+async def run_template(template_name: str) -> JSONResponse:
+    """Execute a workflow template — creates a chain of tasks."""
+    template = WORKFLOW_TEMPLATES.get(template_name)
+    if not template:
+        raise HTTPException(404, f"Template not found: {template_name}. Available: {list(WORKFLOW_TEMPLATES.keys())}")
+
+    _init_agents()
+    task_ids = []
+
+    for i, step in enumerate(template["steps"]):
+        is_last = (i == len(template["steps"]) - 1)
+        chain = None
+
+        if step.get("chain_to_next") and not is_last:
+            next_step = template["steps"][i + 1]
+            chain = {"on_complete": {"agent": next_step["agent"], "action": next_step["action"], "params": next_step.get("params", {})}}
+
+        task = await db.create_task(step["agent"], step["action"], step.get("params", {}))
+        if chain:
+            await db.update_task(task["id"], params={**step.get("params", {}), "_chain": chain})
+
+        task_ids.append(task["id"])
+
+        if i == 0:  # Only kick off the first task — chaining handles the rest
+            asyncio.create_task(_execute_cloud(task))
+
+    return JSONResponse({
+        "status": "started",
+        "template": template_name,
+        "task_ids": task_ids,
+        "steps": len(task_ids),
+    }, status_code=201)
+
+
+# ---------------------------------------------------------------------------
 # API: Health
 # ---------------------------------------------------------------------------
 @app.get("/api/health")
@@ -619,18 +718,43 @@ async def _on_task_failed(task: dict[str, Any], error: str) -> None:
 
 
 async def _fire_webhook(url: str, task: dict[str, Any], result: dict[str, Any]) -> None:
-    """Fire a notification webhook (Slack/Discord/Lark compatible format)."""
+    """Fire a notification webhook — auto-detects Slack/Discord format."""
     try:
         import httpx
 
-        payload = {
-            "event": "task_completed" if result.get("status") == "completed" else "task_failed",
-            "task_id": task["id"],
-            "agent": task["agent"],
-            "action": task["action"],
-            "summary": str(result.get("summary", ""))[:500],
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
+        is_slack = "slack.com" in url or "hooks.slack" in url
+        is_discord = "discord.com" in url
+        is_success = result.get("status") == "completed"
+        emoji = "✅" if is_success else "❌"
+
+        if is_slack:
+            payload = {
+                "blocks": [
+                    {"type": "header", "text": {"type": "plain_text", "text": f"{emoji} {task['agent']}/{task['action']}"}},
+                    {"type": "section", "text": {"type": "mrkdwn", "text": str(result.get("summary", "No output"))[:2900]}},
+                    {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Task `{task['id']}` · {datetime.now(timezone.utc).isoformat()[:19]}Z"}]},
+                ]
+            }
+        elif is_discord:
+            payload = {
+                "embeds": [{
+                    "title": f"{emoji} {task['agent']}/{task['action']}",
+                    "description": str(result.get("summary", ""))[:2000],
+                    "color": 0x22C55E if is_success else 0xEF4444,
+                    "footer": {"text": f"Task {task['id']}"},
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }]
+            }
+        else:
+            payload = {
+                "event": "task_completed" if is_success else "task_failed",
+                "task_id": task["id"],
+                "agent": task["agent"],
+                "action": task["action"],
+                "summary": str(result.get("summary", ""))[:500],
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.post(url, json=payload)
             logger.info("Webhook %s → %d", url[:60], resp.status_code)
