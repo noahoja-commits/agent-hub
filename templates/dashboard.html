@@ -6,117 +6,139 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>HAIL SATAN — TERMINAL 666</title>
+<title>⛧ A B Y S S A L &nbsp; T E R M I N A L &nbsp; v 6 6 6 ⛧</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Creepster&display=swap');
-:root{--bg:#000;--sf:#0a0002;--bd:#1a0000;--tx:#cc1111;--mt:#550000;--gl:#ff1100;--gd:#aa8800;--bl:#660000;--safe:env(safe-area-inset-bottom,0px)}
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=VT323&family=Press+Start+2P&family=Eater&display=swap');
+:root{--bg:#000;--sf:#050002;--bd:#1a0000;--tx:#cc1111;--mt:#550000;--gl:#ff1100;--gd:#aa8800;--bl:#660000;--safe:env(safe-area-inset-bottom,0px)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'VT323','Courier New',monospace;background:#000;color:var(--tx);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(68px + var(--safe))}
-/* Hellfire particles */
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(255,20,0,.08) 0%,transparent 60%),radial-gradient(ellipse at 20% 0%,rgba(200,0,0,.04) 0%,transparent 50%),radial-gradient(ellipse at 80% 0%,rgba(255,100,0,.03) 0%,transparent 50%);pointer-events:none;z-index:0}
-/* CRT lines */
-.crt{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:999}
+body{font-family:'VT323','Courier New',monospace;background:#000;color:var(--tx);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(72px + var(--safe));cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><text x='2' y='18' font-size='20' fill='%23880000'>⛧</text></svg>") 12 12,auto}
+/* Hellfire canvas */
+#hellfire{position:fixed;inset:0;pointer-events:none;z-index:1}
+/* Blood rain */
+.blood-rain{position:fixed;inset:0;pointer-events:none;z-index:2}
+.blood-drop{position:absolute;color:rgba(139,0,0,.4);font-size:20px;animation:fall linear forwards;text-shadow:0 0 5px rgba(200,0,0,.3)}
+@keyframes fall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1}90%{opacity:.8}100%{transform:translateY(110vh) rotate(360deg);opacity:0}}
+/* CRT overlay */
+.crt{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:998}
 /* Spinning pentagram */
-.pentaspin{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:35vmin;color:rgba(139,0,0,.04);pointer-events:none;z-index:0;animation:spin 60s linear infinite}
+.pentagram{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:45vmin;color:rgba(139,0,0,.03);pointer-events:none;z-index:0;animation:spin 40s linear infinite;text-shadow:0 0 30px rgba(200,0,0,.05)}
 @keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-/* Blood drips */
-.blood-drip{position:fixed;top:0;left:10%;width:2px;height:0;background:var(--bl);z-index:0;animation:drip 8s infinite;opacity:.3}
-.blood-drip:nth-child(2){left:30%;animation-delay:3s;animation-duration:6s}
-.blood-drip:nth-child(3){left:50%;animation-delay:5s;animation-duration:10s}
-.blood-drip:nth-child(4){left:70%;animation-delay:1s;animation-duration:7s}
-.blood-drip:nth-child(5){left:90%;animation-delay:4s;animation-duration:9s}
-@keyframes drip{0%{height:0;opacity:0}10%{height:15vh;opacity:.3}20%{height:30vh;opacity:.2}50%{height:60vh;opacity:.1}80%{height:80vh;opacity:0}100%{height:100vh;opacity:0}}
-/* Glitch overlay */
-.glitch-overlay{position:fixed;inset:0;pointer-events:none;z-index:998;opacity:0}
-@keyframes glitch{0%,94%{opacity:0;transform:translate(0)}95%{opacity:.03;transform:translate(-5px,3px)}96%{opacity:.05;transform:translate(8px,-2px)}97%{opacity:.02;transform:translate(-3px,-5px)}98%{opacity:0;transform:translate(0)}}
+/* Demon spawn */
+.demon-spawn{position:fixed;pointer-events:none;z-index:5;font-family:monospace;white-space:pre;font-size:8px;opacity:.15;animation:posses 4s ease-in-out forwards;text-shadow:0 0 8px rgba(200,0,0,.5)}
+@keyframes posses{0%{opacity:0;transform:scale(.5) translateX(-20px)}20%{opacity:.25;transform:scale(1.5) translateX(10px)}80%{opacity:.2;transform:scale(1) translateX(0)}100%{opacity:0;transform:scale(3) translateX(50px)}}
+/* Possession glitch */
+.glitch{position:fixed;inset:0;pointer-events:none;z-index:997;background:rgba(255,0,0,.03);animation:none}
+.glitch.active{animation:posGlitch .3s ease-out}
+@keyframes posGlitch{0%{background:rgba(255,0,0,.15);transform:translate(12px,-8px)}25%{background:rgba(0,0,255,.1);transform:translate(-8px,5px)}50%{background:rgba(255,0,0,.12);transform:translate(4px,-3px)}75%{background:rgba(0,255,0,.08);transform:translate(-6px,2px)}100%{background:transparent;transform:translate(0)}}
+/* Screen shake */
+.shake{animation:shk .5s ease-out}
+@keyframes shk{0%,100%{transform:translate(0)}10%{transform:translate(-8px,4px)}20%{transform:translate(6px,-3px)}30%{transform:translate(-5px,-5px)}40%{transform:translate(3px,6px)}50%{transform:translate(-2px,-2px)}60%{transform:translate(1px,3px)}70%,100%{transform:translate(0)}}
+/* Latin flash */
+.latin-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Nosifer',cursive;font-size:2rem;color:var(--gl);text-shadow:0 0 30px var(--gl),0 0 60px var(--bl);pointer-events:none;z-index:996;animation:latinFade 1.5s forwards}
+@keyframes latinFade{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:.9;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+/* Goat skull overlay */
+.goat{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20vmin;color:rgba(139,0,0,.15);pointer-events:none;z-index:995;animation:goatAppear 2s forwards}
+@keyframes goatAppear{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-30deg)}40%{opacity:.2;transform:translate(-50%,-50%) scale(1.1) rotate(5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(2) rotate(0deg)}}
+/* Invert */
+.invert{animation:inv .6s ease-out}
+@keyframes inv{0%,100%{filter:invert(0)}50%{filter:invert(1) hue-rotate(90deg)}}
+/* Sacrifice blood splatter */
+.sacrifice{position:fixed;pointer-events:none;z-index:996;font-size:8vmin;animation:sacPulse .8s forwards}
+@keyframes sacPulse{0%{opacity:1;transform:scale(0)}50%{opacity:.8;transform:scale(3)}100%{opacity:0;transform:scale(5)}}
+/* Boot terminal */
+.boot{position:fixed;inset:0;background:#000;z-index:1000;font-family:'VT323',monospace;color:#0a0;font-size:.7rem;padding:1rem;overflow-y:auto;display:flex;flex-direction:column}
+.boot .line{opacity:0;animation:typeIn .05s forwards;white-space:pre-wrap;word-break:break-word}
+@keyframes typeIn{to{opacity:1}}
+.boot .red{color:var(--gl)}.boot .dim{color:#050}.boot .gold{color:var(--gd)}
 /* Top bar */
 .topbar{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(10,0,2,.98),rgba(0,0,0,.95));border-bottom:1px solid var(--bl);padding:.5rem .8rem;display:flex;align-items:center;justify-content:space-between}
-.topbar h1{font-family:'Creepster',cursive;font-size:.9rem;color:var(--gl);text-shadow:0 0 10px var(--gl),0 0 30px var(--bl),0 0 60px #300;letter-spacing:3px;animation:flick 3s infinite}
-@keyframes flick{0%,99%{opacity:1}99.5%{opacity:.1}100%{opacity:1}}
-.topbar .hail{font-size:.5rem;color:var(--mt);font-family:'Press Start 2P',monospace;text-transform:uppercase;animation:glitch 8s infinite}
+.topbar h1{font-family:'Nosifer',cursive;font-size:.75rem;color:var(--gl);text-shadow:0 0 10px var(--gl),0 0 30px var(--bl),0 0 60px #300;letter-spacing:4px;animation:titleFlick 2.5s infinite}
+.topbar h1 .sub{font-family:'VT323',monospace;font-size:.45rem;display:block;color:var(--mt);letter-spacing:6px;text-shadow:none;margin-top:-2px}
+@keyframes titleFlick{0%,98%{opacity:1;text-shadow:0 0 10px var(--gl),0 0 30px var(--bl)}98.5%{opacity:.2;text-shadow:0 0 3px var(--gl)}99%{opacity:.8;text-shadow:0 0 20px var(--gl),0 0 50px var(--bl)}100%{opacity:1}}
 /* Content */
-.content{position:relative;z-index:1;padding:.5rem;max-width:920px;margin:0 auto}
-/* Agent grid */
-.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-bottom:.8rem}
-.agent-card{background:var(--sf);border:1px solid #1a0000;text-align:center;padding:.6rem .4rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;clip-path:polygon(0% 6%,6% 0%,94% 0%,100% 6%,100% 94%,94% 100%,6% 100%,0% 94%)}
-.agent-card::after{content:'';position:absolute;inset:0;background:var(--agent-color);opacity:0;transition:opacity .3s}
-.agent-card:hover::after{opacity:.06}
-.agent-card:hover{border-color:var(--agent-color);box-shadow:0 0 20px var(--agent-color),inset 0 0 20px rgba(0,0,0,.5);transform:scale(1.03)}
-.agent-card .icon{font-size:1.6rem;display:block;margin-bottom:.2rem;filter:drop-shadow(0 0 8px var(--agent-color))}
-.agent-card .name{font-size:.65rem;font-weight:700;color:var(--agent-color);text-shadow:0 0 5px var(--agent-color);letter-spacing:1px}
-.agent-card .latin{font-size:.45rem;color:var(--mt);font-style:italic;margin:2px 0}
-.agent-card .power{font-size:.45rem;color:var(--gd)}
+.content{position:relative;z-index:10;padding:.5rem;max-width:920px;margin:0 auto}
+/* Agent grid - pentagram layout hint */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:5px;margin-bottom:.7rem}
+.agent-card{background:var(--sf);border:1px solid #1a0000;text-align:center;padding:.55rem .3rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;clip-path:polygon(50% 0%,100% 10%,95% 90%,50% 100%,5% 90%,0% 10%)}
+.agent-card::before{content:'';position:absolute;inset:0;background:var(--agent-color);opacity:0;transition:opacity .3s}
+.agent-card::after{content:'';position:absolute;inset:-1px;background:var(--agent-color);opacity:0;filter:blur(8px);transition:opacity .3s}
+.agent-card:hover::before{opacity:.06}.agent-card:hover::after{opacity:.15}
+.agent-card:hover{border-color:var(--agent-color);box-shadow:0 0 25px var(--agent-color),inset 0 0 30px rgba(0,0,0,.6);transform:scale(1.05) translateY(-2px)}
+.agent-card .sigil{font-size:1.5rem;display:block;margin-bottom:.15rem;filter:drop-shadow(0 0 8px var(--agent-color))}
+.agent-card .name{font-size:.6rem;font-weight:700;color:var(--agent-color);text-shadow:0 0 5px var(--agent-color);letter-spacing:1px}
+.agent-card .latin{font-size:.42rem;color:var(--mt);font-style:italic}
+.agent-card .power{font-size:.42rem;color:var(--gd);margin-top:2px}
 /* ritual bar */
-.ritual-bar{display:flex;gap:5px;margin-bottom:.7rem;overflow-x:auto}
-.ritual-bar button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);color:var(--mt);padding:.3rem .7rem;font-size:.55rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
-.ritual-bar button:hover{color:var(--gl);border-color:var(--bl);text-shadow:0 0 8px var(--gl)}
+.ritual-bar{display:flex;gap:4px;margin-bottom:.6rem;overflow-x:auto}
+.ritual-bar button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);color:var(--mt);padding:.25rem .6rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;white-space:nowrap}
+.ritual-bar button:hover{color:var(--gl);border-color:var(--bl);text-shadow:0 0 8px var(--gl);background:rgba(139,0,0,.1)}
 /* status */
-.status-scroll{display:flex;gap:4px;margin-bottom:.7rem;overflow-x:auto}
-.status-scroll button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);padding:.2rem .6rem;color:var(--mt);font-size:.5rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;transition:all .15s;border-radius:0}
-.status-scroll button.active,.status-scroll button:hover{border-color:var(--gd);color:var(--gd);background:rgba(170,136,0,.08)}
-/* inverted cross divider */
-.xdivider{text-align:center;color:var(--mt);font-size:.6rem;margin:.4rem 0;letter-spacing:3px;animation:glitch 12s infinite}
+.status-scroll{display:flex;gap:3px;margin-bottom:.6rem;overflow-x:auto}
+.status-scroll button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);padding:.18rem .5rem;color:var(--mt);font-size:.45rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.status-scroll button.active,.status-scroll button:hover{border-color:var(--gd);color:var(--gd);background:rgba(170,136,0,.06)}
+/* x divider */
+.xdiv{text-align:center;color:var(--mt);font-size:.5rem;margin:.3rem 0;letter-spacing:3px}
 /* grimoire */
-.grimoire{display:flex;flex-direction:column;gap:5px}
-.scroll{background:linear-gradient(90deg,var(--sf),#000);border:1px solid var(--bd);padding:.5rem .6rem;display:flex;gap:.5rem;cursor:pointer;transition:all .2s;animation:manifest .25s ease;position:relative;overflow:hidden}
-.scroll::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--agent-color);opacity:.5}
-@keyframes manifest{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.grimoire{display:flex;flex-direction:column;gap:4px}
+.scroll{background:linear-gradient(90deg,var(--sf),#000);border:1px solid var(--bd);padding:.45rem .55rem;display:flex;gap:.45rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.scroll::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--agent-color);opacity:.4}
 .scroll:active{border-color:var(--bl)}
-.scroll .rune{font-size:1rem;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:var(--sf);border:1px solid var(--bd)}
+.scroll .rune{font-size:.9rem;flex-shrink:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:var(--sf);border:1px solid var(--bd)}
 .scroll .parch{flex:1;min-width:0}
-.scroll .phead{display:flex;justify-content:space-between;align-items:center;gap:.4rem;margin-bottom:1px}
-.scroll .phead strong{font-size:.65rem;color:var(--agent-color)}
-.scroll .pmeta{font-size:.5rem;color:var(--mt)}
-.scroll .prune{font-size:.55rem;color:#661515;line-height:1.3;margin-top:1px;white-space:pre-wrap;word-break:break-word;max-height:2.8em;overflow:hidden}
-.scroll .pacts{display:flex;gap:2px;margin-top:3px}
-.mark{font-size:.45rem;padding:1px 5px;border:1px solid;font-family:'VT323',monospace;text-transform:uppercase}
-.mark.queued{border-color:#331;color:#661}.mark.conjuring{border-color:var(--bl);color:var(--gl);animation:beat 1.5s infinite}
-.mark.awaiting_approval{border-color:var(--gd);color:var(--gd)}.mark.ritual_complete{border-color:#0a1a0a;color:#225522}
-.mark.cursed{border-color:#440000;color:#ff3333}
-@keyframes beat{0%,100%{opacity:1}50%{opacity:.4}}
-.btn{display:inline-flex;align-items:center;gap:2px;padding:.2rem .5rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer;border:1px solid var(--bd);background:var(--sf);color:var(--tx);text-transform:uppercase;letter-spacing:1px;transition:all .15s}.btn:active{opacity:.5}
-.btn-sacrifice{background:var(--bl);border-color:var(--gl);color:#fff;text-shadow:0 0 5px #fff}.btn-sm{padding:.12rem .35rem;font-size:.45rem}
-/* bottom nav */
+.scroll .phead{display:flex;justify-content:space-between;align-items:center;gap:.3rem;margin-bottom:1px}
+.scroll .phead strong{font-size:.6rem;color:var(--agent-color)}
+.scroll .pmeta{font-size:.45rem;color:var(--mt)}
+.scroll .prune{font-size:.5rem;color:#661515;line-height:1.3;margin-top:1px;white-space:pre-wrap;word-break:break-word;max-height:2.5em;overflow:hidden}
+.scroll .pacts{display:flex;gap:2px;margin-top:2px}
+.mark{font-size:.4rem;padding:1px 4px;border:1px solid;font-family:'VT323',monospace;text-transform:uppercase}
+.mark.pending{border-color:#331;color:#661}.mark.conjuring{border-color:var(--bl);color:var(--gl);animation:beat 1.5s infinite}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.3}}
+.mark.approval{border-color:var(--gd);color:var(--gd)}.mark.ascended{border-color:#0a1a0a;color:#225522}
+.mark.damned{border-color:#440000;color:#ff3333}.mark.possessed{border-color:#880088;color:#cc44cc;animation:beat .8s infinite}
+.btn{display:inline-flex;align-items:center;gap:2px;padding:.18rem .45rem;font-size:.45rem;font-family:'VT323',monospace;cursor:pointer;border:1px solid var(--bd);background:var(--sf);color:var(--tx);text-transform:uppercase;letter-spacing:1px;transition:all .15s}.btn:active{opacity:.5}
+.btn-blood{background:var(--bl);border-color:var(--gl);color:#fff;text-shadow:0 0 5px #fff}.btn-sm{padding:.1rem .3rem;font-size:.4rem}
+/* bottom */
 .bottom{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(10,0,2,.98),rgba(0,0,0,.95));border-top:1px solid var(--bl);display:flex;z-index:50;padding-bottom:var(--safe)}
-.bottom button{flex:1;background:none;border:none;color:var(--mt);padding:.45rem .3rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.5rem;font-family:'VT323',monospace;text-transform:uppercase;transition:all .15s}
+.bottom button{flex:1;background:none;border:none;color:var(--mt);padding:.4rem .3rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.48rem;font-family:'VT323',monospace;text-transform:uppercase;transition:all .15s}
 .bottom button.active{color:var(--gl);text-shadow:0 0 6px var(--gl)}
-.bottom .navrune{font-size:.9rem}
-/* veil + portal */
-.veil{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(--safe)}
-.portal{background:linear-gradient(180deg,var(--sf),#000);border:1px solid var(--bl);border-bottom:none;padding:.9rem;width:100%;max-width:540px;max-height:85vh;overflow-y:auto}
-.portal h3{font-family:'Creepster',cursive;font-size:.6rem;color:var(--gl);margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center;text-shadow:0 0 10px var(--gl)}
-.portal .close-btn{background:none;border:none;color:var(--mt);font-size:.9rem;cursor:pointer}
-.field{margin-bottom:.6rem}.field label{display:block;font-size:.5rem;color:var(--mt);margin-bottom:1px;text-transform:uppercase;letter-spacing:1px}
-.field select,.field input,.field textarea{width:100%;background:#000;border:1px solid var(--bd);padding:.35rem .45rem;color:var(--tx);font-size:.6rem;outline:none;font-family:'VT323',monospace}
-.field textarea{min-height:50px;resize:vertical}
+.bottom .nr{font-size:.85rem}
+.bottom .speak-btn{background:var(--bl);border-left:1px solid var(--gl);color:var(--gl);font-family:'Creepster',cursive;font-size:.5rem}
+/* veil */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(--safe)}
+.portal{background:linear-gradient(180deg,var(--sf),#000);border:1px solid var(--bl);border-bottom:none;padding:.8rem;width:100%;max-width:540px;max-height:85vh;overflow-y:auto}
+.portal h3{font-family:'Creepster',cursive;font-size:.55rem;color:var(--gl);margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;text-shadow:0 0 10px var(--gl)}
+.portal .close-btn{background:none;border:none;color:var(--mt);font-size:.8rem;cursor:pointer}
+.field{margin-bottom:.5rem}.field label{display:block;font-size:.45rem;color:var(--mt);margin-bottom:1px;text-transform:uppercase;letter-spacing:1px}
+.field select,.field input,.field textarea{width:100%;background:#000;border:1px solid var(--bd);padding:.3rem .4rem;color:var(--tx);font-size:.55rem;outline:none;font-family:'VT323',monospace}
+.field textarea{min-height:45px;resize:vertical}
 .field select:focus,.field input:focus,.field textarea:focus{border-color:var(--bl);box-shadow:0 0 8px rgba(139,0,0,.3)}
-.fbtns{display:flex;justify-content:flex-end;gap:4px;margin-top:.6rem}
-.detail-p{position:relative}.detail-p pre{background:#000;border:1px solid var(--bd);padding:.5rem;overflow-x:auto;font-size:.55rem;white-space:pre-wrap;word-break:break-word;line-height:1.3;max-height:38vh;overflow-y:auto;font-family:'VT323',monospace}
-.copy-btn{position:absolute;top:3px;right:3px;background:var(--bd);border:none;color:var(--mt);padding:1px 4px;font-size:.45rem;cursor:pointer;font-family:'VT323',monospace}
-.void{text-align:center;padding:2rem 1rem;color:var(--mt)}.void .icon{font-size:2.5rem;margin-bottom:.2rem;opacity:.2}
-.whisper{position:fixed;top:.7rem;left:50%;transform:translateX(-50%);background:var(--bl);border:1px solid var(--gl);color:#fff;padding:.25rem .6rem;font-size:.55rem;font-family:'VT323',monospace;z-index:200;animation:whisp 2.2s forwards;text-shadow:0 0 5px #fff}@keyframes whisp{0%{opacity:0;transform:translateX(-50%) translateY(-5px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}88%{opacity:1}100%{opacity:0}}
-/* Demon work view — retro RPG battle screen */
-.demon-view{position:fixed;bottom:80px;right:8px;z-index:50;background:linear-gradient(180deg,rgba(10,0,0,.95),#000);border:2px solid var(--bl);padding:.4rem;font-family:'VT323',monospace;display:none;min-width:140px;box-shadow:0 0 20px rgba(139,0,0,.4),inset 0 0 10px rgba(0,0,0,.5)}
-.demon-view.active{display:block;animation:manifest .3s ease}
-.demon-view .dv-title{font-size:.45rem;color:var(--gd);text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:2px}
-.demon-view .dv-sprite{font-size:.55rem;line-height:1.1;text-align:center;color:var(--agent-color,#cc1111);white-space:pre;animation:summon 8s steps(4) infinite}
-@keyframes summon{0%,100%{transform:translateY(0)}25%{transform:translateY(-2px)}50%{transform:translateY(0)}75%{transform:translateY(2px)}}
-.demon-view .dv-action{font-size:.45rem;color:var(--gl);text-align:center;margin-top:2px;animation:beat 1s infinite}
-.demon-view .dv-bar{height:4px;background:#1a0000;margin-top:3px;border:1px solid var(--bd)}
-.demon-view .dv-bar-fill{height:100%;background:var(--agent-color,#cc1111);animation:fillBar 3s ease-in-out infinite;box-shadow:0 0 6px var(--agent-color)}
-@keyframes fillBar{0%{width:10%}50%{width:80%}100%{width:10%}}
-@media(min-width:768px){.agent-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.content{max-width:960px;padding:.7rem 1rem}.topbar h1{font-size:1.1rem}}
+.fbtns{display:flex;justify-content:flex-end;gap:4px;margin-top:.5rem}
+.detail-p{position:relative}.detail-p pre{background:#000;border:1px solid var(--bd);padding:.45rem;overflow-x:auto;font-size:.5rem;white-space:pre-wrap;word-break:break-word;line-height:1.3;max-height:35vh;overflow-y:auto;font-family:'VT323',monospace}
+.copy-btn{position:absolute;top:2px;right:2px;background:var(--bd);border:none;color:var(--mt);padding:1px 3px;font-size:.4rem;cursor:pointer;font-family:'VT323',monospace}
+.void{text-align:center;padding:2rem 1rem;color:var(--mt)}.void .icon{font-size:3rem;margin-bottom:.2rem;opacity:.15}
+.whisper{position:fixed;top:.6rem;left:50%;transform:translateX(-50%);background:var(--bl);border:1px solid var(--gl);color:#fff;padding:.2rem .5rem;font-size:.5rem;font-family:'VT323',monospace;z-index:200;animation:whisp 2.5s forwards;text-shadow:0 0 5px #fff}@keyframes whisp{0%{opacity:0;transform:translateX(-50%) translateY(-5px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}90%{opacity:1}100%{opacity:0}}
+/* 666 Easter egg text */
+.sixsixsix{font-family:'Eater',cursive;color:var(--gl);text-shadow:0 0 20px var(--gl)}
+@media(min-width:768px){.agent-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:7px}.content{max-width:960px;padding:.7rem 1rem}.topbar h1{font-size:.9rem}}
 </style>
 </head>
 <body>
+<!-- Hellfire canvas -->
+<canvas id="hellfire"></canvas>
+<!-- Blood rain container -->
+<div class="blood-rain" id="blood-rain"></div>
+<!-- Spinning pentagram -->
+<div class="pentagram">⛧</div>
+<!-- CRT -->
 <div class="crt"></div>
-<div class="pentaspin">⛧</div>
-<div class="glitch-overlay" style="background:var(--gl);animation:glitch 8s infinite"></div>
-<div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div>
+<!-- Glitch overlay -->
+<div class="glitch" id="glitch-overlay"></div>
+<!-- Boot sequence -->
+<div class="boot" id="boot-sequence"></div>
 
 <div class="topbar">
-  <h1>H A I L &nbsp; S A T A N</h1>
-  <div><span class="hail">⛧ TERMINAL 666 ⛧</span> <span style="font-size:.5rem;color:var(--gl);margin-left:8px"><span style="animation:beat 1.5s infinite">●</span> <span id="stat-line">AWAKE</span></span></div>
+  <h1>H A I L &nbsp; S A T A N<span class="sub">⛧ ⛧ ⛧ &nbsp; TERMINAL 666 &nbsp; ⛧ ⛧ ⛧</span></h1>
+  <div><span style="font-size:.45rem;color:var(--mt);font-family:'Creepster',cursive;animation:beat 2s infinite">⛧</span> <span id="stat-line" style="font-size:.48rem;color:var(--gl)">AWAITING RITUAL</span></div>
 </div>
 
 <div class="content">
@@ -127,28 +149,28 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button onclick="cast('dev','write_code','web scraper')">💀 FORGE SCRIPT</button>
     <button onclick="cast('image','generate','burning cathedral')">🎨 CONJURE IMAGE</button>
   </div>
-  <div class="xdivider">⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸</div>
+  <div class="xdiv">⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸</div>
   <div class="status-scroll">
     <button class="active" onclick="setFilter('')">ALL SOULS</button>
-    <button onclick="setFilter('running')">CONJURING</button>
-    <button onclick="setFilter('awaiting_approval')">NEEDS SACRIFICE</button>
-    <button onclick="setFilter('completed')">ASCENDED</button>
-    <button onclick="setFilter('failed')">DAMNED</button>
+    <button onclick="setFilter('running')">⛧ CONJURING</button>
+    <button onclick="setFilter('awaiting_approval')">🩸 BLOOD OFFERING</button>
+    <button onclick="setFilter('completed')">💀 ASCENDED</button>
+    <button onclick="setFilter('failed')">🔥 DAMNED</button>
   </div>
   <div class="grimoire" id="grimoire"><div class="void"><div class="icon">⛧</div><p>THE VOID AWAITS THY COMMAND</p></div></div>
 </div>
 
 <nav class="bottom">
-  <button class="active" onclick="showMain()"><span class="navrune">📜</span>GRIMOIRE</button>
-  <button onclick="startVoice()"><span class="navrune">🎙️</span>SPEAK</button>
-  <button onclick="openPortal()"><span class="navrune">🔥</span>SACRIFICE</button>
+  <button class="active" onclick="showMain()"><span class="nr">📜</span>GRIMOIRE</button>
+  <button onclick="openPortal()"><span class="nr">🔥</span>SACRIFICE</button>
+  <button class="speak-btn" onclick="startVoice()"><span class="nr">🎙️</span>SPEAK</button>
 </nav>
 
 <div id="portal-veil" class="veil" style="display:none" onclick="if(event.target===this)closePortal()">
   <div class="portal"><h3>🔥 OFFER THY COMMAND 🔥 <button class="close-btn" onclick="closePortal()">✕</button></h3>
-    <div id="quick-sigils" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.6rem"></div>
-    <div class="field"><label>SPEAK TO THE ABYSS</label><textarea id="ritual-input" placeholder="search the dark web for forbidden knowledge...&#10;scry mine inbox for urgent messages...&#10;forge a demonic script in python..."></textarea></div>
-    <div class="fbtns"><button class="btn" onclick="closePortal()">FLEE</button><button class="btn btn-sacrifice" onclick="castRitual()">OFFER BLOOD</button></div>
+    <div id="quick-sigils" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:.5rem"></div>
+    <div class="field"><label>SPEAK TO THE ABYSS</label><textarea id="ritual-input" placeholder="search the dark web for forbidden knowledge...&#10;scry mine inbox for urgent messages...&#10;summon a python demon to scrape the void..."></textarea></div>
+    <div class="fbtns"><button class="btn" onclick="closePortal()">FLEE</button><button class="btn btn-blood" onclick="castRitual()">OFFER BLOOD</button></div>
   </div>
 </div>
 
@@ -156,61 +178,144 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="portal" id="detail-scroll"></div>
 </div>
 
-<!-- Demon work sprite view -->
-<div class="demon-view" id="demon-view"><div class="dv-title">⛧ DEMON AT WORK ⛧</div><div class="dv-sprite" id="demon-sprite"></div><div class="dv-action" id="demon-action"></div><div class="dv-bar"><div class="dv-bar-fill"></div></div></div>
-
 <script>
-const API='/api';let TOKEN=localStorage.getItem('ah_token')||'';let filter='';let agentsData={};let pollTimer;
-document.addEventListener('DOMContentLoaded',()=>{if(!TOKEN){TOKEN=prompt('SPEAK THE PASSWORD:')||'';if(TOKEN)localStorage.setItem('ah_token',TOKEN)}refreshAll();pollTimer=setInterval(refreshTasks,4000)});
-async function api(m,p,b){let o={method:m,headers:{}};if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}let r=await fetch(API+p,o);if(r.status===401){alert('THY PASSWORD IS FALSE');localStorage.removeItem('ah_token');TOKEN=''}if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText)}return r.json()}
-function showMain(){document.querySelectorAll('.bottom button').forEach((b,i)=>b.classList.toggle('active',i===0))}
+// ⛧══════════════════════════════════════════════════════⛧
+//             ABYSSAL TERMINAL v666 — MAIN ENGINE
+// ⛧══════════════════════════════════════════════════════⛧
 
-let demonThemes={email:{icon:'📜',color:'#cc1111',latin:'Legionem Inbox'},research:{icon:'🔮',color:'#cc33cc',latin:'Scryer of Truth'},content:{icon:'📖',color:'#33cc33',latin:'Scriba Sanguinis'},fixit:{icon:'⚒️',color:'#cc8800',latin:'Malleus Codicis'},dev:{icon:'💀',color:'#33cccc',latin:'Daemon Forge'},image:{icon:'🎨',color:'#cc3388',latin:'Pictor Inferni'}};
-let demonSprites={email:'  👹   \n 👹👹👹 \n📜 👹 📜\n ⛧ ⛧ ⛧ ',research:'  👁️   \n 👁️👁️👁️ \n🔮 👁️ 🔮\n ⛧ ⛧ ⛧ ',content:'  👻   \n 👻👻👻 \n📖 👻 📖\n ⛧ ⛧ ⛧ ',fixit:'  💀   \n 💀💀💀 \n⚒️ 💀 ⚒️\n ⛧ ⛧ ⛧ ',dev:'  🤖   \n 🤖🤖🤖 \n💻 🤖 💻\n ⛧ ⛧ ⛧ ',image:'  🎭   \n 🎭🎭🎭 \n🎨 🎭 🎨\n ⛧ ⛧ ⛧ '};
-function showDemon(agent,action){let v=document.getElementById('demon-view');let s=document.getElementById('demon-sprite');let a=document.getElementById('demon-action');let d=demonThemes[agent]||demonThemes.email;s.textContent=demonSprites[agent]||demonSprites.email;s.style.color=d.color;a.textContent=(action||'working').toUpperCase();v.style.setProperty('--agent-color',d.color);v.classList.add('active')}
-function hideDemon(){document.getElementById('demon-view').classList.remove('active')}
+const API='/api';let TOKEN=localStorage.getItem('ah_token')||'';let filter='';let agentsData={};let pollTimer;let bootDone=false;
 
+// ═══════════ BOOT SEQUENCE ═══════════
+const bootLines=[
+  {t:'ABYSSAL TERMINAL v666 — INITIALIZING DEMON CORE...',c:'red'},
+  {t:'LOADING FORBIDDEN LIBRARIES...',c:'dim'},{t:'ESTABLISHING CONNECTION TO THE VOID...',c:'dim'},
+  {t:'SUMMONING: LEGIONEM INBOX [0xDEAD]',c:'gold'},{t:'SUMMONING: SCRYER OF TRUTH [0xBEEF]',c:'gold'},
+  {t:'SUMMONING: SCRIBA SANGUINIS [0x1337]',c:'gold'},{t:'SUMMONING: MALLEUS CODICIS [0x0666]',c:'gold'},
+  {t:'SUMMONING: DAEMON FORGE [0xCAFE]',c:'gold'},{t:'SUMMONING: PICTOR INFERNI [0xFACE]',c:'gold'},
+  {t:'SUMMONING: ATLAS ABYSSALIS [0x6666]',c:'gold'},
+  {t:'BINDING DEMONS TO MORTAL SHELLS...',c:'dim'},{t:'CALIBRATING HELLFIRE PROTOCOLS...',c:'dim'},
+  {t:'⛧ BLOOD SACRIFICE VERIFIED ⛧',c:'red'},{t:'⛧ ⛧ ⛧ ALL SYSTEMS CURSED ⛧ ⛧ ⛧',c:'red'},
+  {t:'TERMINAL READY. SPEAK THY COMMAND.',c:'red'},
+];
+(function playBoot(){let b=document.getElementById('boot-sequence');let i=0;
+  function next(){if(i<bootLines.length){let l=bootLines[i];let d=document.createElement('div');d.className='line '+l.c;d.textContent=l.t;b.appendChild(d);i++;setTimeout(next,80+Math.random()*160)}else{setTimeout(()=>{b.style.opacity='0';b.style.transition='opacity .5s';setTimeout(()=>b.remove(),600);bootDone=true;refreshAll();startHellfire();startBloodRain();startPossessionLoop();startAudio()},1200)}}
+  setTimeout(next,400)})();
+
+// ═══════════ HELLFIRE PARTICLES ═══════════
+function startHellfire(){let c=document.getElementById('hellfire');let ctx=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;
+  let particles=[];for(let i=0;i<50;i++)particles.push({x:Math.random()*c.width,y:c.height+Math.random()*200,r:1+Math.random()*3,s:.3+Math.random()*1.5,o:.02+Math.random()*.08,life:0,maxLife:60+Math.random()*120});
+  function draw(){ctx.clearRect(0,0,c.width,c.height);for(let p of particles){p.y-=p.s;p.life++;if(p.life>p.maxLife||p.y<-20){p.x=Math.random()*c.width;p.y=c.height+20;p.life=0}
+    let a=p.o*(1-p.life/p.maxLife);let g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);g.addColorStop(0,`rgba(255,60,0,${a})`);g.addColorStop(.5,`rgba(200,20,0,${a*.5})`);g.addColorStop(1,`rgba(100,0,0,0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.r*4,0,Math.PI*2);ctx.fill()}
+    requestAnimationFrame(draw)}draw();window.addEventListener('resize',()=>{c.width=window.innerWidth;c.height=window.innerHeight})}
+
+// ═══════════ BLOOD RAIN ═══════════
+function startBloodRain(){let container=document.getElementById('blood-rain');
+  function spawn(){if(document.hidden)return;let d=document.createElement('span');d.className='blood-drop';d.textContent=['🩸','●','⛧','▪'][Math.floor(Math.random()*4)];d.style.left=Math.random()*100+'%';d.style.animationDuration=3+Math.random()*5+'s';d.style.fontSize=12+Math.random()*16+'px';container.appendChild(d);setTimeout(()=>d.remove(),8000)}
+  setInterval(spawn,400);for(let i=0;i<20;i++)spawn()}
+
+// ═══════════ DEMON SPAWN ═══════════
+const demonArt=[`  ,-™™™-,\n / 666  \\\n|  ⛧⛧⛧  |\n \\______/`,`    ⛧\n   /|\\\n  / | \\\n /__|__\\\n   ⛧⛧⛧`,`  ⸸⸸⸸⸸⸸\n ⸸ ⛧⛧⛧ ⸸\n⸸⸸⸸⸸⸸⸸⸸⸸\n ⸸ ⛧⛧⛧ ⸸\n  ⸸⸸⸸⸸⸸`];
+function spawnDemon(){if(!bootDone)return;let d=document.createElement('div');d.className='demon-spawn';d.textContent=demonArt[Math.floor(Math.random()*demonArt.length)];d.style.left=Math.random()*80+'%';d.style.top=10+Math.random()*60+'%';document.body.appendChild(d);setTimeout(()=>d.remove(),4500)}
+setInterval(spawnDemon,8000+Math.random()*12000);
+
+// ═══════════ POSSESSION EVENTS ═══════════
+function startPossessionLoop(){
+  function trigger(){
+    let r=Math.random();
+    if(r<.15){let g=document.getElementById('glitch-overlay');g.classList.add('active');setTimeout(()=>g.classList.remove('active'),350)}
+    else if(r<.25){document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),550)}
+    else if(r<.3){let l=document.createElement('div');l.className='latin-flash';l.textContent=['MALEDICTUS','SANGUIS INFERNI','VADE RETRO','⛧ 666 ⛧','DIABOLUS','MORTEM AETERNAM','LUX IN TENEBRIS','SALVE SATANA'][Math.floor(Math.random()*8)];document.body.appendChild(l);setTimeout(()=>l.remove(),1600)}
+    else if(r<.35){let g=document.createElement('div');g.className='goat';g.textContent='🐐';document.body.appendChild(g);setTimeout(()=>g.remove(),2200)}
+    else if(r<.38){document.body.classList.add('invert');setTimeout(()=>document.body.classList.remove('invert'),650)}
+    let next=15000+Math.random()*30000;setTimeout(trigger,next)}
+  setTimeout(trigger,20000)}
+
+// ═══════════ SACRIFICE ANIMATION ═══════════
+function sacrificeAnim(){document.body.classList.add('shake');
+  for(let i=0;i<8;i++){setTimeout(()=>{let s=document.createElement('div');s.className='sacrifice';s.textContent='🩸';s.style.left=20+Math.random()*60+'%';s.style.top=30+Math.random()*40+'%';document.body.appendChild(s);setTimeout(()=>s.remove(),900)},i*80)}
+  setTimeout(()=>document.body.classList.remove('shake'),900)}
+
+// ═══════════ DARK AUDIO ═══════════
+function startAudio(){
+  try{let ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function drone(freq,vol){let o=ctx.createOscillator();let g=ctx.createGain();o.type='sawtooth';o.frequency.value=freq;g.gain.value=vol*.02;o.connect(g);g.connect(ctx.destination);o.start();return o}
+    drone(40,.15);drone(53,.1);drone(80,.05);
+    // Whisper generator
+    setInterval(()=>{try{let o=ctx.createOscillator();let g=ctx.createGain();o.type='triangle';o.frequency.value=20+Math.random()*80;g.gain.value=Math.random()*.01;o.connect(g);g.connect(ctx.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.3);setTimeout(()=>o.stop(),400)}catch(e){}},5000+Math.random()*8000)}
+  catch(e){/* audio not supported */}}
+
+// ═══════════ AGENT THEMES ═══════════
+const demonThemes={
+  email:{sigil:'📜',color:'#cc1111',latin:'Legionem Inbox',epithet:'Bearer of Cursed Messages'},
+  research:{sigil:'🔮',color:'#cc33cc',latin:'Scryer of Truth',epithet:'Keeper of Forbidden Knowledge'},
+  content:{sigil:'📖',color:'#33cc33',latin:'Scriba Sanguinis',epithet:'Scribe of Blood'},
+  fixit:{sigil:'⚒️',color:'#cc8800',latin:'Malleus Codicis',epithet:'Hammer of Broken Code'},
+  dev:{sigil:'💀',color:'#33cccc',latin:'Daemon Forge',epithet:'Smith of Digital Nightmares'},
+  image:{sigil:'🎨',color:'#cc3388',latin:'Pictor Inferni',epithet:'Artist of the Damned'}};
+
+// ═══════════ API ═══════════
+async function api(m,p,b){let o={method:m,headers:{}};if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}let r=await fetch(API+p,o);if(r.status===401){alert('THY PASSWORD IS FALSE, MORTAL');localStorage.removeItem('ah_token');TOKEN=''}if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText)}return r.json()}
+
+// ═══════════ RENDER ═══════════
 function renderSigils(agents){
   let g=document.getElementById('agent-grid');let q=document.getElementById('quick-sigils');let h='';let qh='';
-  for(let[k,a]of Object.entries(agents)){if(k==='orchestrator')continue;let d=demonThemes[k]||{icon:'⛧',color:'#cc1111',latin:'Unknown Demon'};
-    h+=`<div class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')"><span class="icon" style="color:${d.color}">${d.icon}</span><div class="name">${a.name||k}</div><div class="latin">${d.latin}</div><div class="power">⚡ ${Object.keys(a.capabilities||{}).length} RITES</div></div>`;
-    qh+=`<button style="background:rgba(0,0,0,.5);border:1px solid ${d.color}33;color:${d.color};padding:.15rem .4rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${d.icon} ${a.name||k}</button>`;
-  }g.innerHTML=h;q.innerHTML=qh}
+  for(let[k,a]of Object.entries(agents)){if(k==='orchestrator')continue;let d=demonThemes[k]||demonThemes.email;
+    h+=`<div class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')"><span class="sigil" style="color:${d.color}">${d.sigil}</span><div class="name">${a.name||k}</div><div class="latin">${d.latin}</div><div class="latin">${d.epithet}</div><div class="power">⚡ ${Object.keys(a.capabilities||{}).length} RITES</div></div>`;
+    qh+=`<button style="background:rgba(0,0,0,.5);border:1px solid ${d.color}33;color:${d.color};padding:.12rem .35rem;font-size:.45rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${d.sigil} ${a.name||k}</button>`;}
+  g.innerHTML=h;q.innerHTML=qh}
+
 function touchSigil(name){openPortal();document.getElementById('ritual-input').value=`${name} `;document.getElementById('ritual-input').focus()}
-async function cast(agent,action,query=''){try{await api('POST','/api/tasks',{agent,action,params:{query}});whisper('RITUAL CAST');refreshTasks()}catch(e){alert(e.message)}}
-async function refreshAll(){try{let a=await api('GET','/agents');agentsData=a;renderSigils(a);let h=await api('GET','/health');document.getElementById('stat-line').textContent=`${h.agents.length} DEMONS · ${h.tasks_active||0} CONJURING`}catch(e){}refreshTasks()}
-async function refreshTasks(){try{let p='/tasks?limit=40';if(filter)p+='&status='+filter;let tasks=await api('GET',p);renderScrolls(tasks);let running=tasks.filter(t=>t.status==='running');if(running.length>0){let r=running[0];showDemon(r.agent,r.action)}else{hideDemon()}}catch(e){}}
+
+async function cast(agent,action,query=''){try{await api('POST','/api/tasks',{agent,action,params:{query}});whisper('⛧ RITUAL CAST ⛧');refreshTasks()}catch(e){alert(e.message)}}
+
+async function refreshAll(){try{let a=await api('GET','/agents');agentsData=a;renderSigils(a);let h=await api('GET','/health');document.getElementById('stat-line').innerHTML=`<span style="color:var(--gl)">${h.agents.length} DEMONS BOUND</span> · <span style="color:var(--gd)">${h.tasks_active||0} CONJURING</span>`}catch(e){}refreshTasks()}
+
+async function refreshTasks(){try{let p='/tasks?limit=40';if(filter)p+='&status='+filter;let tasks=await api('GET',p);renderScrolls(tasks)}catch(e){}}
 
 function renderScrolls(tasks){
   let f=document.getElementById('grimoire');
-  if(!tasks.length){f.innerHTML='<div class="void"><div class="icon">⛧</div><p>THE VOID AWAITS THY COMMAND</p></div>';return}
+  if(!tasks.length){f.innerHTML='<div class="void"><div class="icon">⛧</div><p>THE VOID IS SILENT</p><p style="font-size:.45rem;color:var(--mt);margin-top:2px">Cast a ritual to summon knowledge</p></div>';return}
   f.innerHTML=tasks.map(t=>{
-    let d=demonThemes[t.agent]||{color:'#cc1111'};let a=agentsData[t.agent]||{};
-    let s=t.status==='running'?'conjuring':t.status==='completed'?'ritual_complete':t.status==='awaiting_approval'?'awaiting_approval':t.status==='failed'?'cursed':'queued';
-    let sl={'queued':'PENDING','running':'CONJURING','awaiting_approval':'NEEDS SACRIFICE','completed':'ASCENDED','failed':'DAMNED'}[t.status]||t.status;
+    let d=demonThemes[t.agent]||demonThemes.email;let a=agentsData[t.agent]||{};
+    let sClass={'queued':'pending','running':'conjuring','awaiting_approval':'approval','completed':'ascended','failed':'damned'}[t.status]||'pending';
+    let sText={'queued':'PENDING','running':'⛧ CONJURING','awaiting_approval':'🩸 OFFERING NEEDED','completed':'ASCENDED','failed':'🔥 DAMNED'}[t.status]||t.status;
     let time=new Date(t.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    let preview=(t.result?.summary||t.error||'').substring(0,130);
+    let preview=(t.result?.summary||t.error||'').substring(0,120);
     let acts='';
-    if(t.status==='awaiting_approval')acts=`<button class="btn btn-sacrifice btn-sm" onclick="event.stopPropagation();doAct('${t.id}','approve')">SPILL BLOOD</button><button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
+    if(t.status==='awaiting_approval')acts=`<button class="btn btn-blood btn-sm" onclick="event.stopPropagation();sacrificeAnim();doAct('${t.id}','approve')">🩸 OFFER BLOOD</button><button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
     if(t.status==='queued'||t.status==='running')acts=`<button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
     return`<div class="scroll" style="--agent-color:${d.color}" onclick="openDetail('${t.id}')">
-      <div class="rune" style="color:${d.color}">${d.icon}</div><div class="parch">
-        <div class="phead"><strong>${a.name||t.agent}</strong><span class="mark ${s}">${sl}</span></div>
+      <div class="rune" style="color:${d.color}">${d.sigil}</div><div class="parch">
+        <div class="phead"><strong>${d.latin}</strong><span class="mark ${sClass}">${sText}</span></div>
         <div class="pmeta">${time} · ${t.action}</div>${preview?`<div class="prune">${esc(preview)}</div>`:''}${acts?`<div class="pacts">${acts}</div>`:''}
       </div></div>`}).join('')}
 
+// ═══════════ ACTIONS ═══════════
 function setFilter(s){filter=s;document.querySelectorAll('.status-scroll button').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');refreshTasks()}
-async function doAct(id,act){await api('POST',`/tasks/${id}/${act}`);whisper(act==='approve'?'BLOOD ACCEPTED':'BANISHED TO VOID');refreshTasks()}
+async function doAct(id,act){await api('POST',`/tasks/${id}/${act}`);whisper(act==='approve'?'🩸 BLOOD ACCEPTED — SOUL ASCENDS 🩸':'⛧ BANISHED TO THE VOID ⛧');refreshTasks()}
+function showMain(){document.querySelectorAll('.bottom button').forEach((b,i)=>b.classList.toggle('active',i===0))}
 function openPortal(){document.getElementById('portal-veil').style.display='flex';document.getElementById('ritual-input').focus()}
 function closePortal(){document.getElementById('portal-veil').style.display='none'}
 async function castRitual(){let text=document.getElementById('ritual-input').value.trim();if(!text)return;closePortal();
-  try{await api('POST','/api/tasks',{agent:'orchestrator',action:'solve',params:{goal:text}});whisper('SUMMONING DEMONS...');refreshTasks();document.getElementById('ritual-input').value=''}catch(e){alert(e.message)}}
-async function openDetail(id){try{let t=await api('GET',`/tasks/${id}`);let a=agentsData[t.agent]||{};let r=t.result?JSON.stringify(t.result,null,2):(t.error||'The void is silent');document.getElementById('detail-scroll').innerHTML=`<h3>⛧ ${a.name||t.agent} · ${t.action} ⛧ <button class="close-btn" onclick="closeDetail()">✕</button></h3><div class="detail-p"><button class="copy-btn" onclick="navigator.clipboard.writeText(\`${r.replace(/`/g,'\\`')}\`);whisper('COPIED TO SCROLL')">COPY</button><pre>${esc(r)}</pre></div>`;document.getElementById('detail-veil').style.display='flex'}catch(e){alert(e.message)}}
+  try{sacrificeAnim();await api('POST','/api/tasks',{agent:'orchestrator',action:'solve',params:{goal:text}});whisper('⛧ SUMMONING DEMONS ⛧');refreshTasks();document.getElementById('ritual-input').value=''}catch(e){alert(e.message)}}
+async function openDetail(id){try{let t=await api('GET',`/tasks/${id}`);let d=demonThemes[t.agent]||demonThemes.email;let r=t.result?JSON.stringify(t.result,null,2):(t.error||'The void is silent...');
+  document.getElementById('detail-scroll').innerHTML=`<h3>⛧ ${d.latin} · ${t.action} ⛧ <button class="close-btn" onclick="closeDetail()">✕</button></h3><div class="detail-p"><button class="copy-btn" onclick="navigator.clipboard.writeText(\`${r.replace(/`/g,'\\`')}\`);whisper('COPIED TO SCROLL')">COPY</button><pre>${esc(r)}</pre></div>`;document.getElementById('detail-veil').style.display='flex'}catch(e){alert(e.message)}}
 function closeDetail(){document.getElementById('detail-veil').style.display='none'}
+
+// ═══════════ VOICE ═══════════
+function startVoice(){let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){whisper('VOICE NOT SUPPORTED');return}
+  let rec=new SR();rec.lang='en-US';rec.interimResults=false;whisper('👂 THE VOID LISTENS...');rec.start();rec.onresult=function(e){let text=e.results[0][0].transcript;openPortal();document.getElementById('ritual-input').value=text;castRitual()};rec.onerror=function(){whisper('VOICE FAILED')}}
+
+// ═══════════ UTILS ═══════════
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function whisper(m){let t=document.createElement('div');t.className='whisper';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2300)}
-function startVoice(){let SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SpeechRecognition){whisper('VOICE NOT SUPPORTED IN THIS BROWSER');return}
-let rec=new SpeechRecognition();rec.lang='en-US';rec.interimResults=false;whisper('👂 LISTENING... SPEAK NOW');rec.start();rec.onresult=function(e){let text=e.results[0][0].transcript;document.getElementById('ritual-input').value=text;openPortal();castRitual()};rec.onerror=function(){whisper('VOICE FAILED')}}
+function whisper(m){let t=document.createElement('div');t.className='whisper';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+// ═══════════ 666 EASTER EGG ═══════════
+let sixCount=0;document.addEventListener('keydown',e=>{if(e.key==='6'){sixCount++;if(sixCount>=3){sixCount=0;document.body.classList.add('invert');setTimeout(()=>document.body.classList.remove('invert'),666);
+    for(let i=0;i<13;i++)setTimeout(()=>{let s=document.createElement('div');s.className='sacrifice';s.textContent='666';s.style.left=Math.random()*80+'%';s.style.top=Math.random()*80+'%';s.style.fontFamily='Eater';s.style.color='var(--gl)';s.style.fontSize='4vmin';document.body.appendChild(s);setTimeout(()=>s.remove(),1200)},i*100)}}else{sixCount=0}});
+
+// ═══════════ START ═══════════
+document.addEventListener('DOMContentLoaded',()=>{if(!TOKEN){TOKEN=prompt('⛧ SPEAK THE FORBIDDEN PASSWORD:')||'';if(TOKEN)localStorage.setItem('ah_token',TOKEN)}});
 </script>
 </body>
 </html>
