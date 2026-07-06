@@ -30,6 +30,8 @@ from agents.research_agent import ResearchAgent
 from agents.content_agent import ContentAgent
 from agents.fixit_agent import FixitAgent
 from agents.orchestrator_agent import OrchestratorAgent
+from agents.dev_agent import DevAgent
+from agents.image_agent import ImageAgent
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -99,6 +101,8 @@ def _init_agents() -> None:
     _agents["research"] = ResearchAgent()
     _agents["content"] = ContentAgent()
     _agents["fixit"] = FixitAgent()
+    _agents["dev"] = DevAgent()
+    _agents["image"] = ImageAgent()
     _agents["orchestrator"] = OrchestratorAgent(agent_registry=_agents)
     logger.info("Agents initialized: %s", list(_agents.keys()))
 
