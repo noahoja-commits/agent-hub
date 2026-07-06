@@ -29,13 +29,13 @@ class DevAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "write_code": "Generate code from a natural language description",
-            "run_code": "Execute code and return stdout/stderr (server-side sandbox)",
-            "debug": "Run code, capture error, suggest fix, re-run until it works",
-            "create_script": "Create a complete runnable script file for a task",
-            "explain_error": "Explain a specific error message and suggest fixes",
-            "scaffold_project": "Generate a complete project scaffold with files and structure",
-            "generate_api": "Generate a REST API endpoint with routes, models, and tests",
+            "write_code": "💀 Forneus' Invocation — generate code from a description",
+            "run_code": "⚡ Zagan's Execution — execute code server-side and return output",
+            "debug": "🔄 Amdusias' Cycle — run, capture error, fix, re-run until it works",
+            "create_script": "📜 Haagenti's Scroll — create a complete runnable script",
+            "explain_error": "🔮 Orias' Insight — explain an error and suggest fixes",
+            "scaffold_project": "🏗️ Gusion's Foundation — generate a complete project scaffold",
+            "generate_api": "🌐 Vepar's Gateway — generate a REST API with routes and models",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:

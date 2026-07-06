@@ -25,17 +25,17 @@ class FixitAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "analyze_code": "Analyze code for bugs, anti-patterns, security issues, and improvements",
-            "suggest_fix": "Suggest a fix for a specific error or bug with root cause analysis",
-            "review_pr": "Review a pull request or code diff with structured feedback",
-            "run_verifiers": "Run project verifiers (tests, lints) — requires local PC agent",
-            "explain_code": "Explain what a piece of code does in plain language",
-            "optimize": "Suggest performance or structure optimizations with before/after",
-            "generate_tests": "Generate unit tests for given code or function",
-            "security_audit": "Scan code for security vulnerabilities (OWASP Top 10, injection, auth)",
-            "refactor": "Suggest refactoring to improve readability and maintainability",
-            "scan_dependencies": "Scan a requirements.txt or package.json for vulnerable dependencies",
-            "generate_docs": "Generate comprehensive documentation for a codebase or module",
+            "analyze_code": "🔍 Ipos' Scrutiny — analyze code for bugs, anti-patterns, security issues",
+            "suggest_fix": "🔧 Glasya's Hammer — suggest a fix with root cause analysis",
+            "review_pr": "👁️ Andras' Gaze — review a pull request with structured feedback",
+            "run_verifiers": "⚡ Raum's Lightning — run project verifiers (tests, lints)",
+            "explain_code": "📖 Valefor's Decoder — explain what a piece of code does",
+            "optimize": "⚙️ Sabnock's Forge — suggest performance optimizations",
+            "generate_tests": "🧪 Bune's Alchemy — generate unit tests for code",
+            "security_audit": "🛡️ Purson's Shield — scan for security vulnerabilities",
+            "refactor": "🏗️ Vapula's Reconstruction — refactor for readability",
+            "scan_dependencies": "💀 Murmur's Warning — scan dependencies for vulnerabilities",
+            "generate_docs": "📚 Phenex's Archive — generate comprehensive documentation",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:

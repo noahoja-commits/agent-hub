@@ -24,15 +24,15 @@ class ResearchAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "search": "Search the web via DuckDuckGo and return results with sources",
-            "deep_research": "Multi-step research — break into sub-questions, search each, synthesize findings",
-            "summarize_url": "Fetch any URL, extract main content, and summarize key points",
-            "compare": "Research multiple topics and produce a structured comparison",
-            "extract_facts": "Extract specific facts, dates, numbers, and claims from search results",
-            "find_sources": "Find authoritative sources on a topic (academic papers, official docs, etc.)",
-            "scrape_page": "Scrape a web page and extract clean markdown content",
-            "news_briefing": "Generate a curated news briefing on any topic from multiple sources",
-            "cite_sources": "Search and return properly cited sources in academic format",
+            "search": "👁️ All-Seeing Eye — search the web via DuckDuckGo and return results with sources",
+            "deep_research": "📜 Paimon's Grimoire — multi-step research with sub-questions and synthesis",
+            "summarize_url": "🕯️ Buer's Lantern — fetch any URL, extract content, summarize key points",
+            "compare": "⚖️ Malphas' Scales — research multiple topics and produce structured comparison",
+            "extract_facts": "🔮 Balam's Vision — extract specific facts, dates, numbers from results",
+            "find_sources": "📚 Stolas' Library — find authoritative sources on any topic",
+            "scrape_page": "🕸️ Arachne's Web — scrape a page and extract clean markdown",
+            "news_briefing": "📰 Amon's Herald — curated news briefing from multiple sources",
+            "cite_sources": "✍️ Vassago's Quill — search and return properly cited sources",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:

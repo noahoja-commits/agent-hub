@@ -135,16 +135,16 @@ class EmailAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "check_inbox": "Summarize recent Gmail emails in your inbox (supports 'account' param)",
-            "triage_inbox": "Categorize inbox emails by urgency and type",
-            "read_thread": "Read a specific email thread by Gmail thread_id",
-            "summarize_thread": "AI-powered summary of an entire email thread",
-            "draft_reply": "AI-draft a reply to an email and save as Gmail draft",
-            "search_emails": "Search Gmail by keyword, sender, subject, or date range",
-            "send_draft": "Send a Gmail draft (requires approval)",
-            "list_accounts": "List configured Gmail accounts",
-            "bulk_archive": "Archive or delete multiple emails by category or search query",
-            "email_analytics": "Analyze email patterns — top senders, volume, response times",
+            "check_inbox": "📬 Legion's Watch — summarize recent Gmail emails in your inbox",
+            "triage_inbox": "⚔️ Abaddon's Judgment — categorize inbox by urgency and type",
+            "read_thread": "📖 Mammon's Ledger — read a specific email thread",
+            "summarize_thread": "💀 Azrael's Summary — AI-powered summary of an entire thread",
+            "draft_reply": "🩸 Belial's Tongue — AI-draft a reply and save as Gmail draft",
+            "search_emails": "🔎 Asmodeus' Gaze — search Gmail by keyword, sender, date range",
+            "send_draft": "📨 Leviathan's Missive — send a Gmail draft (requires approval)",
+            "list_accounts": "📋 Beelzebub's Registry — list configured Gmail accounts",
+            "bulk_archive": "🗑️ Moloch's Fire — archive or delete emails by query",
+            "email_analytics": "📊 Lucifer's Census — analyze email patterns and top senders",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:

@@ -25,10 +25,10 @@ class ImageAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "generate": "Generate an image from a text description",
-            "generate_variations": "Generate variations of an existing image",
-            "generate_logo": "Generate a logo or icon design",
-            "generate_illustration": "Generate an illustration or artwork",
+            "generate": "🎨 Sallos' Canvas — generate an image from a text description",
+            "generate_variations": "🪞 Sitri's Mirror — generate variations of an image",
+            "generate_logo": "🏴 Berith's Sigil — generate a logo or icon design",
+            "generate_illustration": "🖼️ Crocell's Fresco — generate an illustration or artwork",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:

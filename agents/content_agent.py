@@ -34,16 +34,16 @@ class ContentAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "create_doc": "Create a document with AI-generated content on any topic",
-            "create_spreadsheet": "Create a spreadsheet with structured data and formulas",
-            "create_slides": "Create a slide deck with AI-generated outline and content",
-            "write_blog_post": "Generate a blog post on any topic with SEO optimization",
-            "format_report": "Generate a formatted report with sections, data tables, and conclusions",
-            "generate_email_template": "Generate an email template for common scenarios",
-            "generate_code": "Generate code snippets, scripts, or functions based on description",
-            "translate_format": "Convert content between formats (markdown, HTML, plain text, JSON)",
-            "seo_optimize": "Optimize content for SEO with keywords, meta descriptions, headings",
-            "content_calendar": "Generate a content calendar with topics for a given theme",
+            "create_doc": "📜 Naberius' Scroll — create a document with AI-generated content",
+            "create_spreadsheet": "📊 Barbatos' Ledger — create a spreadsheet with structured data",
+            "create_slides": "🎭 Zepar's Theater — create a slide deck with AI-generated outline",
+            "write_blog_post": "✍️ Furfur's Quill — generate a blog post with SEO optimization",
+            "format_report": "📋 Bifrons' Codex — generate a formatted report with sections",
+            "generate_email_template": "📧 Gaap's Messenger — generate an email template",
+            "generate_code": "💻 Marbas' Engine — generate code snippets from description",
+            "translate_format": "🔄 Orobas' Transmutation — convert content between formats",
+            "seo_optimize": "🎯 Botis' Enchantment — optimize content for SEO",
+            "content_calendar": "📅 Purson's Calendar — generate a content calendar for any theme",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
