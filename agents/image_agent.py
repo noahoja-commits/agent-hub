@@ -131,7 +131,6 @@ class ImageAgent(BaseAgent):
                         "prompt": prompt,
                         "n": 1,
                         "size": size,
-                        "style": style,
                     },
                 )
 
