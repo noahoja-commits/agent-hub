@@ -44,13 +44,23 @@ class OrchestratorAgent(BaseAgent):
         return {
             "solve": "Solve any task using natural language. The agent figures out the steps.",
             "chat": "Have a conversation — ask questions, get help, brainstorm.",
+            "plan_and_execute": "Create a multi-step plan, then execute each step with progress tracking",
         }
+
+    async def agent_call(self, agent_name: str, action: str, params: dict[str, Any]) -> dict[str, Any]:
+        """Atlas can call any registered agent directly."""
+        agent = self._registry.get(agent_name)
+        if not agent:
+            return {"status": "failed", "summary": f"Agent '{agent_name}' not found"}
+        return await agent.execute(action=action, params=params)
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
         if action == "solve":
             return await self._handle_solve(params)
         if action == "chat":
             return await self._handle_chat(params)
+        if action == "plan_and_execute":
+            return await self._handle_plan_and_execute(params)
         return self._fail(f"Unknown action: {action}")
 
     # ------------------------------------------------------------------
@@ -99,6 +109,57 @@ class OrchestratorAgent(BaseAgent):
             return self._ok(summary=reply, data={"reply": reply})
         except Exception as exc:
             return self._fail(f"Chat unavailable: {exc}")
+
+    async def _handle_plan_and_execute(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Create a plan, then execute step by step with progress."""
+        goal = params.get("goal", "") or params.get("query", "")
+        if not goal:
+            return self._fail("goal is required")
+
+        # Step 1: Generate plan via LLM
+        tools_desc = "\n".join(f"- {a}/{c}: {d}" for a, agent in self._registry.items()
+                               if a != "orchestrator" for c, d in agent.get_capabilities().items())
+        try:
+            import litellm
+            plan_prompt = f"""Create a step-by-step plan to accomplish this goal: "{goal}"
+
+Available tools:
+{tools_desc}
+
+Return a JSON array of steps. Each step: {{"agent":"...","action":"...","params":{{...}},"description":"what this step does"}}
+Keep it to 3-6 steps. Be specific about params. Order them logically."""
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),
+                                          messages=[{"role":"user","content":plan_prompt}],temperature=0.2,max_tokens=1500)
+            text = response.choices[0].message.content.strip()
+            import json as _json
+            start = text.index("["); end = text.rindex("]")+1
+            plan = _json.loads(text[start:end])
+        except Exception:
+            return self._fail("Could not create plan")
+
+        # Step 2: Execute each step
+        results = []
+        for i, step in enumerate(plan):
+            agent = step["agent"]
+            action = step["action"]
+            spa = step.get("params", {})
+            desc = step.get("description", f"Step {i+1}")
+
+            try:
+                result = await self.agent_call(agent, action, spa)
+                results.append({"step": i+1, "description": desc, "agent": agent, "action": action, "status": "completed", "summary": str(result.get("summary",""))[:300]})
+            except Exception as e:
+                results.append({"step": i+1, "description": desc, "status": "failed", "error": str(e)})
+
+        # Step 3: Summarize
+        summary = f"🧠 Plan executed: {len(results)} steps for '{goal[:80]}'\n\n"
+        for r in results:
+            icon = "✅" if r.get("status") == "completed" else "❌"
+            summary += f"{icon} Step {r['step']}: {r['description'][:100]}\n"
+            if r.get("summary"):
+                summary += f"   {r['summary'][:200]}\n\n"
+
+        return self._ok(summary=summary, data={"plan": plan, "results": results})
 
     # ------------------------------------------------------------------
     # The agent loop

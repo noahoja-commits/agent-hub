@@ -63,7 +63,34 @@ async def _migrate(db: aiosqlite.Connection) -> None:
     await db.execute("""
         CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at DESC)
     """)
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            task_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (task_id) REFERENCES tasks(id)
+        )
+    """)
+    await db.execute("""
+        CREATE INDEX IF NOT EXISTS idx_memory_task ON memory(task_id)
+    """)
     await db.commit()
+
+
+async def save_memory(task_id: str, role: str, content: str) -> None:
+    db = await get_db()
+    await db.execute("INSERT INTO memory (task_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+                     (task_id, role, content, datetime.now(timezone.utc).isoformat()))
+    await db.commit()
+
+
+async def get_memory(task_id: str) -> list[dict[str, Any]]:
+    db = await get_db()
+    cursor = await db.execute("SELECT role, content FROM memory WHERE task_id = ? ORDER BY id", (task_id,))
+    rows = await cursor.fetchall()
+    return [dict(r) for r in rows]
 
 
 async def close_db() -> None:

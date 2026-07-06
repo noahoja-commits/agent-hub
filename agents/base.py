@@ -48,3 +48,7 @@ class BaseAgent(ABC):
 
     def _fail(self, summary: str, data: Any = None) -> dict[str, Any]:
         return {"status": "failed", "summary": summary, "data": data}
+
+    async def agent_call(self, agent_name: str, action: str, params: dict[str, Any]) -> dict[str, Any]:
+        """Call another agent directly. Override in orchestrator for registry access."""
+        return {"status": "failed", "summary": f"Cannot call agent '{agent_name}' — no registry available"}

@@ -664,6 +664,71 @@ async def _execute_cloud(task: dict[str, Any] | None = None, task_id: str | None
         asyncio.create_task(_on_task_failed(task, str(exc)))
 
 
+# ---------------------------------------------------------------------------
+# File output — download agent results as files
+# ---------------------------------------------------------------------------
+@app.get("/api/files/{task_id}")
+async def download_file(task_id: str, format: str = "txt") -> Response:
+    task = await db.get_task(task_id)
+    if not task:
+        raise HTTPException(404, "Task not found")
+    result = task.get("result") or {}
+    summary = result.get("summary", "")
+    data = result.get("data") or {}
+    content = summary
+
+    # Try to get richer content from data
+    if data.get("code"):
+        content = data["code"]
+        ext = {"python": "py", "javascript": "js", "bash": "sh"}.get(data.get("language", ""), "txt")
+    elif data.get("markdown"):
+        content = data["markdown"]
+        ext = "md"
+    elif data.get("svg_code"):
+        content = data["svg_code"]
+        ext = "svg"
+    elif format == "json":
+        content = json.dumps(result, indent=2, default=str)
+        ext = "json"
+    else:
+        ext = "txt"
+
+    filename = f"{task['agent']}_{task['action']}_{task_id[:8]}.{ext}"
+    return Response(content=content, media_type="text/plain; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+# ---------------------------------------------------------------------------
+# WebSocket dashboard — real-time task feed
+# ---------------------------------------------------------------------------
+_dashboard_clients: list[WebSocket] = []
+
+
+@app.websocket("/ws/dashboard")
+async def ws_dashboard(ws: WebSocket):
+    await ws.accept()
+    _dashboard_clients.append(ws)
+    try:
+        while True:
+            await ws.receive_text()  # keepalive
+    except Exception:
+        pass
+    finally:
+        _dashboard_clients.remove(ws)
+
+
+async def _broadcast_dashboard(msg: dict) -> None:
+    """Push a task update to all connected dashboard clients."""
+    dead = []
+    for ws in _dashboard_clients:
+        try:
+            await ws.send_json(msg)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        _dashboard_clients.remove(ws)
+
+
 async def _on_task_completed(task: dict[str, Any], result: dict[str, Any]) -> None:
     """Handle post-completion: chain next task, fire notifications, reply to Lark."""
     params = task.get("params", {})
@@ -698,6 +763,12 @@ async def _on_task_completed(task: dict[str, Any], result: dict[str, Any]) -> No
         summary = str(result.get("summary", "Done"))[:1000]
         status_emoji = "✅" if result.get("status") == "completed" else "❌"
         asyncio.create_task(_send_telegram(tg_chat_id, f"{status_emoji} **{task['agent']}/{task['action']}**\n\n{summary}"))
+
+    # 5. Save to memory
+    asyncio.create_task(db.save_memory(tid, "assistant", str(result.get("summary", ""))[:2000]))
+
+    # 6. Broadcast to dashboard
+    asyncio.create_task(_broadcast_dashboard({"type": "task_update", "task": {**task, "result": result}}))
 
 
 async def _on_task_failed(task: dict[str, Any], error: str) -> None:
