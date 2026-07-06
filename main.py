@@ -32,6 +32,16 @@ from agents.fixit_agent import FixitAgent
 from agents.orchestrator_agent import OrchestratorAgent
 from agents.dev_agent import DevAgent
 from agents.image_agent import ImageAgent
+from agents.calendar_agent import CalendarAgent
+from agents.finance_agent import FinanceAgent
+from agents.crm_agent import CRMAgent
+from agents.watchdog_agent import WatchdogAgent
+from agents.fileops_agent import FileOpsAgent
+from agents.social_agent import SocialAgent
+from agents.database_agent import DatabaseAgent
+from agents.audio_agent import AudioAgent
+from agents.pdf_agent import PDFAgent
+from agents.translation_agent import TranslationAgent
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -103,6 +113,16 @@ def _init_agents() -> None:
     _agents["fixit"] = FixitAgent()
     _agents["dev"] = DevAgent()
     _agents["image"] = ImageAgent()
+    _agents["calendar"] = CalendarAgent()
+    _agents["finance"] = FinanceAgent()
+    _agents["crm"] = CRMAgent()
+    _agents["watchdog"] = WatchdogAgent()
+    _agents["fileops"] = FileOpsAgent()
+    _agents["social"] = SocialAgent()
+    _agents["database"] = DatabaseAgent()
+    _agents["audio"] = AudioAgent()
+    _agents["pdf"] = PDFAgent()
+    _agents["translation"] = TranslationAgent()
     _agents["orchestrator"] = OrchestratorAgent(agent_registry=_agents)
     logger.info("Agents initialized: %s", list(_agents.keys()))
 

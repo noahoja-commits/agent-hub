@@ -251,7 +251,17 @@ const demonThemes={
   content:{sigil:'📖',color:'#33cc33',latin:'Scriba Sanguinis',epithet:'Scribe of Blood'},
   fixit:{sigil:'⚒️',color:'#cc8800',latin:'Malleus Codicis',epithet:'Hammer of Broken Code'},
   dev:{sigil:'💀',color:'#33cccc',latin:'Daemon Forge',epithet:'Smith of Digital Nightmares'},
-  image:{sigil:'🎨',color:'#cc3388',latin:'Pictor Inferni',epithet:'Artist of the Damned'}};
+  image:{sigil:'🎨',color:'#cc3388',latin:'Pictor Inferni',epithet:'Artist of the Damned'},
+  calendar:{sigil:'⏳',color:'#cc8800',latin:'Chronos Aeternum',epithet:'Keeper of the Sundial'},
+  finance:{sigil:'💰',color:'#ccaa00',latin:'Mammon Avarus',epithet:'Lord of Gold and Coin'},
+  crm:{sigil:'📞',color:'#cc6600',latin:'Belial Negotiator',epithet:'Dealer in Souls and Deals'},
+  watchdog:{sigil:'🐕',color:'#ff4444',latin:'Cerberus Vigilans',epithet:'Guardian of the Gates'},
+  fileops:{sigil:'🗄️',color:'#44aacc',latin:'Janus Bifrons',epithet:'Keeper of Both Paths'},
+  social:{sigil:'📢',color:'#cc44cc',latin:'Fama Volans',epithet:'Whisperer of Rumors'},
+  database:{sigil:'📊',color:'#4488cc',latin:'Thoth Scriba',epithet:'Keeper of All Knowledge'},
+  audio:{sigil:'🎙️',color:'#cc44aa',latin:'Siren Cantrix',epithet:'Enchantress of Sound'},
+  pdf:{sigil:'📄',color:'#cc4444',latin:'Mephisto Contractus',epithet:'Binder of Souls to Paper'},
+  translation:{sigil:'🌐',color:'#44cc44',latin:'Hermes Interpres',epithet:'Speaker of Every Tongue'}};
 
 // ═══════════ API ═══════════
 async function api(m,p,b){let o={method:m,headers:{}};if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}let r=await fetch(API+p,o);if(r.status===401){alert('THY PASSWORD IS FALSE, MORTAL');localStorage.removeItem('ah_token');TOKEN=''}if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText)}return r.json()}
