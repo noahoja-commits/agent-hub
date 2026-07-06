@@ -214,6 +214,10 @@ async def list_agents() -> JSONResponse:
     for name, agent in _agents.items():
         result[name] = {
             "name": agent.name,
+            "codename": getattr(agent, "codename", name),
+            "emoji": getattr(agent, "emoji", "🤖"),
+            "color": getattr(agent, "color", "#3b82f6"),
+            "personality": getattr(agent, "personality", ""),
             "description": agent.description,
             "capabilities": agent.get_capabilities(),
         }

@@ -126,8 +126,12 @@ def _decode_email_part(part: dict) -> str:
 
 
 class EmailAgent(BaseAgent):
-    name = "Email Agent"
-    description = "Checks Gmail inbox, reads threads, drafts replies"
+    name = "Inbox"
+    codename = "inbox"
+    emoji = "📬"
+    color = "#3b82f6"
+    personality = "Your digital gatekeeper. Guards your attention, surfaces what matters, drafts replies that sound like you."
+    description = "Gmail inbox management, smart triage, thread summaries, AI-drafted replies"
 
     def get_capabilities(self) -> dict[str, str]:
         return {
@@ -272,8 +276,19 @@ class EmailAgent(BaseAgent):
         original_from = headers.get("from", "?")
         original_body = resp.get("snippet", "")
 
-        # AI draft
-        draft_body = await self._ai_draft_reply(original_from, original_subject, original_body, tone, instructions)
+        # Fetch full thread for context
+        thread_context = ""
+        if resp.get("threadId"):
+            thread_resp = await _gmail_request("GET", f"/users/me/threads/{resp['threadId']}", params={"format": "full"})
+            if thread_resp:
+                thread_msgs = thread_resp.get("messages", [])
+                thread_context = "\n---\n".join(
+                    f"From: {next((h['value'] for h in m.get('payload',{}).get('headers',[]) if h['name'].lower()=='from'), '?')}\n{m.get('snippet','')[:300]}"
+                    for m in thread_msgs[-5:]  # last 5 messages for context
+                )
+
+        # AI draft with full context
+        draft_body = await self._ai_draft_reply(original_from, original_subject, original_body, tone, instructions, thread_context)
 
         reply_subject = original_subject if original_subject.startswith("Re:") else f"Re: {original_subject}"
 
@@ -360,27 +375,37 @@ class EmailAgent(BaseAgent):
                     "snippet": detail.get("snippet", "")[:100],
                 })
 
-        # AI categorization
-        email_list = "\n".join(f"- {e['from'][:40]} | {e['subject'][:60]}" for e in emails[:15])
+        # AI categorization — now with full body context
+        email_list = "\n".join(f"{i}. {e['from'][:50]} | {e['subject'][:80]} | {e['snippet'][:200]}" for i, e in enumerate(emails[:15]))
         try:
             import litellm
-            prompt = f"""Categorize these {len(emails)} emails. Return JSON with categories:
-- "urgent": needs immediate attention
-- "important": should read today
-- "newsletter": subscriptions and updates
-- "promotional": marketing and ads
-- "personal": from real people
-- "spam_likely": looks like spam
+            prompt = f"""You are Inbox, an intelligent email gatekeeper. Analyze these {len(emails)} emails and categorize them.
+
+For each category, list the email indices that match. Also provide actionable advice.
 
 Emails:
 {email_list}
 
-Return: {{"categories": {{"urgent": [list of indices], "important": [...], "newsletter": [...], "promotional": [...], "personal": [...], "spam_likely": [...]}}, "summary": "one-line summary"}}"""
+Return JSON:
+{{
+  "categories": {{
+    "urgent": [indices of emails needing immediate response],
+    "important": [indices of emails to read today],
+    "newsletter": [indices of subscriptions/updates],
+    "promotional": [indices of marketing/ads],
+    "personal": [indices from real people],
+    "spam_likely": [indices that look like spam]
+  }},
+  "summary": "one-line overview of what's in the inbox",
+  "action_items": ["specific thing you should do about email X", "another action"],
+  "top_3_emails": ["brief description of the most important email", ...]
+}}"""
 
             response = litellm.completion(
                 model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.2, max_tokens=800,
+                messages=[{"role": "system", "content": "You are Inbox, a sharp email assistant. Be concise and actionable."},
+                          {"role": "user", "content": prompt}],
+                temperature=0.2, max_tokens=1000,
             )
             text = response.choices[0].message.content.strip()
             import json as _json
@@ -388,18 +413,22 @@ Return: {{"categories": {{"urgent": [list of indices], "important": [...], "news
             end = text.rindex("}") + 1
             cat_data = _json.loads(text[start:end])
         except Exception:
-            cat_data = {"categories": {"all": list(range(len(emails)))}, "summary": f"{len(emails)} emails in inbox"}
+            cat_data = {"categories": {}, "summary": f"{len(emails)} emails", "action_items": [], "top_3_emails": []}
 
-        # Build readable summary
         cats = cat_data.get("categories", {})
-        summary = f"📊 Inbox triage — {len(emails)} emails:\n"
+        actions = cat_data.get("action_items", [])
+        top = cat_data.get("top_3_emails", [])
+
+        summary = f"📊 Inbox — {len(emails)} emails\n"
         for cat, indices in cats.items():
             if indices:
-                count = len(indices) if isinstance(indices, list) else 1
-                summary += f"  {cat}: {count}\n"
-        summary += f"\n{cat_data.get('summary', '')}"
+                summary += f"  {cat}: {len(indices)}\n"
+        if top:
+            summary += "\n📌 Top emails:\n" + "\n".join(f"  • {t}" for t in top[:3])
+        if actions:
+            summary += "\n\n✅ Suggested actions:\n" + "\n".join(f"  • {a}" for a in actions[:3])
 
-        return self._ok(summary=summary, data={"emails": emails, "categories": cats, "count": len(emails)})
+        return self._ok(summary=summary, data={"emails": emails, "categories": cats, "actions": actions, "top": top})
 
     async def _handle_summarize_thread(self, params: dict[str, Any]) -> dict[str, Any]:
         """AI-powered summary of an email thread."""
@@ -510,23 +539,31 @@ Format:
     # AI drafting via litellm
     # ------------------------------------------------------------------
 
-    async def _ai_draft_reply(self, sender: str, subject: str, body: str, tone: str, instructions: str) -> str:
+    async def _ai_draft_reply(self, sender: str, subject: str, body: str, tone: str, instructions: str, thread_context: str = "") -> str:
         try:
             import litellm
 
-            prompt = f"""Draft a {tone} email reply.
+            prompt = f"""You are Inbox, writing a {tone} email reply on behalf of your user.
 
-Original from: {sender}
+Original sender: {sender}
 Subject: {subject}
-Body:
+Latest message:
 {body[:1500]}
 
-{f'Additional instructions: {instructions}' if instructions else ''}
+{f'Full thread context:\n{thread_context[:2000]}' if thread_context else ''}
+{f'Special instructions: {instructions}' if instructions else ''}
 
-Write ONLY the reply body. No subject line. No AI disclaimers. Keep it concise and human."""
+Write the reply body. Rules:
+- Match the tone and formality of the original
+- Address all points raised in the latest message
+- Reference thread context if helpful
+- Be concise — people read email on phones
+- No AI disclaimers or signatures
+- Sound like a real human wrote it"""
             response = litellm.completion(
                 model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "system", "content": "You are Inbox, a sharp email assistant. Your replies sound human, not robotic."},
+                          {"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=1024,
             )

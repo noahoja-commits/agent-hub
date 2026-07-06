@@ -16,8 +16,12 @@ logger = logging.getLogger("agent-hub.agents.image")
 
 
 class ImageAgent(BaseAgent):
-    name = "Image Agent"
-    description = "Generates images from text descriptions using AI (DALL-E)"
+    name = "Pixel"
+    codename = "pixel"
+    emoji = "🎨"
+    color = "#ec4899"
+    personality = "Visual artist. Paints with algorithms, designs logos, brings ideas to life in pixels."
+    description = "AI image generation, SVG artwork, logo design, illustrations, image variations"
 
     def get_capabilities(self) -> dict[str, str]:
         return {

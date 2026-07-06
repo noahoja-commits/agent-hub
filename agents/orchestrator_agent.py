@@ -27,8 +27,12 @@ class OrchestratorAgent(BaseAgent):
     Uses LLM reasoning to decide which tools to call and in what order.
     """
 
-    name = "Orchestrator"
-    description = "Intelligent agent — understands natural language, decides which tools to use, executes multi-step plans"
+    name = "Atlas"
+    codename = "atlas"
+    emoji = "🧠"
+    color = "#a78bfa"
+    personality = "Strategic mastermind. Understands your intent, coordinates the team, executes complex plans seamlessly."
+    description = "Natural language understanding, multi-step planning, autonomous task execution"
 
     def __init__(self, agent_registry: dict[str, BaseAgent] | None = None):
         self._registry = agent_registry or {}

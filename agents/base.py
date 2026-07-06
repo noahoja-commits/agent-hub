@@ -21,6 +21,10 @@ class BaseAgent(ABC):
 
     name: str
     description: str
+    emoji: str = "🤖"
+    color: str = "#3b82f6"
+    personality: str = ""
+    codename: str = ""
 
     @abstractmethod
     def get_capabilities(self) -> dict[str, str]:

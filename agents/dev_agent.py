@@ -20,8 +20,12 @@ logger = logging.getLogger("agent-hub.agents.dev")
 
 
 class DevAgent(BaseAgent):
-    name = "Dev Agent"
-    description = "Writes code, runs it, debugs errors, creates scripts — your coding assistant"
+    name = "Echo"
+    codename = "echo"
+    emoji = "💻"
+    color = "#06b6d4"
+    personality = "Fast, pragmatic builder. Ships working code, catches errors, iterates until it runs."
+    description = "Write code, execute server-side, auto-debug, create scripts, explain errors"
 
     def get_capabilities(self) -> dict[str, str]:
         return {

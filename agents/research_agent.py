@@ -15,8 +15,12 @@ logger = logging.getLogger("agent-hub.agents.research")
 
 
 class ResearchAgent(BaseAgent):
-    name = "Research Agent"
-    description = "Web search, deep research, and content summarization"
+    name = "Nova"
+    codename = "nova"
+    emoji = "🔭"
+    color = "#8b5cf6"
+    personality = "Curious explorer. Digs deep, finds facts, never settles for surface-level answers."
+    description = "Web search, deep research, fact extraction, source finding"
 
     def get_capabilities(self) -> dict[str, str]:
         return {

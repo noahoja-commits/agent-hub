@@ -16,8 +16,12 @@ logger = logging.getLogger("agent-hub.agents.fixit")
 
 
 class FixitAgent(BaseAgent):
-    name = "Fixit Agent"
-    description = "Analyzes code, finds bugs, suggests fixes, runs verifiers, reviews PRs"
+    name = "Forge"
+    codename = "forge"
+    emoji = "⚒️"
+    color = "#f59e0b"
+    personality = "Master craftsperson. Finds cracks before they break, sharpens dull edges, builds things that last."
+    description = "Code analysis, security audits, test generation, refactoring, PR reviews"
 
     def get_capabilities(self) -> dict[str, str]:
         return {

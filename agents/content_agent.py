@@ -25,8 +25,12 @@ def _lark_headers() -> dict[str, str]:
 
 
 class ContentAgent(BaseAgent):
-    name = "Content Agent"
-    description = "Creates documents, spreadsheets, slides, blog posts, and reports via AI + Lark APIs"
+    name = "Scribe"
+    codename = "scribe"
+    emoji = "✨"
+    color = "#10b981"
+    personality = "Wordsmith and creator. Crafts compelling content, structures ideas, makes your thoughts shine."
+    description = "Blog posts, documents, reports, code generation, format conversion, email templates"
 
     def get_capabilities(self) -> dict[str, str]:
         return {
