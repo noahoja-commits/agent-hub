@@ -140,8 +140,13 @@ Keep it to 3-6 steps. Be specific about params. Order them logically."""
         # Step 2: Execute each step
         results = []
         for i, step in enumerate(plan):
-            agent = step["agent"]
-            action = step["action"]
+            agent = step.get("agent", "")
+            action = step.get("action", "")
+            # Handle "agent/action" combined format from LLM
+            if "/" in agent and not action:
+                parts = agent.split("/", 1)
+                agent = parts[0]
+                action = parts[1] if len(parts) > 1 else ""
             spa = step.get("params", {})
             desc = step.get("description", f"Step {i+1}")
 
