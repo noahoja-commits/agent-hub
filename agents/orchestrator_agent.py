@@ -45,6 +45,7 @@ class OrchestratorAgent(BaseAgent):
             "solve": "Solve any task using natural language. The agent figures out the steps.",
             "chat": "Have a conversation — ask questions, get help, brainstorm.",
             "plan_and_execute": "Create a multi-step plan, then execute each step with progress tracking",
+            "duel": "⚔️ Trial by Combat — two agents race the same task, best result wins",
         }
 
     async def agent_call(self, agent_name: str, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -61,6 +62,8 @@ class OrchestratorAgent(BaseAgent):
             return await self._handle_chat(params)
         if action == "plan_and_execute":
             return await self._handle_plan_and_execute(params)
+        if action == "duel":
+            return await self._handle_duel(params)
         return self._fail(f"Unknown action: {action}")
 
     # ------------------------------------------------------------------
@@ -165,6 +168,23 @@ Keep it to 3-6 steps. Be specific about params. Order them logically."""
                 summary += f"   {r['summary'][:200]}\n\n"
 
         return self._ok(summary=summary, data={"plan": plan, "results": results})
+
+    async def _handle_duel(self, params: dict[str, Any]) -> dict[str, Any]:
+        goal = params.get("goal","") or params.get("query","")
+        agent1 = params.get("agent1","research")
+        agent2 = params.get("agent2","content")
+        if not goal: return self._fail("goal is required")
+        import asyncio
+        async def run(agent_name):
+            try:
+                result = await self.agent_call(agent_name,"solve",{"goal":goal}) if agent_name=="orchestrator" else await self.agent_call(agent_name,list(self._registry[agent_name].get_capabilities().keys())[0],{"query":goal})
+                return {"agent":agent_name,"summary":str(result.get("summary",""))[:500],"status":"completed"}
+            except Exception as e:
+                return {"agent":agent_name,"summary":"","status":"failed","error":str(e)}
+        r1,r2 = await asyncio.gather(run(agent1),run(agent2))
+        winner = agent1 if len(r1.get("summary","")) > len(r2.get("summary","")) else agent2
+        summary = f"⚔️ DUEL: {agent1} vs {agent2}\n\n🏆 VICTOR: {winner}\n\n{agent1}: {r1.get('summary','')[:200]}\n\n{agent2}: {r2.get('summary','')[:200]}"
+        return self._ok(summary=summary,data={"duel":{"agent1":r1,"agent2":r2,"winner":winner}})
 
     # ------------------------------------------------------------------
     # The agent loop

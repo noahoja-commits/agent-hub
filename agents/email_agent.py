@@ -145,6 +145,7 @@ class EmailAgent(BaseAgent):
             "list_accounts": "📋 Beelzebub's Registry — list configured Gmail accounts",
             "bulk_archive": "🗑️ Moloch's Fire — archive or delete emails by query",
             "email_analytics": "📊 Lucifer's Census — analyze email patterns and top senders",
+            "personality_clone": "👻 Doppelganger Rite — learn your writing style from sent emails and mimic it",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -579,6 +580,39 @@ Format:
         if result:
             return {"id": result.get("id", ""), "message_id": result.get("message", {}).get("id", "")}
         return None
+
+    async def _handle_personality_clone(self, params: dict[str, Any]) -> dict[str, Any]:
+        acct = self._acct(params)
+        resp = await _gmail_request("GET","/users/me/messages",params={"q":"in:sent","maxResults":20},account=acct)
+        messages = resp.get("messages",[])
+        if not messages:
+            return self._fail("No sent emails found to learn from")
+        samples = []
+        for msg in messages[:10]:
+            detail = await _gmail_request("GET",f"/users/me/messages/{msg['id']}",params={"format":"full"},account=acct)
+            if detail:
+                body = detail.get("snippet","")
+                samples.append(body[:300])
+        style_text = "\n---\n".join(samples)
+        try:
+            import litellm
+            prompt = f"""Analyze this person's email writing style from their sent emails. Identify:
+- Greeting style (casual/formal, common openers)
+- Sentence length (short punchy / long detailed)
+- Signature style
+- Common phrases or patterns
+- Tone (friendly, professional, blunt, etc.)
+- Emoji usage
+
+Sent email samples:
+{style_text[:3000]}
+
+Return a concise style profile (5-8 bullet points) that could be used to mimic this person's writing."""
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.3,max_tokens=600)
+            profile = response.choices[0].message.content.strip()
+        except Exception:
+            profile = "Style profile unavailable"
+        return self._ok(summary=f"👻 Style profile extracted from {len(samples)} sent emails:\n\n{profile}",data={"profile":profile,"samples":len(samples)})
 
     # ------------------------------------------------------------------
     # AI drafting via litellm

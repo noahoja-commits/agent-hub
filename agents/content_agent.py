@@ -44,6 +44,7 @@ class ContentAgent(BaseAgent):
             "translate_format": "🔄 Orobas' Transmutation — convert content between formats",
             "seo_optimize": "🎯 Botis' Enchantment — optimize content for SEO",
             "content_calendar": "📅 Purson's Calendar — generate a content calendar for any theme",
+            "game_master": "🎲 Asmodeus' Dungeon — generate RPG dungeons, NPCs, loot tables, quests",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -255,6 +256,32 @@ Return as JSON array: [{{"day":1,"title":"...","type":"...","description":"...",
             lines.append(f"\nDay {d['day']}: **{d['title']}** ({d['type']})")
             lines.append(f"  {d.get('description','')[:120]}")
         return self._ok(summary="\n".join(lines),data={"calendar":calendar,"theme":theme})
+
+    async def _handle_game_master(self, params: dict[str, Any]) -> dict[str, Any]:
+        theme = params.get("theme","dark fantasy") or params.get("query","dark fantasy")
+        prompt = f"""You are a demonic Game Master. Generate a complete RPG dungeon for: {theme}
+
+Return JSON:
+{{
+  "dungeon_name": "The Something of Doom",
+  "rooms": [{{"name":"...","description":"...","monster":"...","treasure":"...","trap":"..."}}],
+  "boss": {{"name":"...","description":"...","abilities":["..."]}},
+  "loot_table": [{{"item":"...","rarity":"common|rare|legendary","effect":"..."}}],
+  "npcs": [{{"name":"...","role":"...","dialogue":"..."}}],
+  "quest_hook": "..."
+}}
+6-8 rooms, 4+ loot items, 2-3 NPCs. Make it atmospheric and deadly."""
+        try:
+            import litellm, json as _json
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.9,max_tokens=2500)
+            text = response.choices[0].message.content.strip()
+            start = text.index("{"); end = text.rindex("}")+1
+            dungeon = _json.loads(text[start:end])
+        except Exception:
+            dungeon = {"dungeon_name":f"The {theme.title()} Depths","rooms":[],"boss":{},"loot_table":[],"quest_hook":""}
+        d = dungeon
+        summary = f"🎲 {d.get('dungeon_name','Dungeon')}\n\n📜 Quest: {d.get('quest_hook','')[:150]}\n\n⚔️ Boss: {d.get('boss',{}).get('name','?')}\n🏚️ Rooms: {len(d.get('rooms',[]))}\n💎 Loot: {len(d.get('loot_table',[]))} items\n👥 NPCs: {len(d.get('npcs',[]))}"
+        return self._ok(summary=summary, data=dungeon)
 
     # ------------------------------------------------------------------
     # AI generation

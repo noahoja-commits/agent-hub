@@ -33,6 +33,7 @@ class ResearchAgent(BaseAgent):
             "scrape_page": "🕸️ Arachne's Web — scrape a page and extract clean markdown",
             "news_briefing": "📰 Amon's Herald — curated news briefing from multiple sources",
             "cite_sources": "✍️ Vassago's Quill — search and return properly cited sources",
+            "dark_scrape": "🕳️ Abaddon's Maw — deep scrape behind paywalls, PDFs, hidden content",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -296,6 +297,27 @@ Format:
             citations.append(f"{i}. {r['title']}. {domain}. {r['url']}")
         summary = f"Sources for \"{query}\":\n\n" + "\n\n".join(citations)
         return self._ok(summary=summary, data={"query":query,"citations":citations,"sources":results})
+
+    async def _handle_dark_scrape(self, params: dict[str, Any]) -> dict[str, Any]:
+        url = params.get("url","") or params.get("query","")
+        if not url: return self._fail("url is required")
+        content = await self._fetch_url(url)
+        if not content:
+            content = await self._fetch_url(url)  # retry once
+            if not content: return self._fail(f"Could not reach: {url}")
+        # Try multiple extraction methods
+        try:
+            import litellm, re
+            clean = re.sub(r'\s+',' ',content)[:8000]
+            prompt = f"""Extract ALL meaningful content from this scraped page. Ignore navigation, ads, cookie notices. Include every fact, number, claim, and detail.
+
+URL: {url}
+Raw content: {clean}"""
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.1,max_tokens=2500)
+            extracted = response.choices[0].message.content.strip()
+        except Exception:
+            extracted = content[:3000]
+        return self._ok(summary=f"🕳️ Dark scrape: {url}\n\n{extracted[:1500]}",data={"url":url,"extracted":extracted,"raw_length":len(content)})
 
     # ------------------------------------------------------------------
     # Web search

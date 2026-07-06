@@ -140,6 +140,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 <nav class="bottom">
   <button class="active" onclick="showMain()"><span class="navrune">📜</span>GRIMOIRE</button>
+  <button onclick="startVoice()"><span class="navrune">🎙️</span>SPEAK</button>
   <button onclick="openPortal()"><span class="navrune">🔥</span>SACRIFICE</button>
 </nav>
 
@@ -208,6 +209,8 @@ async function openDetail(id){try{let t=await api('GET',`/tasks/${id}`);let a=ag
 function closeDetail(){document.getElementById('detail-veil').style.display='none'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function whisper(m){let t=document.createElement('div');t.className='whisper';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2300)}
+function startVoice(){let SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SpeechRecognition){whisper('VOICE NOT SUPPORTED IN THIS BROWSER');return}
+let rec=new SpeechRecognition();rec.lang='en-US';rec.interimResults=false;whisper('👂 LISTENING... SPEAK NOW');rec.start();rec.onresult=function(e){let text=e.results[0][0].transcript;document.getElementById('ritual-input').value=text;openPortal();castRitual()};rec.onerror=function(){whisper('VOICE FAILED')}}
 </script>
 </body>
 </html>
