@@ -626,45 +626,6 @@ async def _dispatch_to_local(ws: WebSocket, task: dict[str, Any]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Task execution (cloud agents) — with chaining, notifications, bot replies
-# ---------------------------------------------------------------------------
-async def _execute_cloud(task: dict[str, Any] | None = None, task_id: str | None = None, approved: bool = False) -> None:
-    """Execute a task via a cloud agent. Handles chaining, notifications, and Lark replies."""
-    if task_id and not task:
-        task = await db.get_task(task_id)
-    if not task:
-        return
-
-    tid = task["id"]
-    params = task.get("params", {})
-    await db.update_task(tid, status="running")
-
-    agent = _agents.get(task["agent"])
-    if not agent:
-        await db.update_task(tid, status="failed", error=f"Agent '{task['agent']}' not found")
-        return
-
-    try:
-        result = await agent.execute(action=task["action"], params=params)
-
-        if result.get("status") == "awaiting_approval":
-            await db.update_task(tid, status="awaiting_approval", result=result)
-            logger.info("Task %s awaiting approval: %s", tid, result.get("summary"))
-            return
-
-        await db.update_task(tid, status="completed", result=result)
-        logger.info("Task %s completed: %s/%s", tid, task["agent"], task["action"])
-
-        # Post-completion hooks
-        asyncio.create_task(_on_task_completed(task, result))
-
-    except Exception as exc:
-        logger.exception("Task %s failed", tid)
-        await db.update_task(tid, status="failed", error=str(exc))
-        asyncio.create_task(_on_task_failed(task, str(exc)))
-
-
-# ---------------------------------------------------------------------------
 # File output — download agent results as files
 # ---------------------------------------------------------------------------
 @app.get("/api/files/{task_id}")
@@ -928,23 +889,169 @@ async def _start_scheduler() -> None:
 
 
 async def _daily_briefing() -> None:
-    """Generate a daily briefing task."""
+    """Autonomous daily briefing — checks email, news, and alerts if needed."""
     _init_agents()
     try:
-        # Run email inbox check
-        email_task = await db.create_task("email", "check_inbox", {"limit": 5})
+        # Smart email triage
+        email_task = await db.create_task("email", "triage_inbox", {"limit": 15})
         asyncio.create_task(_execute_cloud(email_task))
 
-        # Run a research summary of top news
-        research_task = await db.create_task("research", "search", {
-            "query": "top technology news today",
-            "num_results": 5,
-        })
-        asyncio.create_task(_execute_cloud(research_task))
+        # News briefing
+        news_task = await db.create_task("research", "news_briefing", {"query": "AI and technology"})
+        asyncio.create_task(_execute_cloud(news_task))
 
-        logger.info("Daily briefing tasks created: %s, %s", email_task["id"], research_task["id"])
+        # If Telegram token set, send briefing there
+        if TELEGRAM_TOKEN:
+            # Find urgent emails and notify
+            asyncio.create_task(_autonomous_alert())
+
+        logger.info("Autonomous briefing created: %s, %s", email_task["id"], news_task["id"])
     except Exception as exc:
-        logger.exception("Daily briefing failed: %s", exc)
+        logger.exception("Autonomous briefing failed: %s", exc)
+
+
+async def _autonomous_alert() -> None:
+    """Proactively alert the user about urgent items."""
+    try:
+        # Check for urgent emails
+        email_result = await db.list_tasks(agent="email", status="completed", limit=3)
+        for t in email_result:
+            result = t.get("result") or {}
+            data = result.get("data") or {}
+            urgent = data.get("categories", {}).get("urgent", [])
+            if urgent:
+                await _send_telegram(
+                    os.environ.get("TELEGRAM_ALERT_CHAT_ID", ""),
+                    f"⚠️ {len(urgent)} urgent email(s) detected. Check your inbox."
+                )
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
+# Auto-retry failed tasks
+# ---------------------------------------------------------------------------
+async def _execute_cloud(task=None, task_id=None, approved=False, retry_count=0) -> None:
+    """Execute with auto-retry on failure."""
+    if task_id and not task:
+        task = await db.get_task(task_id)
+    if not task:
+        return
+
+    tid = task["id"]
+    params = task.get("params", {})
+    await db.update_task(tid, status="running")
+
+    agent = _agents.get(task["agent"])
+    if not agent:
+        await db.update_task(tid, status="failed", error=f"Agent '{task['agent']}' not found")
+        return
+
+    try:
+        result = await agent.execute(action=task["action"], params=params)
+
+        if result.get("status") == "awaiting_approval":
+            await db.update_task(tid, status="awaiting_approval", result=result)
+            return
+
+        await db.update_task(tid, status="completed", result=result)
+        asyncio.create_task(_on_task_completed(task, result))
+
+    except Exception as exc:
+        logger.exception("Task %s failed (attempt %d)", tid, retry_count + 1)
+
+        if retry_count < 2:  # Auto-retry up to 2 times
+            logger.info("Retrying task %s in %ds...", tid, (retry_count + 1) * 10)
+            await asyncio.sleep((retry_count + 1) * 10)
+            await _execute_cloud(task=task, retry_count=retry_count + 1)
+        else:
+            await db.update_task(tid, status="failed", error=str(exc))
+            asyncio.create_task(_on_task_failed(task, str(exc)))
+
+
+# ---------------------------------------------------------------------------
+# Analytics API
+# ---------------------------------------------------------------------------
+@app.get("/api/analytics")
+async def analytics() -> JSONResponse:
+    """Return agent performance stats."""
+    all_tasks = await db.list_tasks(limit=500)
+    stats = {"total": len(all_tasks), "by_agent": {}, "by_status": {}, "recent_failures": 0}
+
+    for t in all_tasks:
+        agent = t["agent"]
+        status = t["status"]
+        if agent not in stats["by_agent"]:
+            stats["by_agent"][agent] = {"total": 0, "completed": 0, "failed": 0}
+        stats["by_agent"][agent]["total"] += 1
+        if status == "completed":
+            stats["by_agent"][agent]["completed"] += 1
+        elif status == "failed":
+            stats["by_agent"][agent]["failed"] += 1
+
+        stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
+
+    # Success rate
+    for a in stats["by_agent"]:
+        ag = stats["by_agent"][a]
+        ag["success_rate"] = round(ag["completed"] / max(ag["total"], 1) * 100, 1)
+
+    # Recent failures
+    stats["recent_failures"] = sum(1 for t in all_tasks[:100] if t["status"] == "failed")
+
+    # Popular actions
+    actions = {}
+    for t in all_tasks[:200]:
+        key = f"{t['agent']}/{t['action']}"
+        actions[key] = actions.get(key, 0) + 1
+    stats["popular_actions"] = dict(sorted(actions.items(), key=lambda x: x[1], reverse=True)[:10])
+
+    return JSONResponse(stats)
+
+
+# ---------------------------------------------------------------------------
+# Webhook triggers — external services fire agent workflows
+# ---------------------------------------------------------------------------
+TRIGGERS = {
+    "github_push": {"agent": "fixit", "action": "review_pr", "params": {}},
+    "new_email": {"agent": "email", "action": "triage_inbox", "params": {"limit": 10}},
+    "daily_report": {"agent": "orchestrator", "action": "plan_and_execute", "params": {"goal": "research AI news and create a summary report"}},
+}
+
+
+@app.post("/api/triggers/{trigger_name}")
+async def fire_trigger(trigger_name: str, request: Request) -> JSONResponse:
+    """Fire a pre-configured workflow from an external webhook."""
+    trigger = TRIGGERS.get(trigger_name)
+    if not trigger:
+        raise HTTPException(404, f"Trigger not found: {trigger_name}. Available: {list(TRIGGERS.keys())}")
+
+    # Merge request body into params
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    params = {**trigger["params"], **body}
+    task = await db.create_task(trigger["agent"], trigger["action"], params)
+    asyncio.create_task(_execute_cloud(task))
+
+    logger.info("Trigger '%s' fired → task %s", trigger_name, task["id"])
+    return JSONResponse({"status": "triggered", "task_id": task["id"], "trigger": trigger_name}, status_code=201)
+
+
+@app.get("/api/triggers")
+async def list_triggers() -> JSONResponse:
+    return JSONResponse({name: {"agent": t["agent"], "action": t["action"]} for name, t in TRIGGERS.items()})
+
+
+# ---------------------------------------------------------------------------
+# Conversation memory API
+# ---------------------------------------------------------------------------
+@app.get("/api/memory/{task_id}")
+async def get_memory(task_id: str) -> JSONResponse:
+    mem = await db.get_memory(task_id)
+    return JSONResponse({"task_id": task_id, "memory": mem, "count": len(mem)})
 
 
 # ---------------------------------------------------------------------------
