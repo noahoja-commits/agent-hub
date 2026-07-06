@@ -143,6 +143,8 @@ class EmailAgent(BaseAgent):
             "search_emails": "Search Gmail by keyword, sender, subject, or date range",
             "send_draft": "Send a Gmail draft (requires approval)",
             "list_accounts": "List configured Gmail accounts",
+            "bulk_archive": "Archive or delete multiple emails by category or search query",
+            "email_analytics": "Analyze email patterns — top senders, volume, response times",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -477,6 +479,49 @@ Format:
             summary = f"Thread with {len(messages)} messages. First message from {messages[0]['from']}."
 
         return self._ok(summary=summary, data={"thread_id": thread_id, "message_count": len(messages), "participants": list(set(m['from'] for m in messages))})
+
+    async def _handle_bulk_archive(self, params: dict[str, Any]) -> dict[str, Any]:
+        query = params.get("query", "category:promotional OR category:social")
+        action_type = params.get("action", "archive")
+        acct = self._acct(params)
+        resp = await _gmail_request("GET","/users/me/messages",params={"q":query,"maxResults":50},account=acct)
+        messages = resp.get("messages",[])
+        if not messages:
+            return self._ok(summary=f"No emails found matching: {query}",data={"count":0})
+        count = len(messages)
+        if action_type == "archive":
+            ids = [m["id"] for m in messages[:50]]
+            await _gmail_request("POST","/users/me/messages/batchModify",json_body={"ids":ids,"removeLabelIds":["INBOX"]},account=acct)
+            return self._ok(summary=f"Archived {count} emails matching: {query}",data={"count":count,"query":query})
+        elif action_type == "trash":
+            ids = [m["id"] for m in messages[:50]]
+            await _gmail_request("POST","/users/me/messages/batchModify",json_body={"ids":ids,"addLabelIds":["TRASH"],"removeLabelIds":["INBOX"]},account=acct)
+            return self._ok(summary=f"Trashed {count} emails matching: {query}",data={"count":count,"query":query})
+        return self._ok(summary=f"Found {count} emails. Use action=archive or action=trash.",data={"count":count})
+
+    async def _handle_email_analytics(self, params: dict[str, Any]) -> dict[str, Any]:
+        days = params.get("days",30)
+        acct = self._acct(params)
+        resp = await _gmail_request("GET","/users/me/messages",params={"q":f"newer_than:{days}d","maxResults":100},account=acct)
+        messages = resp.get("messages",[])
+        if not messages:
+            return self._ok(summary="No emails to analyze.",data={})
+        senders = {}
+        for msg in messages[:50]:
+            detail = await _gmail_request("GET",f"/users/me/messages/{msg['id']}",params={"format":"metadata","metadataHeaders":["From","Date"]},account=acct)
+            if detail:
+                headers = {}
+                for h in detail.get("payload",{}).get("headers",[]):
+                    headers[h["name"].lower()] = h["value"]
+                sender = headers.get("from","?").split("<")[0].strip()
+                senders[sender] = senders.get(sender,0) + 1
+        top = sorted(senders.items(),key=lambda x:x[1],reverse=True)[:10]
+        summary = f"📊 Email analytics (last {days} days, {len(messages)} emails)\n\nTop senders:\n"
+        for name,count in top:
+            bar = "█" * min(count,20)
+            summary += f"  {name[:30]:<30} {count:>3} {bar}\n"
+        summary += f"\nDaily average: ~{len(messages)//max(days,1)} emails"
+        return self._ok(summary=summary,data={"senders":dict(top),"total":len(messages),"days":days})
 
     async def _handle_list_accounts(self, params: dict[str, Any]) -> dict[str, Any]:
         """List configured Gmail accounts."""

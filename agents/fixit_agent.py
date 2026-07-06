@@ -34,6 +34,8 @@ class FixitAgent(BaseAgent):
             "generate_tests": "Generate unit tests for given code or function",
             "security_audit": "Scan code for security vulnerabilities (OWASP Top 10, injection, auth)",
             "refactor": "Suggest refactoring to improve readability and maintainability",
+            "scan_dependencies": "Scan a requirements.txt or package.json for vulnerable dependencies",
+            "generate_docs": "Generate comprehensive documentation for a codebase or module",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -226,6 +228,48 @@ Focus on:
 - Making the code self-documenting"""
         result = await self._ai_call(prompt, max_tokens=2000, temperature=0.3)
         return self._ok(summary=result, data={"language": language, "goal": goal})
+
+    async def _handle_scan_dependencies(self, params: dict[str, Any]) -> dict[str, Any]:
+        deps = params.get("deps","") or params.get("query","")
+        if not deps:
+            return self._fail("deps is required — paste your requirements.txt or package.json dependencies")
+        prompt = f"""Scan these dependencies for known vulnerabilities and issues:
+
+{deps[:4000]}
+
+For each dependency:
+- Check if version is outdated
+- Flag known CVEs or security issues you're aware of
+- Suggest minimum safe version
+- Note any abandoned/unmaintained packages
+
+Format as a table with columns: Package | Current | Safe Version | Risk | Notes"""
+        result = await self._ai_call(prompt, max_tokens=2000, temperature=0.2)
+        return self._ok(summary=result, data={"deps":deps})
+
+    async def _handle_generate_docs(self, params: dict[str, Any]) -> dict[str, Any]:
+        code = params.get("code","") or params.get("query","")
+        language = params.get("language","python")
+        if not code:
+            return self._fail("code is required")
+        prompt = f"""Generate comprehensive documentation for this {language} code:
+
+```{language}
+{code[:4000]}
+```
+
+Include:
+- Overview / purpose
+- Installation / setup
+- API reference (every function, class, parameter)
+- Usage examples
+- Configuration options
+- Error handling
+- Dependencies
+
+Format as clean markdown documentation."""
+        result = await self._ai_call(prompt, max_tokens=2000, temperature=0.3)
+        return self._ok(summary=result, data={"language":language})
 
     # ------------------------------------------------------------------
     # AI reasoning

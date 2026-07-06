@@ -30,6 +30,9 @@ class ResearchAgent(BaseAgent):
             "compare": "Research multiple topics and produce a structured comparison",
             "extract_facts": "Extract specific facts, dates, numbers, and claims from search results",
             "find_sources": "Find authoritative sources on a topic (academic papers, official docs, etc.)",
+            "scrape_page": "Scrape a web page and extract clean markdown content",
+            "news_briefing": "Generate a curated news briefing on any topic from multiple sources",
+            "cite_sources": "Search and return properly cited sources in academic format",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -231,6 +234,68 @@ Only return the JSON object."""
 
         summary = f"Authoritative sources for: {topic}\n\n" + "\n\n".join(lines)
         return self._ok(summary=summary, data={"topic": topic, "sources": unique, "count": len(unique)})
+
+    async def _handle_scrape_page(self, params: dict[str, Any]) -> dict[str, Any]:
+        url = params.get("url", "") or params.get("query", "")
+        if not url:
+            return self._fail("url is required")
+        content = await self._fetch_url(url)
+        if not content:
+            return self._fail(f"Could not fetch: {url}")
+        # Convert to readable markdown via AI
+        try:
+            import litellm
+            prompt = f"""Extract the main content from this web page as clean markdown. Remove navigation, ads, footers. Preserve headings, links, and key information.
+
+URL: {url}
+Content: {content[:6000]}"""
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.2,max_tokens=2000)
+            md = response.choices[0].message.content.strip()
+        except Exception:
+            md = content[:3000]
+        return self._ok(summary=f"Scraped: {url}\n\n{md[:1500]}", data={"url":url,"markdown":md,"length":len(content)})
+
+    async def _handle_news_briefing(self, params: dict[str, Any]) -> dict[str, Any]:
+        topic = params.get("query", "") or params.get("topic", "technology")
+        results = await self._web_search(f"{topic} news today", 10)
+        if not results:
+            return self._fail(f"No news found for: {topic}")
+        sources = "\n".join(f"- [{r['title']}]({r['url']}): {r['snippet']}" for r in results[:8])
+        try:
+            import litellm
+            prompt = f"""Create a concise news briefing about: {topic}
+
+Sources:
+{sources}
+
+Format:
+## {topic.title()} News Briefing
+### Top Stories
+- Story 1 with source link
+- Story 2 with source link
+### Key Takeaways
+- Bullet points
+### Trends
+- What's emerging"""
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.3,max_tokens=1500)
+            briefing = response.choices[0].message.content.strip()
+        except Exception:
+            briefing = f"News about {topic}:\n\n" + "\n".join(f"- {r['title']}" for r in results[:5])
+        return self._ok(summary=briefing, data={"topic":topic,"sources":results,"count":len(results)})
+
+    async def _handle_cite_sources(self, params: dict[str, Any]) -> dict[str, Any]:
+        query = params.get("query", "")
+        if not query:
+            return self._fail("query is required")
+        results = await self._web_search(query, 8)
+        if not results:
+            return self._fail(f"No sources for: {query}")
+        citations = []
+        for i, r in enumerate(results[:8], 1):
+            domain = r["url"].split("/")[2] if "/" in r["url"] else r["url"]
+            citations.append(f"{i}. {r['title']}. {domain}. {r['url']}")
+        summary = f"Sources for \"{query}\":\n\n" + "\n\n".join(citations)
+        return self._ok(summary=summary, data={"query":query,"citations":citations,"sources":results})
 
     # ------------------------------------------------------------------
     # Web search

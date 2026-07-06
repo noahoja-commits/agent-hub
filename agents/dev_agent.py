@@ -34,6 +34,8 @@ class DevAgent(BaseAgent):
             "debug": "Run code, capture error, suggest fix, re-run until it works",
             "create_script": "Create a complete runnable script file for a task",
             "explain_error": "Explain a specific error message and suggest fixes",
+            "scaffold_project": "Generate a complete project scaffold with files and structure",
+            "generate_api": "Generate a REST API endpoint with routes, models, and tests",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -140,6 +142,54 @@ class DevAgent(BaseAgent):
 
         explanation = await self._ai_explain_error(error, code, language)
         return self._ok(summary=explanation, data={"error": error})
+
+    async def _handle_scaffold_project(self, params: dict[str, Any]) -> dict[str, Any]:
+        description = params.get("query","") or params.get("description","")
+        language = params.get("language","python")
+        if not description:
+            return self._fail("query is required")
+        prompt = f"""Generate a complete project scaffold for: {description}
+Language: {language}
+
+Return a JSON object with:
+- "name": project name (slug)
+- "structure": [list of file paths to create]
+- "files": {{"path/to/file": "file content", ...}}
+- "readme": "README.md content"
+- "setup_instructions": "how to set up and run"
+
+Include: entry point, config, tests, requirements/dependencies, .gitignore."""
+        try:
+            import litellm, json as _json
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.3,max_tokens=2500)
+            text = response.choices[0].message.content.strip()
+            start = text.index("{"); end = text.rindex("}")+1
+            scaffold = _json.loads(text[start:end])
+        except Exception:
+            scaffold = {"name":"project","structure":["main.py","README.md"],"files":{},"setup_instructions":"Run: python main.py"}
+        structure = "\n".join(f"  {'📁' if '/' not in f else '📄'} {f}" for f in scaffold.get("structure",[])[:20])
+        summary = f"🏗️ Project: {scaffold.get('name','project')}\n\nStructure:\n{structure}\n\n{scaffold.get('setup_instructions','')[:300]}"
+        return self._ok(summary=summary, data=scaffold)
+
+    async def _handle_generate_api(self, params: dict[str, Any]) -> dict[str, Any]:
+        description = params.get("query","") or params.get("description","")
+        language = params.get("language","python")
+        framework = params.get("framework","fastapi")
+        if not description:
+            return self._fail("query is required")
+        prompt = f"""Generate a complete {framework} API for: {description}
+
+Include:
+- Route definitions with HTTP methods
+- Request/response models (Pydantic if Python)
+- Input validation
+- Error handling
+- At least 3 endpoints
+- Database/models if needed
+
+Return just the code with brief comments."""
+        code = await self._ai_generate_code(f"Create a {framework} API that: {description}", language)
+        return self._ok(summary=f"API generated:\n\n```{language}\n{code[:1500]}\n```",data={"framework":framework,"code":code,"language":language})
 
     # ------------------------------------------------------------------
     # Code execution (server-side sandbox)

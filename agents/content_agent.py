@@ -42,6 +42,8 @@ class ContentAgent(BaseAgent):
             "generate_email_template": "Generate an email template for common scenarios",
             "generate_code": "Generate code snippets, scripts, or functions based on description",
             "translate_format": "Convert content between formats (markdown, HTML, plain text, JSON)",
+            "seo_optimize": "Optimize content for SEO with keywords, meta descriptions, headings",
+            "content_calendar": "Generate a content calendar with topics for a given theme",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -201,6 +203,58 @@ Return ONLY the converted content, no explanations."""
         converted = await self._ai_generate(prompt, max_tokens=2000, temperature=0.1)
         return self._ok(summary=f"Converted to {to_fmt}:\n\n{converted[:600]}",
                         data={"from": from_fmt, "to": to_fmt, "converted": converted})
+
+    async def _handle_seo_optimize(self, params: dict[str, Any]) -> dict[str, Any]:
+        content = params.get("content","") or params.get("query","")
+        topic = params.get("topic","")
+        if not content:
+            return self._fail("content is required")
+        prompt = f"""Optimize this content for SEO. Return JSON with:
+- "optimized_content": the full rewritten content
+- "meta_description": 155-char meta description
+- "keywords": [list of 5-10 target keywords]
+- "heading_structure": suggested H1/H2/H3 structure
+- "improvements": [list of specific SEO improvements made]
+
+Topic: {topic or 'auto-detect'}
+Content: {content[:4000]}"""
+        try:
+            import litellm, json as _json
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.3,max_tokens=2000)
+            text = response.choices[0].message.content.strip()
+            start = text.index("{"); end = text.rindex("}")+1
+            seo = _json.loads(text[start:end])
+        except Exception:
+            seo = {"optimized_content":content,"meta_description":"","keywords":[],"improvements":["AI optimization unavailable"]}
+        return self._ok(summary=seo.get("optimized_content",content)[:1500],data=seo)
+
+    async def _handle_content_calendar(self, params: dict[str, Any]) -> dict[str, Any]:
+        theme = params.get("theme","") or params.get("query","")
+        count = params.get("count",7)
+        if not theme:
+            return self._fail("theme is required")
+        prompt = f"""Generate a {count}-day content calendar for the theme: {theme}
+
+For each day, provide:
+- Title (compelling, SEO-friendly)
+- Content type (blog post, social, video script, newsletter, etc.)
+- Brief description (1-2 sentences)
+- Target keywords
+
+Return as JSON array: [{{"day":1,"title":"...","type":"...","description":"...","keywords":["..."]}},...]"""
+        try:
+            import litellm, json as _json
+            response = litellm.completion(model=os.environ.get("LLM_MODEL","openai/gpt-4o-mini"),messages=[{"role":"user","content":prompt}],temperature=0.7,max_tokens=2000)
+            text = response.choices[0].message.content.strip()
+            start = text.index("["); end = text.rindex("]")+1
+            calendar = _json.loads(text[start:end])
+        except Exception:
+            calendar = [{"day":i+1,"title":f"{theme} - Day {i+1}","type":"blog post","description":"","keywords":[]} for i in range(count)]
+        lines = [f"📅 Content Calendar: {theme}\n"]
+        for d in calendar:
+            lines.append(f"\nDay {d['day']}: **{d['title']}** ({d['type']})")
+            lines.append(f"  {d.get('description','')[:120]}")
+        return self._ok(summary="\n".join(lines),data={"calendar":calendar,"theme":theme})
 
     # ------------------------------------------------------------------
     # AI generation
