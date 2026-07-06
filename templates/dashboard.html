@@ -5,132 +5,139 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0000">
-<title>ABYSSAL TERMINAL v666</title>
+<meta name="theme-color" content="#000000">
+<title>HAIL SATAN — TERMINAL 666</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
-  :root {
-    --bg: #0a0000; --surface: #110505; --border: #2a0a0a; --hover: #1a0505;
-    --text: #cc2222; --muted: #661111; --glow: #ff2200; --gold: #cc9900;
-    --blood: #8b0000; --void: #050510; --safe: env(safe-area-inset-bottom,0px);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'VT323','Courier New',monospace;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(68px + var(--safe))}
-  /* CRT overlay */
-  body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none;z-index:999}
-  /* Pentagram background */
-  body::before{content:'⛧';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40vmin;color:rgba(139,0,0,.03);pointer-events:none;z-index:0}
-  /* Top bar */
-  .topbar{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(17,5,5,.95),rgba(10,0,0,.9));backdrop-filter:blur(8px);border-bottom:2px solid var(--blood);padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
-  .topbar h1{font-family:'Press Start 2P',monospace;font-size:.65rem;color:var(--glow);text-shadow:0 0 10px var(--glow),0 0 20px var(--blood);letter-spacing:2px;animation:flicker 4s infinite}
-  @keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.3}97%{opacity:1}}
-  .topbar .ritual{font-size:.7rem;color:var(--gold);text-shadow:0 0 5px var(--gold)}
-  .topbar .pulse{display:flex;align-items:center;gap:5px;font-size:.6rem;color:var(--muted)}
-  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 6px var(--glow);animation:beat 1.5s infinite}
-  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
-  /* Content */
-  .content{position:relative;z-index:1;padding:.6rem;max-width:900px;margin:0 auto}
-  /* Agent pentagram grid */
-  .agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
-  .agent-card{background:linear-gradient(180deg,var(--surface),#0a0000);border:1px solid var(--border);border-radius:0;text-align:center;padding:.7rem .5rem;cursor:pointer;transition:all .2s;position:relative;clip-path:polygon(0% 5%,5% 0%,95% 0%,100% 5%,100% 95%,95% 100%,5% 100%,0% 95%)}
-  .agent-card::before{content:'';position:absolute;inset:0;background:var(--agent-color,var(--blood));opacity:0;transition:opacity .3s;z-index:-1}
-  .agent-card:hover::before,.agent-card:active::before{opacity:.08}
-  .agent-card:hover,.agent-card:active{border-color:var(--agent-color,var(--blood));box-shadow:0 0 15px var(--agent-color,var(--blood))}
-  .agent-card .sigil{font-size:1.8rem;display:block;margin-bottom:.3rem;text-shadow:0 0 8px currentColor}
-  .agent-card .title{font-size:.7rem;font-weight:700;color:var(--agent-color,var(--text));letter-spacing:1px}
-  .agent-card .cursetext{font-size:.55rem;color:var(--muted);line-height:1.2;margin-top:2px}
-  .agent-card .power{font-size:.5rem;color:var(--gold);margin-top:3px}
-  /* Ritual bar */
-  .ritual-bar{display:flex;gap:6px;margin-bottom:.8rem;overflow-x:auto}
-  .ritual-bar button{flex-shrink:0;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;font-size:.6rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .15s}
-  .ritual-bar button:hover,.ritual-bar button:active{border-color:var(--blood);color:var(--glow);text-shadow:0 0 5px var(--glow)}
-  /* Scroll of status */
-  .status-scroll{display:flex;gap:5px;margin-bottom:.8rem;overflow-x:auto}
-  .status-scroll button{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:0;padding:.25rem .7rem;color:var(--muted);font-size:.55rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;transition:all .15s}
-  .status-scroll button.active,.status-scroll button:hover{border-color:var(--gold);color:var(--gold);background:rgba(204,153,0,.1)}
-  /* Task grimoire */
-  .grimoire{display:flex;flex-direction:column;gap:6px}
-  .scroll-entry{background:linear-gradient(90deg,var(--surface),#0a0000);border:1px solid var(--border);padding:.6rem .7rem;display:flex;gap:.55rem;cursor:pointer;transition:border-color .2s;animation:manifest .3s ease}
-  @keyframes manifest{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
-  .scroll-entry:active{border-color:var(--blood)}
-  .scroll-entry .rune{font-size:1.1rem;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border)}
-  .scroll-entry .parchment{flex:1;min-width:0}
-  .scroll-entry .phead{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:1px}
-  .scroll-entry .phead strong{font-size:.7rem;color:var(--agent-color,var(--text))}
-  .scroll-entry .pmeta{font-size:.55rem;color:var(--muted)}
-  .scroll-entry .prune{font-size:.6rem;color:#661515;line-height:1.3;margin-top:2px;white-space:pre-wrap;word-break:break-word;max-height:3em;overflow:hidden}
-  .scroll-entry .pacts{display:flex;gap:3px;margin-top:4px}
-  .mark{font-size:.5rem;padding:1px 6px;border:1px solid;font-family:'VT323',monospace;text-transform:uppercase}
-  .mark.queued{border-color:#331;color:#661;background:rgba(102,102,17,.1)}
-  .mark.conjuring{border-color:var(--blood);color:var(--glow);background:rgba(139,0,0,.15);animation:beat 2s infinite}
-  .mark.awaiting_approval{border-color:var(--gold);color:var(--gold);background:rgba(204,153,0,.1)}
-  .mark.ritual_complete{border-color:#0a2a0a;color:#226622;background:rgba(34,102,34,.1)}
-  .mark.cursed{border-color:var(--blood);color:#ff4444;background:rgba(255,0,0,.1)}
-  .btn{display:inline-flex;align-items:center;gap:3px;padding:.25rem .6rem;font-size:.55rem;font-family:'VT323',monospace;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);text-transform:uppercase;letter-spacing:1px;transition:all .15s}.btn:active{opacity:.6}
-  .btn-blood{background:var(--blood);border-color:var(--blood);color:#fff;text-shadow:0 0 5px rgba(255,255,255,.3)}
-  .btn-gold{border-color:var(--gold);color:var(--gold)}
-  .btn-sm{padding:.15rem .4rem;font-size:.5rem}
-  /* Bottom nav */
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(17,5,5,.95),rgba(10,0,0,.9));backdrop-filter:blur(8px);border-top:2px solid var(--blood);display:flex;z-index:50;padding-bottom:var(--safe)}
-  .bottom-nav button{flex:1;background:none;border:none;color:var(--muted);padding:.5rem .3rem .4rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.55rem;font-family:'VT323',monospace;text-transform:uppercase;transition:color .15s}
-  .bottom-nav button.active{color:var(--glow);text-shadow:0 0 5px var(--glow)}
-  .bottom-nav .nav-rune{font-size:1rem}
-  /* Modal */
-  .veil{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(--safe)}
-  .portal{background:linear-gradient(180deg,var(--surface),#0a0000);border:1px solid var(--blood);border-bottom:none;padding:1rem;width:100%;max-width:540px;max-height:85vh;overflow-y:auto}
-  .portal h3{font-family:'Press Start 2P',monospace;font-size:.55rem;color:var(--glow);margin-bottom:.7rem;display:flex;justify-content:space-between;align-items:center;text-shadow:0 0 8px var(--glow)}
-  .portal .close-rune{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer}
-  .form-field{margin-bottom:.7rem}.form-field label{display:block;font-size:.55rem;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:1px}
-  .form-field select,.form-field input,.form-field textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:.4rem .5rem;color:var(--text);font-size:.65rem;outline:none;font-family:'VT323',monospace}
-  .form-field select:focus,.form-field input:focus,.form-field textarea:focus{border-color:var(--blood)}
-  .form-field textarea{min-height:55px;resize:vertical}
-  .form-btns{display:flex;justify-content:flex-end;gap:5px;margin-top:.7rem}
-  .detail-parchment{position:relative}
-  .detail-parchment pre{background:var(--bg);border:1px solid var(--border);padding:.6rem;overflow-x:auto;font-size:.6rem;white-space:pre-wrap;word-break:break-word;line-height:1.4;max-height:40vh;overflow-y:auto;font-family:'VT323',monospace}
-  .copy-rune{position:absolute;top:4px;right:4px;background:var(--border);border:none;color:var(--muted);padding:2px 5px;font-size:.5rem;cursor:pointer;font-family:'VT323',monospace}
-  .void-state{text-align:center;padding:2.5rem 1rem;color:var(--muted)}.void-state .icon{font-size:2.5rem;margin-bottom:.3rem;opacity:.3}
-  .whisper{position:fixed;top:.8rem;left:50%;transform:translateX(-50%);background:var(--blood);border:1px solid var(--glow);color:#fff;padding:.3rem .7rem;font-size:.6rem;font-family:'VT323',monospace;z-index:200;animation:whisperFade 2s forwards;text-shadow:0 0 5px rgba(255,255,255,.3)}
-  @keyframes whisperFade{0%{opacity:0;transform:translateX(-50%) translateY(-6px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}85%{opacity:1}100%{opacity:0}}
-  @media(min-width:768px){.agent-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.content{max-width:960px;padding:.8rem 1.2rem}.topbar h1{font-size:.75rem}}
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Creepster&display=swap');
+:root{--bg:#000;--sf:#0a0002;--bd:#1a0000;--tx:#cc1111;--mt:#550000;--gl:#ff1100;--gd:#aa8800;--bl:#660000;--safe:env(safe-area-inset-bottom,0px)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'VT323','Courier New',monospace;background:#000;color:var(--tx);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(68px + var(--safe))}
+/* Hellfire particles */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(255,20,0,.08) 0%,transparent 60%),radial-gradient(ellipse at 20% 0%,rgba(200,0,0,.04) 0%,transparent 50%),radial-gradient(ellipse at 80% 0%,rgba(255,100,0,.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+/* CRT lines */
+.crt{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:999}
+/* Spinning pentagram */
+.pentaspin{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:35vmin;color:rgba(139,0,0,.04);pointer-events:none;z-index:0;animation:spin 60s linear infinite}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+/* Blood drips */
+.blood-drip{position:fixed;top:0;left:10%;width:2px;height:0;background:var(--bl);z-index:0;animation:drip 8s infinite;opacity:.3}
+.blood-drip:nth-child(2){left:30%;animation-delay:3s;animation-duration:6s}
+.blood-drip:nth-child(3){left:50%;animation-delay:5s;animation-duration:10s}
+.blood-drip:nth-child(4){left:70%;animation-delay:1s;animation-duration:7s}
+.blood-drip:nth-child(5){left:90%;animation-delay:4s;animation-duration:9s}
+@keyframes drip{0%{height:0;opacity:0}10%{height:15vh;opacity:.3}20%{height:30vh;opacity:.2}50%{height:60vh;opacity:.1}80%{height:80vh;opacity:0}100%{height:100vh;opacity:0}}
+/* Glitch overlay */
+.glitch-overlay{position:fixed;inset:0;pointer-events:none;z-index:998;opacity:0}
+@keyframes glitch{0%,94%{opacity:0;transform:translate(0)}95%{opacity:.03;transform:translate(-5px,3px)}96%{opacity:.05;transform:translate(8px,-2px)}97%{opacity:.02;transform:translate(-3px,-5px)}98%{opacity:0;transform:translate(0)}}
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(10,0,2,.98),rgba(0,0,0,.95));border-bottom:1px solid var(--bl);padding:.5rem .8rem;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-family:'Creepster',cursive;font-size:.9rem;color:var(--gl);text-shadow:0 0 10px var(--gl),0 0 30px var(--bl),0 0 60px #300;letter-spacing:3px;animation:flick 3s infinite}
+@keyframes flick{0%,99%{opacity:1}99.5%{opacity:.1}100%{opacity:1}}
+.topbar .hail{font-size:.5rem;color:var(--mt);font-family:'Press Start 2P',monospace;text-transform:uppercase;animation:glitch 8s infinite}
+/* Content */
+.content{position:relative;z-index:1;padding:.5rem;max-width:920px;margin:0 auto}
+/* Agent grid */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-bottom:.8rem}
+.agent-card{background:var(--sf);border:1px solid #1a0000;text-align:center;padding:.6rem .4rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;clip-path:polygon(0% 6%,6% 0%,94% 0%,100% 6%,100% 94%,94% 100%,6% 100%,0% 94%)}
+.agent-card::after{content:'';position:absolute;inset:0;background:var(--agent-color);opacity:0;transition:opacity .3s}
+.agent-card:hover::after{opacity:.06}
+.agent-card:hover{border-color:var(--agent-color);box-shadow:0 0 20px var(--agent-color),inset 0 0 20px rgba(0,0,0,.5);transform:scale(1.03)}
+.agent-card .icon{font-size:1.6rem;display:block;margin-bottom:.2rem;filter:drop-shadow(0 0 8px var(--agent-color))}
+.agent-card .name{font-size:.65rem;font-weight:700;color:var(--agent-color);text-shadow:0 0 5px var(--agent-color);letter-spacing:1px}
+.agent-card .latin{font-size:.45rem;color:var(--mt);font-style:italic;margin:2px 0}
+.agent-card .power{font-size:.45rem;color:var(--gd)}
+/* ritual bar */
+.ritual-bar{display:flex;gap:5px;margin-bottom:.7rem;overflow-x:auto}
+.ritual-bar button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);color:var(--mt);padding:.3rem .7rem;font-size:.55rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
+.ritual-bar button:hover{color:var(--gl);border-color:var(--bl);text-shadow:0 0 8px var(--gl)}
+/* status */
+.status-scroll{display:flex;gap:4px;margin-bottom:.7rem;overflow-x:auto}
+.status-scroll button{flex-shrink:0;background:var(--sf);border:1px solid var(--bd);padding:.2rem .6rem;color:var(--mt);font-size:.5rem;font-family:'VT323',monospace;cursor:pointer;text-transform:uppercase;transition:all .15s;border-radius:0}
+.status-scroll button.active,.status-scroll button:hover{border-color:var(--gd);color:var(--gd);background:rgba(170,136,0,.08)}
+/* inverted cross divider */
+.xdivider{text-align:center;color:var(--mt);font-size:.6rem;margin:.4rem 0;letter-spacing:3px;animation:glitch 12s infinite}
+/* grimoire */
+.grimoire{display:flex;flex-direction:column;gap:5px}
+.scroll{background:linear-gradient(90deg,var(--sf),#000);border:1px solid var(--bd);padding:.5rem .6rem;display:flex;gap:.5rem;cursor:pointer;transition:all .2s;animation:manifest .25s ease;position:relative;overflow:hidden}
+.scroll::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--agent-color);opacity:.5}
+@keyframes manifest{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.scroll:active{border-color:var(--bl)}
+.scroll .rune{font-size:1rem;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:var(--sf);border:1px solid var(--bd)}
+.scroll .parch{flex:1;min-width:0}
+.scroll .phead{display:flex;justify-content:space-between;align-items:center;gap:.4rem;margin-bottom:1px}
+.scroll .phead strong{font-size:.65rem;color:var(--agent-color)}
+.scroll .pmeta{font-size:.5rem;color:var(--mt)}
+.scroll .prune{font-size:.55rem;color:#661515;line-height:1.3;margin-top:1px;white-space:pre-wrap;word-break:break-word;max-height:2.8em;overflow:hidden}
+.scroll .pacts{display:flex;gap:2px;margin-top:3px}
+.mark{font-size:.45rem;padding:1px 5px;border:1px solid;font-family:'VT323',monospace;text-transform:uppercase}
+.mark.queued{border-color:#331;color:#661}.mark.conjuring{border-color:var(--bl);color:var(--gl);animation:beat 1.5s infinite}
+.mark.awaiting_approval{border-color:var(--gd);color:var(--gd)}.mark.ritual_complete{border-color:#0a1a0a;color:#225522}
+.mark.cursed{border-color:#440000;color:#ff3333}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.4}}
+.btn{display:inline-flex;align-items:center;gap:2px;padding:.2rem .5rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer;border:1px solid var(--bd);background:var(--sf);color:var(--tx);text-transform:uppercase;letter-spacing:1px;transition:all .15s}.btn:active{opacity:.5}
+.btn-sacrifice{background:var(--bl);border-color:var(--gl);color:#fff;text-shadow:0 0 5px #fff}.btn-sm{padding:.12rem .35rem;font-size:.45rem}
+/* bottom nav */
+.bottom{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(10,0,2,.98),rgba(0,0,0,.95));border-top:1px solid var(--bl);display:flex;z-index:50;padding-bottom:var(--safe)}
+.bottom button{flex:1;background:none;border:none;color:var(--mt);padding:.45rem .3rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.5rem;font-family:'VT323',monospace;text-transform:uppercase;transition:all .15s}
+.bottom button.active{color:var(--gl);text-shadow:0 0 6px var(--gl)}
+.bottom .navrune{font-size:.9rem}
+/* veil + portal */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(--safe)}
+.portal{background:linear-gradient(180deg,var(--sf),#000);border:1px solid var(--bl);border-bottom:none;padding:.9rem;width:100%;max-width:540px;max-height:85vh;overflow-y:auto}
+.portal h3{font-family:'Creepster',cursive;font-size:.6rem;color:var(--gl);margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center;text-shadow:0 0 10px var(--gl)}
+.portal .close-btn{background:none;border:none;color:var(--mt);font-size:.9rem;cursor:pointer}
+.field{margin-bottom:.6rem}.field label{display:block;font-size:.5rem;color:var(--mt);margin-bottom:1px;text-transform:uppercase;letter-spacing:1px}
+.field select,.field input,.field textarea{width:100%;background:#000;border:1px solid var(--bd);padding:.35rem .45rem;color:var(--tx);font-size:.6rem;outline:none;font-family:'VT323',monospace}
+.field textarea{min-height:50px;resize:vertical}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--bl);box-shadow:0 0 8px rgba(139,0,0,.3)}
+.fbtns{display:flex;justify-content:flex-end;gap:4px;margin-top:.6rem}
+.detail-p{position:relative}.detail-p pre{background:#000;border:1px solid var(--bd);padding:.5rem;overflow-x:auto;font-size:.55rem;white-space:pre-wrap;word-break:break-word;line-height:1.3;max-height:38vh;overflow-y:auto;font-family:'VT323',monospace}
+.copy-btn{position:absolute;top:3px;right:3px;background:var(--bd);border:none;color:var(--mt);padding:1px 4px;font-size:.45rem;cursor:pointer;font-family:'VT323',monospace}
+.void{text-align:center;padding:2rem 1rem;color:var(--mt)}.void .icon{font-size:2.5rem;margin-bottom:.2rem;opacity:.2}
+.whisper{position:fixed;top:.7rem;left:50%;transform:translateX(-50%);background:var(--bl);border:1px solid var(--gl);color:#fff;padding:.25rem .6rem;font-size:.55rem;font-family:'VT323',monospace;z-index:200;animation:whisp 2.2s forwards;text-shadow:0 0 5px #fff}@keyframes whisp{0%{opacity:0;transform:translateX(-50%) translateY(-5px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}88%{opacity:1}100%{opacity:0}}
+@media(min-width:768px){.agent-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.content{max-width:960px;padding:.7rem 1rem}.topbar h1{font-size:1.1rem}}
 </style>
 </head>
 <body>
+<div class="crt"></div>
+<div class="pentaspin">⛧</div>
+<div class="glitch-overlay" style="background:var(--gl);animation:glitch 8s infinite"></div>
+<div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div><div class="blood-drip"></div>
 
 <div class="topbar">
-  <h1>⛧ ABYSSAL TERMINAL v666 ⛧</h1>
-  <div class="pulse"><span class="pulse-dot"></span><span id="stat-line">AWAITING RITUAL...</span></div>
+  <h1>H A I L &nbsp; S A T A N</h1>
+  <div><span class="hail">⛧ TERMINAL 666 ⛧</span> <span style="font-size:.5rem;color:var(--gl);margin-left:8px"><span style="animation:beat 1.5s infinite">●</span> <span id="stat-line">AWAKE</span></span></div>
 </div>
 
 <div class="content">
-  <div id="view-main">
-    <div class="agent-grid" id="agent-grid"></div>
-    <div class="ritual-bar">
-      <button onclick="invoke('email','triage_inbox')">📜 Scry Inbox</button>
-      <button onclick="invoke('research','search','latest AI news')">🔮 Seek Knowledge</button>
-      <button onclick="invoke('dev','write_code','web scraper')">⚡ Forge Script</button>
-      <button onclick="invoke('image','generate','dark cathedral')">🎨 Conjure Image</button>
-    </div>
-    <div class="status-scroll">
-      <button class="active" onclick="setFilter('')">All Rites</button>
-      <button onclick="setFilter('running')">Conjuring</button>
-      <button onclick="setFilter('awaiting_approval')">Requires Blood</button>
-      <button onclick="setFilter('completed')">Ritual Complete</button>
-      <button onclick="setFilter('failed')">Cursed</button>
-    </div>
-    <div class="grimoire" id="grimoire"><div class="void-state"><div class="icon">⛧</div><p>The grimoire awaits your command</p><p style="font-size:.55rem;margin-top:3px">Invoke a ritual or speak to the abyss</p></div></div>
+  <div class="agent-grid" id="agent-grid"></div>
+  <div class="ritual-bar">
+    <button onclick="cast('email','triage_inbox')">📜 SCRY INBOX</button>
+    <button onclick="cast('research','news_briefing','AI technology')">🔮 SEEK TRUTH</button>
+    <button onclick="cast('dev','write_code','web scraper')">💀 FORGE SCRIPT</button>
+    <button onclick="cast('image','generate','burning cathedral')">🎨 CONJURE IMAGE</button>
   </div>
+  <div class="xdivider">⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸</div>
+  <div class="status-scroll">
+    <button class="active" onclick="setFilter('')">ALL SOULS</button>
+    <button onclick="setFilter('running')">CONJURING</button>
+    <button onclick="setFilter('awaiting_approval')">NEEDS SACRIFICE</button>
+    <button onclick="setFilter('completed')">ASCENDED</button>
+    <button onclick="setFilter('failed')">DAMNED</button>
+  </div>
+  <div class="grimoire" id="grimoire"><div class="void"><div class="icon">⛧</div><p>THE VOID AWAITS THY COMMAND</p></div></div>
 </div>
 
-<nav class="bottom-nav">
-  <button class="active" onclick="showMain()"><span class="nav-rune">⛧</span>Grimoire</button>
-  <button onclick="openPortal()"><span class="nav-rune">🔮</span>Invoke</button>
+<nav class="bottom">
+  <button class="active" onclick="showMain()"><span class="navrune">📜</span>GRIMOIRE</button>
+  <button onclick="openPortal()"><span class="navrune">🔥</span>SACRIFICE</button>
 </nav>
 
 <div id="portal-veil" class="veil" style="display:none" onclick="if(event.target===this)closePortal()">
-  <div class="portal"><h3>⛧ INVOKE RITUAL ⛧ <button class="close-rune" onclick="closePortal()">✕</button></h3>
-    <div id="quick-sigils" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.7rem"></div>
-    <div class="form-field"><label>Speak thy command</label><textarea id="ritual-input" placeholder="search the web for dark programming secrets...&#10;scry mine inbox for urgent messages...&#10;forge a script that scrapes the void..."></textarea></div>
-    <div class="form-btns"><button class="btn" onclick="closePortal()">Flee</button><button class="btn btn-blood" onclick="castRitual()">Cast Ritual</button></div>
+  <div class="portal"><h3>🔥 OFFER THY COMMAND 🔥 <button class="close-btn" onclick="closePortal()">✕</button></h3>
+    <div id="quick-sigils" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.6rem"></div>
+    <div class="field"><label>SPEAK TO THE ABYSS</label><textarea id="ritual-input" placeholder="search the dark web for forbidden knowledge...&#10;scry mine inbox for urgent messages...&#10;forge a demonic script in python..."></textarea></div>
+    <div class="fbtns"><button class="btn" onclick="closePortal()">FLEE</button><button class="btn btn-sacrifice" onclick="castRitual()">OFFER BLOOD</button></div>
   </div>
 </div>
 
@@ -140,66 +147,51 @@
 
 <script>
 const API='/api';let TOKEN=localStorage.getItem('ah_token')||'';let filter='';let agentsData={};let pollTimer;
+document.addEventListener('DOMContentLoaded',()=>{if(!TOKEN){TOKEN=prompt('SPEAK THE PASSWORD:')||'';if(TOKEN)localStorage.setItem('ah_token',TOKEN)}refreshAll();pollTimer=setInterval(refreshTasks,4000)});
+async function api(m,p,b){let o={method:m,headers:{}};if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}let r=await fetch(API+p,o);if(r.status===401){alert('THY PASSWORD IS FALSE');localStorage.removeItem('ah_token');TOKEN=''}if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText)}return r.json()}
+function showMain(){document.querySelectorAll('.bottom button').forEach((b,i)=>b.classList.toggle('active',i===0))}
 
-document.addEventListener('DOMContentLoaded',()=>{if(!TOKEN){TOKEN=prompt('Speak the password:')||'';if(TOKEN)localStorage.setItem('ah_token',TOKEN)}refreshAll();pollTimer=setInterval(refreshTasks,5000)});
+let demonThemes={email:{icon:'📜',color:'#cc1111',latin:'Legionem Inbox'},research:{icon:'🔮',color:'#cc33cc',latin:'Scryer of Truth'},content:{icon:'📖',color:'#33cc33',latin:'Scriba Sanguinis'},fixit:{icon:'⚒️',color:'#cc8800',latin:'Malleus Codicis'},dev:{icon:'💀',color:'#33cccc',latin:'Daemon Forge'},image:{icon:'🎨',color:'#cc3388',latin:'Pictor Inferni'}};
 
-async function api(m,p,b){let o={method:m,headers:{}};if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}let r=await fetch(API+p,o);if(r.status===401){alert('Thy password is false');localStorage.removeItem('ah_token');TOKEN=''}if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||r.statusText)}return r.json()}
-
-function showMain(){document.querySelectorAll('.bottom-nav button').forEach((b,i)=>b.classList.toggle('active',i===0))}
-
-function renderSIGILS(agents){
-  let g=document.getElementById('agent-grid');let q=document.getElementById('quick-sigils');
-  let h='';let qh='';let themes={'email':['📜','#cc2222'],'research':['🔮','#cc44cc'],'content':['📖','#44cc44'],'fixit':['⚒️','#cc9900'],'dev':['💀','#44cccc'],'image':['🎨','#cc4488']};
-  for(let[k,a]of Object.entries(agents)){
-    if(k==='orchestrator')continue;let t=themes[k]||['⛧','#cc2222'];
-    let col=t[1];h+=`<div class="agent-card" style="--agent-color:${col}" onclick="touchSigil('${k}')"><span class="sigil" style="color:${col}">${t[0]}</span><div class="title">${a.name||k}</div><div class="cursetext">${(a.personality||'').slice(0,50)}</div><div class="power">⚡ ${Object.keys(a.capabilities||{}).length} rites</div></div>`;
-    qh+=`<button style="background:rgba(0,0,0,.3);border:1px solid ${col}44;color:${col};padding:.2rem .5rem;font-size:.55rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${t[0]} ${a.name||k}</button>`;
-  }
-  g.innerHTML=h;q.innerHTML=qh;
-}
-
-function touchSigil(name){let a=agentsData[name];if(!a)return;openPortal();let inp=document.getElementById('ritual-input');inp.value=`${name} `;inp.focus()}
-
-async function invoke(agent,action,query=''){try{await api('POST','/api/tasks',{agent,action,params:{query}});whisper('Ritual cast!');refreshTasks()}catch(e){alert(e.message)}}
-
-async function refreshAll(){try{let a=await api('GET','/agents');agentsData=a;renderSIGILS(a);let h=await api('GET','/health');document.getElementById('stat-line').textContent=`${h.agents.length} ENTITIES · ${h.tasks_active||0} CONJURING`}catch(e){}refreshTasks()}
-
+function renderSigils(agents){
+  let g=document.getElementById('agent-grid');let q=document.getElementById('quick-sigils');let h='';let qh='';
+  for(let[k,a]of Object.entries(agents)){if(k==='orchestrator')continue;let d=demonThemes[k]||{icon:'⛧',color:'#cc1111',latin:'Unknown Demon'};
+    h+=`<div class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')"><span class="icon" style="color:${d.color}">${d.icon}</span><div class="name">${a.name||k}</div><div class="latin">${d.latin}</div><div class="power">⚡ ${Object.keys(a.capabilities||{}).length} RITES</div></div>`;
+    qh+=`<button style="background:rgba(0,0,0,.5);border:1px solid ${d.color}33;color:${d.color};padding:.15rem .4rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${d.icon} ${a.name||k}</button>`;
+  }g.innerHTML=h;q.innerHTML=qh}
+function touchSigil(name){openPortal();document.getElementById('ritual-input').value=`${name} `;document.getElementById('ritual-input').focus()}
+async function cast(agent,action,query=''){try{await api('POST','/api/tasks',{agent,action,params:{query}});whisper('RITUAL CAST');refreshTasks()}catch(e){alert(e.message)}}
+async function refreshAll(){try{let a=await api('GET','/agents');agentsData=a;renderSigils(a);let h=await api('GET','/health');document.getElementById('stat-line').textContent=`${h.agents.length} DEMONS · ${h.tasks_active||0} CONJURING`}catch(e){}refreshTasks()}
 async function refreshTasks(){try{let p='/tasks?limit=40';if(filter)p+='&status='+filter;let tasks=await api('GET',p);renderScrolls(tasks)}catch(e){}}
 
 function renderScrolls(tasks){
   let f=document.getElementById('grimoire');
-  if(!tasks.length){f.innerHTML='<div class="void-state"><div class="icon">⛧</div><p>The grimoire awaits</p></div>';return}
+  if(!tasks.length){f.innerHTML='<div class="void"><div class="icon">⛧</div><p>THE VOID AWAITS THY COMMAND</p></div>';return}
   f.innerHTML=tasks.map(t=>{
-    let a=agentsData[t.agent]||{};let col={'email':'#cc2222','research':'#cc44cc','content':'#44cc44','fixit':'#cc9900','dev':'#44cccc','image':'#cc4488'}[t.agent]||'#cc2222';
+    let d=demonThemes[t.agent]||{color:'#cc1111'};let a=agentsData[t.agent]||{};
     let s=t.status==='running'?'conjuring':t.status==='completed'?'ritual_complete':t.status==='awaiting_approval'?'awaiting_approval':t.status==='failed'?'cursed':'queued';
-    let sl={'queued':'PENDING','running':'CONJURING','awaiting_approval':'NEEDS BLOOD','completed':'COMPLETE','failed':'CURSED'}[t.status]||t.status;
+    let sl={'queued':'PENDING','running':'CONJURING','awaiting_approval':'NEEDS SACRIFICE','completed':'ASCENDED','failed':'DAMNED'}[t.status]||t.status;
     let time=new Date(t.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    let preview=(t.result?.summary||t.error||'').substring(0,150);
+    let preview=(t.result?.summary||t.error||'').substring(0,130);
     let acts='';
-    if(t.status==='awaiting_approval')acts=`<button class="btn btn-blood btn-sm" onclick="event.stopPropagation();doAct('${t.id}','approve')">Offer Blood</button><button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">Banish</button>`;
-    if(t.status==='queued'||t.status==='running')acts=`<button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">Banish</button>`;
-    return`<div class="scroll-entry" style="--agent-color:${col}" onclick="openDetail('${t.id}')">
-      <div class="rune" style="color:${col}">⛧</div><div class="parchment">
+    if(t.status==='awaiting_approval')acts=`<button class="btn btn-sacrifice btn-sm" onclick="event.stopPropagation();doAct('${t.id}','approve')">SPILL BLOOD</button><button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
+    if(t.status==='queued'||t.status==='running')acts=`<button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
+    return`<div class="scroll" style="--agent-color:${d.color}" onclick="openDetail('${t.id}')">
+      <div class="rune" style="color:${d.color}">${d.icon}</div><div class="parch">
         <div class="phead"><strong>${a.name||t.agent}</strong><span class="mark ${s}">${sl}</span></div>
-        <div class="pmeta">${time} · ${t.action}</div>
-        ${preview?`<div class="prune">${esc(preview)}</div>`:''}
-        ${acts?`<div class="pacts">${acts}</div>`:''}
-      </div></div>`
-  }).join('')}
+        <div class="pmeta">${time} · ${t.action}</div>${preview?`<div class="prune">${esc(preview)}</div>`:''}${acts?`<div class="pacts">${acts}</div>`:''}
+      </div></div>`}).join('')}
 
 function setFilter(s){filter=s;document.querySelectorAll('.status-scroll button').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');refreshTasks()}
-async function doAct(id,act){await api('POST',`/tasks/${id}/${act}`);whisper(act==='approve'?'Blood accepted':'Banished');refreshTasks()}
-
+async function doAct(id,act){await api('POST',`/tasks/${id}/${act}`);whisper(act==='approve'?'BLOOD ACCEPTED':'BANISHED TO VOID');refreshTasks()}
 function openPortal(){document.getElementById('portal-veil').style.display='flex';document.getElementById('ritual-input').focus()}
 function closePortal(){document.getElementById('portal-veil').style.display='none'}
 async function castRitual(){let text=document.getElementById('ritual-input').value.trim();if(!text)return;closePortal();
-  try{await api('POST','/api/tasks',{agent:'orchestrator',action:'solve',params:{goal:text}});whisper('Invoking the abyss...');refreshTasks();document.getElementById('ritual-input').value=''}catch(e){alert(e.message)}}
-
-async function openDetail(id){try{let t=await api('GET',`/tasks/${id}`);let a=agentsData[t.agent]||{};let r=t.result?JSON.stringify(t.result,null,2):(t.error||'The void returns nothing');document.getElementById('detail-scroll').innerHTML=`<h3>⛧ ${a.name||t.agent} · ${t.action} ⛧ <button class="close-rune" onclick="closeDetail()">✕</button></h3><div class="detail-parchment"><button class="copy-rune" onclick="navigator.clipboard.writeText(\`${r.replace(/`/g,'\\`')}\`);whisper('Copied to scroll')">COPY</button><pre>${esc(r)}</pre></div>`;document.getElementById('detail-veil').style.display='flex'}catch(e){alert(e.message)}}
+  try{await api('POST','/api/tasks',{agent:'orchestrator',action:'solve',params:{goal:text}});whisper('SUMMONING DEMONS...');refreshTasks();document.getElementById('ritual-input').value=''}catch(e){alert(e.message)}}
+async function openDetail(id){try{let t=await api('GET',`/tasks/${id}`);let a=agentsData[t.agent]||{};let r=t.result?JSON.stringify(t.result,null,2):(t.error||'The void is silent');document.getElementById('detail-scroll').innerHTML=`<h3>⛧ ${a.name||t.agent} · ${t.action} ⛧ <button class="close-btn" onclick="closeDetail()">✕</button></h3><div class="detail-p"><button class="copy-btn" onclick="navigator.clipboard.writeText(\`${r.replace(/`/g,'\\`')}\`);whisper('COPIED TO SCROLL')">COPY</button><pre>${esc(r)}</pre></div>`;document.getElementById('detail-veil').style.display='flex'}catch(e){alert(e.message)}}
 function closeDetail(){document.getElementById('detail-veil').style.display='none'}
-
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function whisper(m){let t=document.createElement('div');t.className='whisper';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+function whisper(m){let t=document.createElement('div');t.className='whisper';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2300)}
 </script>
 </body>
 </html>
