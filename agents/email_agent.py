@@ -1,15 +1,16 @@
 """
 Email Agent — checks inbox, reads threads, drafts replies via Gmail API.
 
-Uses Gmail REST API with OAuth2 refresh token.
-Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN in env.
-Get these from https://console.cloud.google.com/apis/credentials
+Supports MULTIPLE Gmail accounts via GOOGLE_ACCOUNTS env var:
+  GOOGLE_ACCOUNTS='[{"email":"you@gmail.com","client_id":"...","client_secret":"...","refresh_token":"..."}]'
 
-To get a refresh token, run: python -m agents.gmail_auth
+Or single account (backward compat):
+  GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN
 """
 from __future__ import annotations
 
 import base64
+import json as _json
 import logging
 import os
 from email.mime.text import MIMEText
@@ -24,46 +25,75 @@ logger = logging.getLogger("agent-hub.agents.email")
 GMAIL_API = "https://gmail.googleapis.com/gmail/v1"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 
-# Cache the access token
-_access_token: str | None = None
-_token_expiry: float = 0
+# Cache: { "email@domain.com": {"access_token": "...", "expiry": 1234567890} }
+_token_cache: dict[str, dict] = {}
 
 
-async def _get_access_token() -> str:
-    """Get a fresh Gmail access token using the refresh token."""
-    global _access_token, _token_expiry
+def _load_accounts() -> list[dict]:
+    """Load Gmail account configs from env."""
+    accounts_json = os.environ.get("GOOGLE_ACCOUNTS", "")
+    if accounts_json:
+        try:
+            return _json.loads(accounts_json)
+        except Exception:
+            pass
+
+    # Fallback: single account from old env vars
+    cid = os.environ.get("GOOGLE_CLIENT_ID", "")
+    csec = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+    rtok = os.environ.get("GOOGLE_REFRESH_TOKEN", "")
+    if all([cid, csec, rtok]):
+        return [{"email": "default", "client_id": cid, "client_secret": csec, "refresh_token": rtok}]
+    return []
+
+
+async def _get_access_token(account_email: str = "") -> str:
+    """Get a fresh access token for a specific account."""
     import time as _time
 
-    if _access_token and _time.time() < _token_expiry - 60:
-        return _access_token
-
-    client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
-    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-    refresh_token = os.environ.get("GOOGLE_REFRESH_TOKEN", "")
-
-    if not all([client_id, client_secret, refresh_token]):
+    accounts = _load_accounts()
+    if not accounts:
         return ""
 
+    # Find the right account
+    account = None
+    for a in accounts:
+        if a["email"] == account_email or (not account_email and a["email"] == "default"):
+            account = a
+            break
+    if not account:
+        account = accounts[0]  # first available
+
+    email_key = account.get("email", "default")
+
+    # Check cache
+    cached = _token_cache.get(email_key)
+    if cached and _time.time() < cached.get("expiry", 0) - 60:
+        return cached["access_token"]
+
+    # Refresh
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(GOOGLE_TOKEN_URL, data={
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "refresh_token": refresh_token,
+            "client_id": account["client_id"],
+            "client_secret": account["client_secret"],
+            "refresh_token": account["refresh_token"],
             "grant_type": "refresh_token",
         })
         if resp.status_code != 200:
-            logger.warning("Gmail token refresh failed: %s", resp.text[:200])
+            logger.warning("Gmail token refresh failed for %s: %s", email_key, resp.text[:200])
             return ""
 
         data = resp.json()
-        _access_token = data.get("access_token", "")
-        _token_expiry = _time.time() + data.get("expires_in", 3600)
-        return _access_token
+        _token_cache[email_key] = {
+            "access_token": data.get("access_token", ""),
+            "expiry": _time.time() + data.get("expires_in", 3600),
+        }
+        return data.get("access_token", "")
 
 
-async def _gmail_request(method: str, path: str, params: dict | None = None, json_body: dict | None = None) -> dict[str, Any]:
-    """Make an authenticated Gmail API request."""
-    token = await _get_access_token()
+async def _gmail_request(method: str, path: str, params: dict | None = None, json_body: dict | None = None, account: str = "") -> dict[str, Any]:
+    """Make an authenticated Gmail API request for a specific account."""
+    token = await _get_access_token(account)
     if not token:
         return {}
 
@@ -101,13 +131,14 @@ class EmailAgent(BaseAgent):
 
     def get_capabilities(self) -> dict[str, str]:
         return {
-            "check_inbox": "Summarize recent Gmail emails in your inbox",
-            "triage_inbox": "Categorize inbox emails by urgency and type (urgent, newsletter, personal, spam)",
+            "check_inbox": "Summarize recent Gmail emails in your inbox (supports 'account' param)",
+            "triage_inbox": "Categorize inbox emails by urgency and type",
             "read_thread": "Read a specific email thread by Gmail thread_id",
             "summarize_thread": "AI-powered summary of an entire email thread",
             "draft_reply": "AI-draft a reply to an email and save as Gmail draft",
             "search_emails": "Search Gmail by keyword, sender, subject, or date range",
             "send_draft": "Send a Gmail draft (requires approval)",
+            "list_accounts": "List configured Gmail accounts",
         }
 
     async def execute(self, action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -116,6 +147,10 @@ class EmailAgent(BaseAgent):
             return self._fail(f"Unknown action: {action}")
         return await handler(params)
 
+    def _acct(self, params: dict) -> str:
+        """Extract account email from params."""
+        return params.get("account", "")
+
     # ------------------------------------------------------------------
     # Action handlers
     # ------------------------------------------------------------------
@@ -123,14 +158,15 @@ class EmailAgent(BaseAgent):
     async def _handle_check_inbox(self, params: dict[str, Any]) -> dict[str, Any]:
         limit = params.get("limit", 10)
         query = params.get("query", "in:inbox")
+        acct = self._acct(params)
 
         # List message IDs
-        resp = await _gmail_request("GET", f"/users/me/messages", params={"q": query, "maxResults": min(limit, 50)})
+        resp = await _gmail_request("GET", f"/users/me/messages", params={"q": query, "maxResults": min(limit, 50)}, account=acct)
         messages = resp.get("messages", [])
 
         if not messages:
             return self._ok(
-                summary="Inbox is empty or Gmail not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN.",
+                summary="Inbox is empty or Gmail not configured. Set GOOGLE_ACCOUNTS or GOOGLE_REFRESH_TOKEN on Railway.",
                 data={"emails": [], "count": 0},
             )
 
@@ -412,6 +448,18 @@ Format:
             summary = f"Thread with {len(messages)} messages. First message from {messages[0]['from']}."
 
         return self._ok(summary=summary, data={"thread_id": thread_id, "message_count": len(messages), "participants": list(set(m['from'] for m in messages))})
+
+    async def _handle_list_accounts(self, params: dict[str, Any]) -> dict[str, Any]:
+        """List configured Gmail accounts."""
+        accounts = _load_accounts()
+        if not accounts:
+            return self._ok(summary="No Gmail accounts configured.", data={"accounts": [], "count": 0})
+
+        lines = [f"  {a.get('email', 'default')}" for a in accounts]
+        return self._ok(
+            summary=f"{len(accounts)} Gmail account(s) configured:\n" + "\n".join(lines),
+            data={"accounts": [a.get("email", "default") for a in accounts], "count": len(accounts)},
+        )
 
     async def _handle_send_draft(self, params: dict[str, Any]) -> dict[str, Any]:
         draft_id = params.get("draft_id", "")
