@@ -127,10 +127,10 @@ class ImageAgent(BaseAgent):
                         "Content-Type": "application/json",
                     },
                     json={
-                        "model": "dall-e-3",
+                        "model": "dall-e-2",
                         "prompt": prompt,
                         "n": 1,
-                        "size": size,
+                        "size": "1024x1024",
                     },
                 )
 
