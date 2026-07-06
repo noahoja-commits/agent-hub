@@ -111,6 +111,16 @@ class ImageAgent(BaseAgent):
     # ------------------------------------------------------------------
 
     async def _generate_dalle(self, prompt: str, size: str = "1024x1024", style: str = "vivid") -> dict[str, Any]:
+        """Generate image via DALL-E, with SVG fallback if DALL-E unavailable."""
+        result = await self._try_dalle(prompt, size)
+        if result.get("url"):
+            return result
+
+        # Fallback: generate SVG via GPT
+        logger.info("DALL-E unavailable, falling back to SVG generation")
+        return await self._generate_svg(prompt)
+
+    async def _try_dalle(self, prompt: str, size: str) -> dict[str, Any]:
         """Generate image via OpenAI DALL-E."""
         api_key = os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
@@ -152,3 +162,45 @@ class ImageAgent(BaseAgent):
         except Exception as exc:
             logger.warning("DALL-E request failed: %s", exc)
             return {"error": f"Image generation failed: {exc}"}
+
+    async def _generate_svg(self, prompt: str) -> dict[str, Any]:
+        """Generate an SVG image using GPT as fallback."""
+        try:
+            import litellm
+            svg_prompt = f"""Create a simple, beautiful SVG image based on this description: "{prompt}"
+
+Requirements:
+- Valid SVG code only (no explanations)
+- Use viewBox, clean shapes, gradients if appropriate
+- Responsive, max 800x600
+- Modern, visually appealing design
+- Include descriptive alt text as an SVG comment
+
+Return ONLY the SVG code starting with <svg>."""
+            response = litellm.completion(
+                model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
+                messages=[{"role": "user", "content": svg_prompt}],
+                temperature=0.7, max_tokens=1500,
+            )
+            svg = response.choices[0].message.content.strip()
+            if "<svg" not in svg:
+                start = svg.find("<svg")
+                end = svg.rfind("</svg>") + 6
+                if start >= 0 and end > start:
+                    svg = svg[start:end]
+                else:
+                    return {"error": "Could not generate valid SVG"}
+
+            # Encode as data URL
+            import base64
+            encoded = base64.b64encode(svg.encode()).decode()
+            data_url = f"data:image/svg+xml;base64,{encoded}"
+
+            return {
+                "url": data_url,
+                "prompt": prompt,
+                "type": "svg",
+                "svg_code": svg[:2000],
+            }
+        except Exception as exc:
+            return {"error": f"SVG generation failed: {exc}"}
