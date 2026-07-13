@@ -1054,6 +1054,27 @@ body {
 .connection-chip.locked { border-color: rgba(255, 0, 68, 0.7); color: #ff6677; }
 .connection-chip::before { content: ''; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 
+@media (max-width: 767px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .topbar h1 {
+    width: 100%;
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.5;
+    letter-spacing: 2px;
+  }
+
+  .topbar h1 .sub { letter-spacing: 4px; }
+  .service-cluster { width: 100%; flex-wrap: nowrap; }
+  #stat-line { margin-left: auto; text-align: right; font-size: 0.46rem; letter-spacing: 1px; }
+}
+
 .auth-panel { align-self: center; border-bottom: 1px solid var(--noah-red); }
 .auth-kicker { color: var(--noah-red); font-size: .52rem; letter-spacing: 3px; text-transform: uppercase; }
 .auth-copy { color: #a35a65; font-size: .62rem; line-height: 1.45; margin: .4rem 0 .8rem; }
