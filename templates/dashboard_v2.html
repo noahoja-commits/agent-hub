@@ -10,8 +10,8 @@
 <title>⛧ NOAH'S ABYSSAL TERMINAL v666 ⛧</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap"></noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap"></noscript>
 <style>
 :root {
   --bg:#000;--sf:#050002;--bd:#1a0000;--tx:#cc1111;--mt:#550000;
@@ -1068,6 +1068,539 @@ body {
 .auth-copy { color: #a35a65; font-size: .62rem; line-height: 1.45; margin: .4rem 0 .8rem; }
 .auth-error { min-height: 1.2rem; color: #ff6677; font-size: .55rem; margin-top: .35rem; }
 
+/* ===== ABYSSAL RESTORATION — CINEMATIC, LEGIBLE, FAST ===== */
+:root {
+  --bg: #020002;
+  --sf: #100207;
+  --bd: #4b0917;
+  --tx: #ffabb7;
+  --mt: #bd6977;
+  --gl: #ff315f;
+  --hellfire: #ff315f;
+  --ember: #ff7a18;
+  --bone: #fff2df;
+  --noah-red: #ff174f;
+  --noah-gold: #ffd34e;
+  --noah-purple: #c75cff;
+}
+
+html { background: #000; color-scheme: dark; }
+
+body {
+  color: var(--bone);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(151, 0, 35, .18), transparent 36rem),
+    radial-gradient(circle at 18% 72%, rgba(107, 8, 72, .12), transparent 32rem),
+    linear-gradient(180deg, #080003 0%, #020002 36%, #050002 100%);
+  padding-bottom: calc(86px + var(--safe));
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 23, 79, .025) 1px, transparent 1px),
+    linear-gradient(rgba(255, 23, 79, .025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at 50% 25%, #000, transparent 80%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  box-shadow: inset 0 0 140px rgba(0, 0, 0, .9), inset 0 0 24px rgba(255, 23, 79, .12);
+}
+
+#hellfire, .blood-rain {
+  width: 100%;
+  height: 100%;
+  opacity: .92;
+}
+
+#hellfire { z-index: 2; filter: saturate(1.35) brightness(1.25); }
+.blood-rain { z-index: 1; }
+.blood-drop { display: none; }
+.pentagram { display: none; }
+
+.crt {
+  opacity: .32;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, .22) 3px 4px);
+  mix-blend-mode: multiply;
+}
+
+.topbar {
+  min-height: 74px;
+  padding: .8rem clamp(1rem, 3vw, 2.5rem);
+  background: linear-gradient(180deg, rgba(15, 0, 5, .97), rgba(4, 0, 2, .91));
+  border-bottom: 1px solid rgba(255, 23, 79, .85);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .8), 0 1px 24px rgba(255, 23, 79, .22);
+  backdrop-filter: blur(16px);
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--noah-gold), var(--noah-red), transparent);
+  opacity: .75;
+}
+
+.topbar h1 {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(.88rem, 1.6vw, 1.28rem);
+  font-weight: 900;
+  color: var(--bone);
+  letter-spacing: clamp(2px, .42vw, 7px);
+  text-shadow: 0 0 10px rgba(255, 255, 255, .22), 0 0 24px var(--noah-red), 0 0 55px rgba(255, 23, 79, .65);
+}
+
+.topbar h1 .sub {
+  margin-top: .25rem;
+  color: var(--noah-gold);
+  font-size: .64rem;
+  letter-spacing: 5px;
+  text-shadow: 0 0 14px rgba(255, 211, 78, .65);
+}
+
+.service-cluster { gap: .75rem; }
+
+.connection-chip {
+  min-height: 38px;
+  padding: .45rem .85rem;
+  border: 1px solid rgba(255, 211, 78, .7);
+  background: rgba(255, 211, 78, .06);
+  color: var(--noah-gold);
+  font-size: .74rem;
+  letter-spacing: 1.5px;
+  box-shadow: inset 0 0 16px rgba(255, 211, 78, .07), 0 0 18px rgba(255, 211, 78, .08);
+}
+
+.connection-chip.locked {
+  border-color: var(--noah-red);
+  background: rgba(255, 23, 79, .09);
+  color: #ff8aa7;
+}
+
+#stat-line {
+  color: #ffb8c4;
+  font-family: 'VT323', monospace;
+  font-size: .72rem;
+  letter-spacing: 1.6px;
+  text-shadow: 0 0 10px rgba(255, 23, 79, .45);
+}
+
+.content {
+  max-width: 1460px;
+  padding: clamp(1rem, 2.5vw, 2.25rem);
+}
+
+.abyss-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(330px, 1.08fr) minmax(250px, .82fr) minmax(210px, .62fr);
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2.6rem);
+  min-height: 320px;
+  margin: .25rem 0 2.2rem;
+  padding: clamp(1.25rem, 3vw, 2.65rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 23, 79, .58);
+  background:
+    linear-gradient(115deg, rgba(28, 2, 10, .95), rgba(7, 0, 3, .82) 48%, rgba(24, 4, 8, .92)),
+    repeating-linear-gradient(90deg, transparent 0 48px, rgba(255, 23, 79, .045) 49px);
+  box-shadow: inset 0 0 90px rgba(255, 23, 79, .08), 0 24px 80px rgba(0, 0, 0, .65), 0 0 36px rgba(255, 23, 79, .12);
+  isolation: isolate;
+}
+
+.abyss-hero::before,
+.abyss-hero::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  width: 84px;
+  height: 84px;
+  pointer-events: none;
+}
+
+.abyss-hero::before {
+  top: 10px;
+  left: 10px;
+  border-top: 2px solid var(--noah-gold);
+  border-left: 2px solid var(--noah-gold);
+}
+
+.abyss-hero::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 2px solid var(--noah-red);
+  border-bottom: 2px solid var(--noah-red);
+}
+
+.hero-copy { position: relative; z-index: 4; }
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin-bottom: .75rem;
+  color: var(--noah-gold);
+  font-size: .8rem;
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px rgba(255, 211, 78, .48);
+}
+
+.live-rune {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aaff00;
+  box-shadow: 0 0 7px #aaff00, 0 0 16px #aaff00;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+.live-rune.locked { background: var(--noah-red); box-shadow: 0 0 7px var(--noah-red), 0 0 16px var(--noah-red); }
+
+@keyframes livePulse { 50% { opacity: .42; transform: scale(.75); } }
+
+.abyss-title {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 .65rem;
+  color: var(--bone);
+  font: 900 clamp(2.25rem, 4.25vw, 4.8rem)/.93 'Cinzel', Georgia, serif;
+  letter-spacing: -.025em;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px rgba(255, 255, 255, .2), 0 0 34px var(--noah-red), 0 0 70px rgba(255, 23, 79, .55);
+}
+
+.abyss-title::before,
+.abyss-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.abyss-title::before {
+  color: var(--noah-red);
+  clip-path: polygon(0 0, 100% 0, 100% 34%, 0 34%);
+  animation: abyssGlitchA 3.8s steps(2, end) infinite;
+}
+
+.abyss-title::after {
+  color: var(--noah-gold);
+  clip-path: polygon(0 72%, 100% 72%, 100% 100%, 0 100%);
+  animation: abyssGlitchB 3.8s steps(2, end) infinite;
+}
+
+@keyframes abyssGlitchA { 0%, 88%, 100% { transform: none; } 90% { transform: translate(-5px, 2px); } 94% { transform: translate(4px, -1px); } }
+@keyframes abyssGlitchB { 0%, 90%, 100% { transform: none; } 92% { transform: translate(5px, -2px); } 96% { transform: translate(-3px, 1px); } }
+
+.hero-decree {
+  max-width: 38rem;
+  color: #e6a5af;
+  font-size: 1rem;
+  line-height: 1.45;
+  letter-spacing: .5px;
+}
+
+.command-line {
+  width: min(100%, 34rem);
+  min-height: 46px;
+  margin: 1.15rem 0 0;
+  padding: .62rem .85rem;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 23, 79, .68);
+  background: rgba(0, 0, 0, .72);
+  color: var(--bone);
+  font: .95rem 'VT323', monospace;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 0 25px rgba(255, 23, 79, .06), 0 0 18px rgba(255, 23, 79, .08);
+}
+
+.command-line:hover { border-color: var(--noah-gold); box-shadow: inset 0 0 30px rgba(255, 211, 78, .08), 0 0 24px rgba(255, 211, 78, .14); }
+.command-prompt { flex-shrink: 0; color: var(--noah-red); font-weight: 700; }
+.command-text { color: #ffd7dd; letter-spacing: .6px; }
+.command-cursor { width: 8px; height: 1.05rem; background: var(--noah-gold); box-shadow: 0 0 10px var(--noah-gold); animation: cursorBlink .9s steps(1) infinite; }
+@keyframes cursorBlink { 50% { opacity: 0; } }
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: .8rem; }
+.hero-actions button {
+  min-height: 42px;
+  padding: .55rem 1rem;
+  font: .82rem 'VT323', monospace;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.hero-actions button:hover { transform: translateY(-2px); }
+.hero-primary { border: 1px solid var(--noah-gold); background: linear-gradient(135deg, #9d0c34, #3d0313); color: #fff6cf; box-shadow: 0 0 22px rgba(255, 23, 79, .28); }
+.hero-primary:hover { box-shadow: 0 0 30px rgba(255, 23, 79, .48); }
+.hero-secondary { border: 1px solid rgba(255, 171, 183, .42); background: rgba(255, 255, 255, .025); color: #ffc0cb; }
+
+.sigil-throne {
+  position: relative;
+  z-index: 3;
+  width: min(29vw, 290px);
+  aspect-ratio: 1;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0 24px rgba(255, 23, 79, .5));
+}
+
+.sigil-throne::before,
+.sigil-throne::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 211, 78, .32);
+}
+.sigil-throne::before { inset: -7%; animation: orbitSpin 28s linear infinite; border-style: dashed; }
+.sigil-throne::after { inset: 8%; box-shadow: inset 0 0 50px rgba(255, 23, 79, .14), 0 0 44px rgba(255, 23, 79, .18); }
+
+.sigil-aura {
+  position: absolute;
+  inset: -25%;
+  background: radial-gradient(circle, rgba(255, 23, 79, .24), rgba(255, 81, 26, .07) 38%, transparent 68%);
+  animation: auraBreath 3.2s ease-in-out infinite;
+}
+
+.abyss-sigil { width: 100%; height: 100%; animation: orbitSpin 48s linear infinite, sigilBreath 3.2s ease-in-out infinite; }
+.abyss-sigil path, .abyss-sigil circle, .abyss-sigil ellipse { fill: none; stroke: var(--noah-red); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+.abyss-sigil circle:nth-child(2) { stroke: var(--noah-gold); stroke-width: .65; stroke-dasharray: 3 7; }
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+@keyframes sigilBreath { 50% { filter: drop-shadow(0 0 16px var(--noah-red)) brightness(1.35); } }
+@keyframes auraBreath { 50% { transform: scale(1.14); opacity: .72; } }
+
+.sigil-eye {
+  position: absolute;
+  width: 54px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--noah-red);
+  border-radius: 50%;
+  background: #030001;
+  box-shadow: 0 0 28px rgba(255, 23, 79, .75), inset 0 0 18px rgba(255, 23, 79, .38);
+}
+.sigil-eye span { width: 11px; height: 11px; border: 2px solid var(--noah-gold); border-radius: 50%; background: var(--noah-red); box-shadow: 0 0 12px var(--noah-red); animation: eyeWatch 5s ease-in-out infinite; }
+@keyframes eyeWatch { 0%, 100% { transform: translateX(-8px); } 45%, 55% { transform: translateX(8px); } }
+
+.hero-telemetry {
+  position: relative;
+  z-index: 4;
+  padding: 1rem;
+  border: 1px solid rgba(255, 23, 79, .42);
+  background: rgba(0, 0, 0, .55);
+  box-shadow: inset 0 0 32px rgba(255, 23, 79, .05);
+}
+.telemetry-head { padding-bottom: .6rem; margin-bottom: .45rem; border-bottom: 1px solid rgba(255, 23, 79, .3); color: #ff98aa; font-size: .7rem; letter-spacing: 1.6px; }
+.telemetry-head span { float: right; color: #aaff00; text-shadow: 0 0 8px #aaff00; }
+.telemetry-row { display: flex; align-items: baseline; justify-content: space-between; padding: .5rem 0; color: #c57c88; font-size: .74rem; letter-spacing: .7px; }
+.telemetry-row strong { color: var(--bone); font: 1.35rem 'VT323', monospace; text-shadow: 0 0 11px var(--noah-red); }
+.telemetry-wave { height: 34px; display: flex; align-items: center; gap: 3px; margin: .45rem 0; overflow: hidden; }
+.telemetry-wave i { flex: 1; min-width: 2px; height: 25%; background: linear-gradient(var(--noah-gold), var(--noah-red)); box-shadow: 0 0 5px var(--noah-red); animation: wave 1.2s ease-in-out infinite alternate; }
+.telemetry-wave i:nth-child(2n) { animation-delay: -.35s; height: 65%; }
+.telemetry-wave i:nth-child(3n) { animation-delay: -.7s; height: 95%; }
+@keyframes wave { to { height: 100%; opacity: .42; } }
+.telemetry-foot { color: #a45a66; font-size: .62rem; letter-spacing: 1px; text-align: center; }
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 .85rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid rgba(255, 23, 79, .34);
+}
+.section-head > div { display: flex; align-items: baseline; gap: .65rem; }
+.section-head span { color: var(--noah-red); font-size: .74rem; letter-spacing: 1px; }
+.section-head h2 { color: var(--bone); font: 800 1.05rem 'Cinzel', Georgia, serif; letter-spacing: 3px; text-shadow: 0 0 16px rgba(255, 23, 79, .48); }
+.section-head p { color: #c4717e; font-size: .72rem; letter-spacing: 1.6px; }
+.task-head { margin-top: 1.5rem; }
+
+.agent-grid {
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.2rem;
+}
+
+.agent-card {
+  appearance: none;
+  width: 100%;
+  min-height: 194px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem .7rem;
+  border: 1px solid color-mix(in srgb, var(--agent-color) 68%, #531020);
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--agent-color) 16%, transparent), transparent 48%),
+    linear-gradient(155deg, rgba(21, 3, 9, .96), rgba(3, 0, 2, .94));
+  color: var(--bone);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+  box-shadow: inset 0 0 34px rgba(0, 0, 0, .55), 0 10px 28px rgba(0, 0, 0, .35);
+  isolation: isolate;
+}
+
+.agent-card::before {
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(115deg, transparent 15%, color-mix(in srgb, var(--agent-color) 18%, transparent) 48%, transparent 72%);
+  opacity: .38;
+  transform: translateX(-80%);
+  transition: transform .55s ease, opacity .3s;
+}
+
+.agent-card::after {
+  inset: 7px;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--agent-color) 32%, transparent);
+  background: none;
+  opacity: .48;
+  filter: none;
+  clip-path: polygon(0 0, 26px 0, 26px 1px, 1px 1px, 1px 26px, 0 26px, 0 0, 100% 0, 100% 26px, calc(100% - 1px) 26px, calc(100% - 1px) 1px, calc(100% - 26px) 1px, calc(100% - 26px) 0, 100% 0, 100% 100%, calc(100% - 26px) 100%, calc(100% - 26px) calc(100% - 1px), calc(100% - 1px) calc(100% - 1px), calc(100% - 1px) calc(100% - 26px), 100% calc(100% - 26px), 100% 100%, 0 100%, 0 calc(100% - 26px), 1px calc(100% - 26px), 1px calc(100% - 1px), 26px calc(100% - 1px), 26px 100%, 0 100%);
+}
+
+.agent-card > * { position: relative; z-index: 2; }
+.agent-card:hover::before { opacity: .88; transform: translateX(80%); }
+.agent-card:hover::after { opacity: .85; }
+.agent-card:hover { transform: translateY(-6px) scale(1.025); border-color: var(--agent-color); box-shadow: 0 0 24px color-mix(in srgb, var(--agent-color) 38%, transparent), inset 0 0 40px rgba(0, 0, 0, .55); }
+.agent-card:focus-visible { outline: 2px solid var(--noah-gold); outline-offset: 3px; }
+
+.agent-card .sigil { margin: 0 0 .5rem; font-size: 2.45rem; line-height: 1; filter: drop-shadow(0 0 11px var(--agent-color)); }
+.agent-card .name { margin-bottom: .25rem; color: var(--bone); font: 800 .94rem 'Cinzel', Georgia, serif; letter-spacing: .7px; text-shadow: 0 0 10px var(--agent-color); }
+.agent-card .latin { color: color-mix(in srgb, var(--agent-color) 72%, #fff); font-size: .72rem; font-style: normal; line-height: 1.28; letter-spacing: .35px; }
+.agent-card .latin + .latin { margin-top: .14rem; color: #ca8590; font-size: .65rem; }
+.agent-card .power { margin-top: .55rem; color: var(--noah-gold); font-size: .67rem; letter-spacing: .8px; }
+.card-cta { margin-top: .65rem; padding-top: .45rem; width: 74%; border-top: 1px solid color-mix(in srgb, var(--agent-color) 35%, transparent); color: #e69ca7; font-size: .58rem; letter-spacing: 1.2px; }
+.noah-glow { grid-column: span 2; }
+
+.ritual-bar { gap: 8px; margin: 1rem 0; padding: .2rem 0 .65rem; }
+.ritual-bar button {
+  min-height: 42px;
+  padding: .55rem .9rem;
+  border-color: rgba(255, 23, 79, .62);
+  background: linear-gradient(180deg, rgba(26, 3, 10, .96), rgba(4, 0, 2, .96));
+  color: #ffd4da;
+  font-size: .74rem;
+  letter-spacing: .8px;
+}
+
+.status-scroll { gap: 7px; margin: .8rem 0 1rem; }
+.status-scroll button { min-height: 36px; padding: .42rem .78rem; border-color: rgba(255, 23, 79, .48); background: rgba(12, 1, 5, .92); color: #c57581; font-size: .68rem; letter-spacing: .6px; }
+.status-scroll button.active, .status-scroll button:hover { color: #fff1c1; border-color: var(--noah-gold); background: rgba(255, 211, 78, .1); }
+.xdiv { color: #ff4e74; opacity: .7; font-size: .72rem; text-shadow: 0 0 10px var(--noah-red); }
+
+.grimoire { gap: 9px; }
+.scroll { min-height: 82px; padding: .75rem .9rem; border-color: rgba(255, 23, 79, .5); background: linear-gradient(120deg, rgba(19, 2, 8, .97), rgba(3, 0, 2, .94)); box-shadow: 0 8px 24px rgba(0, 0, 0, .28); }
+.scroll:hover { transform: translateX(4px); border-color: var(--agent-color); box-shadow: -4px 0 18px color-mix(in srgb, var(--agent-color) 30%, transparent); }
+.scroll .rune { width: 44px; height: 44px; font-size: 1.45rem; border-color: color-mix(in srgb, var(--agent-color) 60%, transparent); }
+.scroll .phead strong { color: var(--bone); font-size: .86rem; }
+.scroll .pmeta { color: #bd7380; font-size: .68rem; }
+.scroll .prune { color: #f2a4ae; font-size: .73rem; line-height: 1.45; }
+.mark { font-size: .6rem; padding: 3px 7px; }
+
+.bottom {
+  min-height: 72px;
+  background: linear-gradient(0deg, rgba(15, 0, 6, .99), rgba(3, 0, 2, .97));
+  border-top-color: rgba(255, 23, 79, .78);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, .75), 0 -1px 22px rgba(255, 23, 79, .18);
+  backdrop-filter: blur(16px);
+}
+.bottom button { min-height: 70px; padding: .65rem .5rem; color: #bd6876; font-size: .72rem; letter-spacing: .8px; border-right-color: rgba(255, 23, 79, .18); }
+.bottom button:hover, .bottom button.active { color: var(--noah-gold); background: linear-gradient(0deg, rgba(255, 23, 79, .16), transparent); text-shadow: 0 0 12px rgba(255, 211, 78, .7); }
+.bottom .nr { font-size: 1.35rem; }
+.bottom .speak-btn { background: linear-gradient(0deg, rgba(125, 5, 38, .42), rgba(16, 0, 6, .95)); color: #ffc0ca; font-family: 'VT323', monospace; font-size: .72rem; }
+
+.veil { align-items: center; padding: 1rem; background: rgba(0, 0, 0, .84); backdrop-filter: blur(14px) saturate(.7); }
+.portal { border: 1px solid var(--noah-red); padding: 1.35rem; background: linear-gradient(145deg, rgba(24, 2, 10, .99), rgba(3, 0, 2, .99)); box-shadow: 0 0 0 1px rgba(255, 211, 78, .14), 0 0 70px rgba(255, 23, 79, .34); }
+.portal h3 { color: var(--bone); font: 800 1rem 'Cinzel', Georgia, serif; letter-spacing: 1px; }
+.field label { color: var(--noah-gold); font-size: .75rem; }
+.field select, .field input, .field textarea { min-height: 48px; padding: .65rem .75rem; border-color: rgba(255, 23, 79, .75); background: rgba(0, 0, 0, .8); color: var(--bone); font-size: .92rem; }
+.field textarea { min-height: 120px; }
+.btn { min-height: 40px; padding: .5rem .85rem; color: #ffd4da; font-size: .72rem; }
+
+.auth-panel { width: min(620px, 100%); border: 1px solid var(--noah-red); }
+.auth-kicker { color: var(--noah-gold); font-size: .72rem; letter-spacing: 3px; }
+.auth-copy { color: #e0a0aa; font-size: .88rem; line-height: 1.55; margin: .7rem 0 1rem; }
+.auth-error { min-height: 1.35rem; color: #ff98aa; font-size: .72rem; }
+
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--noah-gold); outline-offset: 3px; }
+
+@media (max-width: 1080px) {
+  .abyss-hero { grid-template-columns: minmax(320px, 1fr) minmax(240px, .72fr); }
+  .hero-telemetry { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 1.2rem; }
+  .telemetry-head, .telemetry-wave, .telemetry-foot { grid-column: 1 / -1; }
+  .telemetry-row { padding: .35rem 0; }
+}
+
+@media (max-width: 767px) {
+  body { padding-bottom: calc(74px + var(--safe)); }
+  .topbar { min-height: 0; gap: .65rem; padding: .75rem 1rem; }
+  .topbar h1 { overflow: hidden; font-size: .63rem; line-height: 1.35; letter-spacing: 1px; white-space: nowrap; }
+  .topbar h1 .sub { font-size: .56rem; letter-spacing: 3px; }
+  .service-cluster { align-items: center; }
+  .connection-chip { min-height: 34px; font-size: .66rem; }
+  #stat-line { font-size: .62rem; line-height: 1.2; }
+  .content { padding: .85rem; }
+  .abyss-hero { display: block; min-height: 520px; margin-bottom: 1.5rem; padding: 1.25rem; }
+  .hero-copy { max-width: 78%; }
+  .hero-eyebrow { font-size: .66rem; letter-spacing: 2px; }
+  .abyss-title { font-size: clamp(2rem, 11vw, 3.15rem); }
+  .hero-decree { font-size: .86rem; }
+  .command-line { min-height: 42px; font-size: .78rem; }
+  .hero-secondary { display: none; }
+  .sigil-throne { position: absolute; right: -38px; top: 82px; z-index: 1; width: 230px; opacity: .78; }
+  .hero-telemetry { position: absolute; z-index: 4; left: 1.25rem; right: 1.25rem; bottom: 1.25rem; display: grid; grid-template-columns: repeat(3, 1fr); padding: .75rem; }
+  .telemetry-head, .telemetry-wave, .telemetry-foot { grid-column: 1 / -1; }
+  .telemetry-wave { height: 22px; margin: .1rem 0; }
+  .telemetry-row { display: block; padding: .3rem; text-align: center; font-size: .58rem; }
+  .telemetry-row strong { display: block; font-size: 1.05rem; }
+  .telemetry-foot { font-size: .55rem; }
+  .section-head { align-items: flex-start; }
+  .section-head > div { display: block; }
+  .section-head h2 { margin-top: .15rem; font-size: .88rem; }
+  .section-head p { max-width: 40%; font-size: .6rem; text-align: right; }
+  .agent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .agent-card { min-height: 178px; padding: .85rem .45rem; }
+  .agent-card .sigil { font-size: 2.05rem; }
+  .agent-card .name { font-size: .78rem; }
+  .agent-card .latin { font-size: .64rem; }
+  .agent-card .latin + .latin { font-size: .58rem; }
+  .agent-card .power { font-size: .6rem; }
+  .noah-glow { grid-column: span 2; }
+  .ritual-bar button { font-size: .68rem; }
+  .bottom { min-height: 64px; }
+  .bottom button { min-height: 62px; font-size: .63rem; }
+  .bottom .nr { font-size: 1.15rem; }
+  .portal { padding: 1rem; }
+}
+
+@media (max-width: 390px) {
+  .hero-copy { max-width: 88%; }
+  .hero-actions { max-width: 75%; }
+  .hero-actions button { width: 100%; }
+  .sigil-throne { right: -70px; opacity: .62; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
   #hellfire, .blood-rain, .pentagram, .crt, .glitch, .corruption-overlay { display: none !important; }
@@ -1077,8 +1610,8 @@ body {
 <body>
 <!-- Enhanced Hellfire canvas -->
 <canvas id="hellfire"></canvas>
-<!-- Enhanced Blood rain container -->
-<div class="blood-rain" id="blood-rain"></div>
+<!-- Original Abyssal blood streaks, restored on an optimized canvas -->
+<canvas class="blood-rain" id="blood-rain"></canvas>
 <!-- Enhanced Spinning pentagram -->
 <div class="pentagram">⛧</div>
 <!-- Enhanced CRT -->
@@ -1099,6 +1632,51 @@ body {
 </div>
 
 <div class="content">
+  <section class="abyss-hero" aria-label="Abyssal command throne">
+    <div class="hero-copy">
+      <div class="hero-eyebrow"><span id="hero-rune" class="live-rune locked"></span><span id="hero-eyebrow-text">AUTHENTICATION REQUIRED</span></div>
+      <h2 class="abyss-title" data-text="ABYSSAL COMMAND">ABYSSAL COMMAND</h2>
+      <p class="hero-decree">One terminal. Seventeen bound agents. Every system answers from this throne.</p>
+      <button class="command-line" type="button" onclick="openPortal()" aria-label="Open command altar">
+        <span class="command-prompt">root@abyss:~$</span>
+        <span class="command-text">summon the legion</span>
+        <span class="command-cursor" aria-hidden="true"></span>
+      </button>
+      <div class="hero-actions">
+        <button class="hero-primary" type="button" onclick="openPortal()">⛧ OPEN COMMAND ALTAR</button>
+        <button class="hero-secondary" type="button" onclick="refreshAll()">↻ REFRESH COVEN</button>
+      </div>
+    </div>
+
+    <div class="sigil-throne" aria-hidden="true">
+      <div class="sigil-aura"></div>
+      <svg class="abyss-sigil" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="94"/>
+        <circle cx="100" cy="100" r="71"/>
+        <path d="M100,14 L16,170 L185,170 Z"/>
+        <path d="M100,186 L16,30 L185,30 Z"/>
+        <ellipse cx="100" cy="100" rx="21" ry="12"/>
+        <circle cx="100" cy="100" r="6"/>
+        <path d="M100,4 L100,15 M100,185 L100,196 M4,100 L15,100 M185,100 L196,100"/>
+        <path d="M48,50 Q100,27 152,50 M48,150 Q100,173 152,150"/>
+      </svg>
+      <div class="sigil-eye"><span></span></div>
+    </div>
+
+    <div class="hero-telemetry" aria-label="System telemetry">
+      <div class="telemetry-head">CORE TELEMETRY <span id="hero-state">STANDBY</span></div>
+      <div class="telemetry-row"><span>BOUND ENTITIES</span><strong id="hero-agent-count">17</strong></div>
+      <div class="telemetry-row"><span>ACTIVE RITUALS</span><strong id="hero-task-count">0</strong></div>
+      <div class="telemetry-row"><span>ABYSS DEPTH</span><strong>∞</strong></div>
+      <div class="telemetry-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="telemetry-foot">RAILWAY CORE // ENCRYPTED</div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <div><span>01 //</span><h2>BOUND LEGION</h2></div>
+    <p>SELECT A SIGIL TO OPEN ITS RITUAL CHANNEL</p>
+  </div>
   <div class="agent-grid" id="agent-grid"></div>
 
   <div class="ritual-bar">
@@ -1120,6 +1698,10 @@ body {
     <button onclick="setFilter('failed')">🔥 DAMNED</button>
   </div>
 
+  <div class="section-head task-head">
+    <div><span>02 //</span><h2>SOUL LEDGER</h2></div>
+    <p>LIVE TASK STREAM</p>
+  </div>
   <div class="grimoire" id="grimoire">
     <div class="void">
       <div class="icon">⛧</div>
@@ -1193,6 +1775,12 @@ function updateConnectionState(connected=Boolean(TOKEN)) {
   if(!chip)return;
   chip.textContent=connected?'UPLINK LIVE':'LOCKED';
   chip.classList.toggle('locked',!connected);
+  const heroState=document.getElementById('hero-state');
+  if(heroState)heroState.textContent=connected?'ONLINE':'STANDBY';
+  const heroRune=document.getElementById('hero-rune');
+  if(heroRune)heroRune.classList.toggle('locked',!connected);
+  const heroCopy=document.getElementById('hero-eyebrow-text');
+  if(heroCopy)heroCopy.textContent=connected?'THE COVENANT IS ONLINE':'AUTHENTICATION REQUIRED';
 }
 
 function openAuth(message='') {
@@ -1301,7 +1889,7 @@ function startHellfire(){
   c.height=window.innerHeight;
   let particles=[];
   const cores=navigator.hardwareConcurrency||4;
-  const particleCount=(window.innerWidth<600||cores<=4)?16:Math.min(36,cores*4);
+  const particleCount=(window.innerWidth<600||cores<=4)?22:Math.min(52,cores*6);
   function makeSprite(r,g,b){
     const sprite=document.createElement('canvas');
     sprite.width=sprite.height=48;
@@ -1320,9 +1908,9 @@ function startHellfire(){
     particles.push({
       x:Math.random()*c.width,
       y:c.height+Math.random()*300,
-      r:1+Math.random()*4,
-      s:.3+Math.random()*2,
-      o:.02+Math.random()*.1,
+      r:.8+Math.random()*2.8,
+      s:.45+Math.random()*1.8,
+      o:.18+Math.random()*.34,
       life:0,
       maxLife:60+Math.random()*150,
       color:Math.random()>.5?0:1
@@ -1365,24 +1953,73 @@ function startHellfire(){
 // ═══════════ ENHANCED BLOOD RAIN ══════════
 function startBloodRain(){
   if(!MOTION_OK)return;
-  let container=document.getElementById('blood-rain');
+  const c=document.getElementById('blood-rain');
+  const ctx=c.getContext('2d',{alpha:true});
   const mobile=window.innerWidth<600;
-  const maxDrops=mobile?12:20;
-  function spawn(){
-    if(document.hidden||container.childElementCount>=maxDrops)return;
-    let d=document.createElement('span');
-    d.className='blood-drop';
-    // Noah's special blood characters
-    const chars = ['🩸','●','⛧','▪','🔥','★','💀','⚡'];
-    d.textContent=chars[Math.floor(Math.random()*chars.length)];
-    d.style.left=Math.random()*100+'%';
-    d.style.animationDuration=3+Math.random()*7+'s';
-    d.style.fontSize=12+Math.random()*20+'px';
-    container.appendChild(d);
-    setTimeout(()=>d.remove(),10000)
+  const count=mobile?34:78;
+  let width=0;
+  let height=0;
+  let dpr=1;
+  let lastFrame=0;
+  let resizeTimer;
+  const drops=[];
+
+  function reset(drop,initial=false){
+    drop.x=Math.random()*width;
+    drop.y=initial?Math.random()*height:-(20+Math.random()*height*.22);
+    drop.speed=4+Math.random()*8;
+    drop.length=10+Math.random()*30;
+    drop.line=0.65+Math.random()*1.75;
+    drop.alpha=.2+Math.random()*.55;
+    drop.bright=Math.random()>.84;
   }
-  setInterval(spawn,mobile?700:450);
-  for(let i=0;i<(mobile?6:10);i++)spawn()
+
+  function resize(){
+    width=window.innerWidth;
+    height=window.innerHeight;
+    dpr=Math.min(window.devicePixelRatio||1,1.25);
+    c.width=Math.floor(width*dpr);
+    c.height=Math.floor(height*dpr);
+    c.style.width=width+'px';
+    c.style.height=height+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    drops.forEach(drop=>reset(drop,true));
+  }
+
+  resize();
+  for(let i=0;i<count;i++){
+    const drop={};
+    reset(drop,true);
+    drops.push(drop)
+  }
+
+  function draw(now){
+    requestAnimationFrame(draw);
+    if(document.hidden||now-lastFrame<33)return;
+    lastFrame=now;
+    ctx.clearRect(0,0,width,height);
+    ctx.lineCap='round';
+    for(const drop of drops){
+      drop.y+=drop.speed;
+      drop.speed=Math.min(drop.speed+.025,14);
+      if(drop.y>height+drop.length)reset(drop);
+      ctx.beginPath();
+      ctx.moveTo(drop.x,drop.y);
+      ctx.lineTo(drop.x,drop.y+drop.length);
+      ctx.lineWidth=drop.line;
+      ctx.strokeStyle=drop.bright?`rgba(255,35,78,${drop.alpha})`:`rgba(150,8,35,${drop.alpha})`;
+      ctx.shadowBlur=drop.bright?7:0;
+      ctx.shadowColor='#ff174f';
+      ctx.stroke()
+    }
+    ctx.shadowBlur=0
+  }
+
+  requestAnimationFrame(draw);
+  window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(resize,140)
+  },{passive:true})
 }
 
 // ═══════════ DEMON SPAWN ═══════════
@@ -1547,36 +2184,41 @@ function renderSigils(agents){
   for(let[k,a]of Object.entries(agents)){
     if(k==='orchestrator')continue;
     let d=demonThemes[k]||demonThemes.email;
-    h+=`<div class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')">
+    h+=`<button type="button" class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')" aria-label="Open ${esc(a.name||k)} ritual channel">
       <span class="sigil" style="color:${d.color}">${d.sigil}</span>
-      <div class="name">${a.name||k}</div>
+      <div class="name">${esc(a.name||k)}</div>
       <div class="latin">${d.latin}</div>
       <div class="latin">${d.epithet}</div>
       <div class="power">⚡ ${Object.keys(a.capabilities||{}).length} RITES</div>
-    </div>`;
+      <span class="card-cta">OPEN RITUAL ↗</span>
+    </button>`;
     qh+=`<button style="background:rgba(20,0,0,.5);border:1px solid ${d.color}44;color:${d.color};padding:.15rem .45rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${d.sigil} ${a.name||k}</button>`;
   }
   // Add Noah's special card
   let noahD = demonThemes.orchestrator;
-  h+=`<div class="agent-card noah-glow" style="--agent-color:${noahD.color}" onclick="touchSigil('orchestrator')">
+  let noahAgent=agents.orchestrator||{name:'Atlas',capabilities:{}};
+  h+=`<button type="button" class="agent-card noah-glow" style="--agent-color:${noahD.color}" onclick="touchSigil('orchestrator')" aria-label="Open ${esc(noahAgent.name||'Atlas')} ritual channel">
     <span class="sigil" style="color:${noahD.color};font-size:2rem;">${noahD.sigil}</span>
-    <div class="name" style="font-size:.75rem;color:${noahD.color};text-shadow:0 0 10px ${noahD.color};">${noahD.name||'orchestrator'}</div>
+    <div class="name" style="color:${noahD.color};text-shadow:0 0 10px ${noahD.color};">${esc(noahAgent.name||'Atlas')}</div>
     <div class="latin">${noahD.latin}</div>
     <div class="latin">${noahD.epithet}</div>
-    <div class="power">⚡ NOAH'S SUPREME POWER</div>
-  </div>`;
+    <div class="power">⚡ ${Object.keys(noahAgent.capabilities||{}).length||4} SUPREME RITES</div>
+    <span class="card-cta">COMMAND ALL LEGIONS ↗</span>
+  </button>`;
 
   g.innerHTML=h;
   q.innerHTML=qh
 }
 
 function touchSigil(name){
+  if(!TOKEN){openAuth('Establish the secure uplink before opening a ritual channel.');return}
   openPortal();
   document.getElementById('ritual-input').value=`${name} `;
   document.getElementById('ritual-input').focus()
 }
 
 async function cast(agent,action,query=''){
+  if(!TOKEN){openAuth('Establish the secure uplink before casting a ritual.');return}
   try{
     await api('POST','/tasks',{agent,action,params:{query}});
     whisper('⛧ NOAH\'S RITUAL CAST ⛧');
@@ -1602,6 +2244,9 @@ async function refreshAll(){
     renderSigils(a);
     renderScrolls(tasks);
     document.getElementById('stat-line').innerHTML=`<span style="color:var(--noah-gold)">${h.agents.length} DEMONS BOUND TO NOAH</span> · <span style="color:var(--noah-gold)">${h.tasks_active||0} CONJURING</span>`;
+    document.getElementById('hero-agent-count').textContent=h.agents.length;
+    document.getElementById('hero-task-count').textContent=h.tasks_active||0;
+    document.getElementById('hero-state').textContent='ONLINE';
     return true
   }catch(e){return false}
 }
@@ -1666,6 +2311,7 @@ function showMain(){
 }
 
 function openPortal(){
+  if(!TOKEN){openAuth('Establish the secure uplink before opening the command altar.');return}
   document.getElementById('portal-veil').style.display='flex';
   document.getElementById('ritual-input').focus()
 }
