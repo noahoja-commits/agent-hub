@@ -11,7 +11,7 @@ Usage:
 
 Setup:
   pip install agent-hub-cli
-  agent --config https://agent-hub.railway.app your-token-here
+  agent --config https://abyssal-terminal-production.up.railway.app your-token-here
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ except ImportError:
 def load_config() -> dict:
     """Load config from file or env."""
     config = {
-        "base_url": os.environ.get("AGENT_HUB_URL", "https://agent-hub-production-5ccf.up.railway.app"),
+        "base_url": os.environ.get("AGENT_HUB_URL", "https://abyssal-terminal-production.up.railway.app"),
         "token": os.environ.get("AGENT_HUB_TOKEN", ""),
     }
     if CONFIG_FILE.exists():

@@ -462,7 +462,7 @@ async def _send_telegram(chat_id: str | int, text: str) -> None:
 
 @app.get("/api/bot/telegram/setup")
 async def telegram_setup_info() -> JSONResponse:
-    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    base_url = os.environ.get("BASE_URL", "https://abyssal-terminal-production.up.railway.app")
     return JSONResponse({
         "setup_steps": [
             "1. Open Telegram and message @BotFather",
@@ -564,7 +564,7 @@ async def lark_bot_webhook(request: Request) -> JSONResponse:
 @app.get("/api/bot/lark/setup")
 async def lark_bot_setup_info() -> JSONResponse:
     """Return Lark bot setup instructions and event subscription info."""
-    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    base_url = os.environ.get("BASE_URL", "https://abyssal-terminal-production.up.railway.app")
     return JSONResponse({
         "webhook_url": f"{base_url}/api/bot/lark",
         "verification_note": "This endpoint handles Lark's URL verification challenge automatically.",

@@ -34,7 +34,7 @@ Apply and publish.
 
 Add to your Agent Hub deployment:
 ```
-BASE_URL=https://agent-hub.railway.app
+BASE_URL=https://abyssal-terminal-production.up.railway.app
 LARK_APP_ID=cli_xxxxxxxx
 LARK_APP_SECRET=xxxxxxxx
 ```
