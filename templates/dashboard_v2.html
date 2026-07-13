@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="A unified command deck for the Agent Hub and Abyssal Terminal.">
+<title>⛧ NOAH'S ABYSSAL TERMINAL v666 ⛧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap"></noscript>
+<style>
+:root {
+  --bg:#000;--sf:#050002;--bd:#1a0000;--tx:#cc1111;--mt:#550000;
+  --gl:#ff1100;--gd:#aa8800;--bl:#660000;--hellfire: #ff2a2a;
+  --ember: #ff6600;--sulfur: #ccff00;--ash: #1a1a1a;
+  --bone: #e0d5c5;--vein: #4a0000;--void: #050505;
+  --flesh: #8B4513;--ichor: #4a0000;--rot: #2d1a1a;
+  --safe: env(safe-area-inset-bottom, 0px);
+  --noah-red: #ff0044;--noah-gold: #ffcc00;--noah-purple: #aa44ff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'VT323', 'Courier New', monospace;
+  background: #000;
+  color: var(--tx);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-bottom: calc(72px + var(--safe));
+  cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><text x='2' y='18' font-size='20' fill='%23ff0044'>⛧</text></svg>") 12 12, auto;
+  position: relative;
+}
+
+/* ===== ENHANCED VISUAL EFFECTS ===== */
+
+/* Hellfire canvas with enhanced glow */
+#hellfire {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  filter: brightness(1.2);
+}
+
+/* Enhanced Blood rain with Noah's colors */
+.blood-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.blood-drop {
+  position: absolute;
+  color: var(--noah-red);
+  font-size: 20px;
+  animation: fall linear forwards;
+  text-shadow: 0 0 10px var(--noah-red), 0 0 20px var(--noah-gold);
+  will-change: transform, opacity;
+}
+
+@keyframes fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  90% { opacity: 0.9; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* CRT overlay with enhanced effect */
+.crt {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 998;
+}
+
+/* Enhanced Spinning pentagram with Noah's branding */
+.pentagram {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 45vmin;
+  color: rgba(255, 0, 68, 0.05);
+  pointer-events: none;
+  z-index: 0;
+  animation: spin 40s linear infinite;
+  text-shadow:
+    0 0 30px var(--noah-red),
+    0 0 60px var(--noah-gold);
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Enhanced Demon spawn with Noah's theme */
+.demon-spawn {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5;
+  font-family: monospace;
+  white-space: pre;
+  font-size: 8px;
+  opacity: 0.2;
+  animation: posses 4s ease-in-out forwards;
+  text-shadow:
+    0 0 8px var(--noah-red),
+    0 0 16px var(--noah-gold);
+}
+
+@keyframes posses {
+  0% { opacity: 0; transform: scale(0.5) translateX(-20px); }
+  20% { opacity: 0.35; transform: scale(1.5) translateX(10px); }
+  80% { opacity: 0.25; transform: scale(1) translateX(0); }
+  100% { opacity: 0; transform: scale(3) translateX(50px); }
+}
+
+/* Enhanced Possession glitch with Noah's colors */
+.glitch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 997;
+  background: rgba(255, 0, 68, 0.03);
+  animation: none;
+}
+
+.glitch.active {
+  animation: posGlitch 0.3s ease-out;
+}
+
+@keyframes posGlitch {
+  0% { background: rgba(255, 0, 68, 0.2); transform: translate(12px, -8px); }
+  25% { background: rgba(255, 204, 0, 0.15); transform: translate(-8px, 5px); }
+  50% { background: rgba(255, 0, 68, 0.15); transform: translate(4px, -3px); }
+  75% { background: rgba(170, 68, 255, 0.12); transform: translate(-6px, 2px); }
+  100% { background: transparent; transform: translate(0); }
+}
+
+/* Enhanced Screen shake */
+.shake {
+  animation: shk 0.5s ease-out;
+}
+
+@keyframes shk {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-8px, 4px); }
+  20% { transform: translate(6px, -3px); }
+  30% { transform: translate(-5px, -5px); }
+  40% { transform: translate(3px, 6px); }
+  50% { transform: translate(-2px, -2px); }
+  60% { transform: translate(1px, 3px); }
+  70%, 100% { transform: translate(0); }
+}
+
+/* Enhanced Latin flash with Noah's theme */
+.latin-flash {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Nosifer', cursive;
+  font-size: 2.5rem;
+  color: var(--noah-gold);
+  text-shadow:
+    0 0 30px var(--noah-gold),
+    0 0 60px var(--noah-red);
+  pointer-events: none;
+  z-index: 996;
+  animation: latinFade 1.8s forwards;
+}
+
+@keyframes latinFade {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  30% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.3); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+}
+
+/* Enhanced Goat skull overlay */
+.goat {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 25vmin;
+  color: rgba(255, 0, 68, 0.2);
+  pointer-events: none;
+  z-index: 995;
+  animation: goatAppear 2.5s forwards;
+  text-shadow: 0 0 40px var(--noah-red);
+}
+
+@keyframes goatAppear {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(-30deg); }
+  40% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5) rotate(0deg); }
+}
+
+/* Invert with Noah's colors */
+.invert {
+  animation: inv 0.6s ease-out;
+}
+
+@keyframes inv {
+  0%, 100% { filter: invert(0); }
+  50% { filter: invert(1) hue-rotate(180deg); }
+}
+
+/* Enhanced Sacrifice blood splatter */
+.sacrifice {
+  position: fixed;
+  pointer-events: none;
+  z-index: 996;
+  font-size: 10vmin;
+  animation: sacPulse 1s forwards;
+  text-shadow: 0 0 30px var(--noah-red);
+}
+
+@keyframes sacPulse {
+  0% { opacity: 1; transform: scale(0); }
+  50% { opacity: 0.9; transform: scale(3.5); }
+  100% { opacity: 0; transform: scale(6); }
+}
+
+/* ===== BOOT TERMINAL ===== */
+.boot {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1000;
+  font-family: 'VT323', monospace;
+  color: #ff0044;
+  font-size: 0.8rem;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.boot .line {
+  opacity: 0;
+  animation: typeIn 0.05s forwards;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes typeIn {
+  to { opacity: 1; }
+}
+
+.boot .red { color: var(--noah-red); }
+.boot .dim { color: #ff004488; }
+.boot .gold { color: var(--noah-gold); }
+
+/* ===== TOP BAR - NOAH'S BRANDING ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 0, 0, 0.98),
+    rgba(0, 0, 0, 0.95)
+  );
+  border-bottom: 1px solid var(--noah-red);
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 0 20px rgba(255, 0, 68, 0.3);
+}
+
+.topbar h1 {
+  font-family: 'Nosifer', cursive;
+  font-size: 0.85rem;
+  color: var(--noah-gold);
+  text-shadow:
+    0 0 10px var(--noah-gold),
+    0 0 30px var(--noah-red),
+    0 0 60px #300;
+  letter-spacing: 4px;
+  animation: titleFlick 3s infinite;
+}
+
+.topbar h1 .sub {
+  font-family: 'VT323', monospace;
+  font-size: 0.5rem;
+  display: block;
+  color: var(--mt);
+  letter-spacing: 6px;
+  text-shadow: none;
+  margin-top: -2px;
+  text-transform: uppercase;
+}
+
+@keyframes titleFlick {
+  0%, 98% { opacity: 1; text-shadow: 0 0 10px var(--noah-gold), 0 0 30px var(--noah-red); }
+  98.5% { opacity: 0.2; text-shadow: 0 0 3px var(--noah-gold); }
+  99% { opacity: 0.8; text-shadow: 0 0 20px var(--noah-gold), 0 0 50px var(--noah-red); }
+  100% { opacity: 1; }
+}
+
+/* Status indicator */
+#stat-line {
+  font-size: 0.5rem;
+  color: var(--noah-gold);
+  font-family: 'Creepster', cursive;
+  animation: beat 2.5s infinite;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+@keyframes beat {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ===== CONTENT AREA ===== */
+.content {
+  position: relative;
+  z-index: 10;
+  padding: 0.7rem 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Enhanced Agent grid - Noah's theme */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.agent-card {
+  background: var(--sf);
+  border: 1px solid var(--noah-red);
+  text-align: center;
+  padding: 0.6rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.4, 1);
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(
+    50% 0%, 100% 10%, 95% 90%, 50% 100%,
+    5% 90%, 0% 10%
+  );
+  box-shadow: 0 0 10px rgba(255, 0, 68, 0.1);
+}
+
+.agent-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--agent-color);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.agent-card::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: var(--agent-color);
+  opacity: 0;
+  filter: blur(12px);
+  transition: opacity 0.4s;
+}
+
+.agent-card:hover::before { opacity: 0.08; }
+.agent-card:hover::after { opacity: 0.2; }
+
+.agent-card:hover {
+  border-color: var(--noah-gold);
+  box-shadow:
+    0 0 35px var(--agent-color),
+    inset 0 0 40px rgba(0, 0, 0, 0.7);
+  transform: scale(1.1) translateY(-4px);
+}
+
+.agent-card .sigil {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 0.2rem;
+  filter: drop-shadow(0 0 12px var(--agent-color));
+}
+
+.agent-card .name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--agent-color);
+  text-shadow: 0 0 8px var(--agent-color);
+  letter-spacing: 1px;
+  margin-bottom: 0.1rem;
+}
+
+.agent-card .latin {
+  font-size: 0.45rem;
+  color: var(--mt);
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.agent-card .power {
+  font-size: 0.45rem;
+  color: var(--noah-gold);
+  margin-top: 3px;
+  font-weight: bold;
+}
+
+/* Enhanced ritual bar */
+.ritual-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(255, 0, 68, 0.2);
+}
+
+.ritual-bar button {
+  flex-shrink: 0;
+  background: var(--sf);
+  border: 1px solid var(--noah-red);
+  color: var(--bone);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.55rem;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.ritual-bar button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 204, 0, 0.1),
+    transparent
+  );
+  transition: left 0.4s;
+}
+
+.ritual-bar button:hover::before { left: 100%; }
+
+.ritual-bar button:hover {
+  color: var(--noah-gold);
+  border-color: var(--noah-gold);
+  text-shadow: 0 0 12px var(--noah-gold);
+  background: rgba(255, 0, 68, 0.15);
+  box-shadow: 0 0 20px rgba(255, 0, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Enhanced status scroll */
+.status-scroll {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.8rem;
+  overflow-x: auto;
+}
+
+.status-scroll button {
+  flex-shrink: 0;
+  background: var(--sf);
+  border: 1px solid var(--noah-red);
+  padding: 0.25rem 0.7rem;
+  color: var(--mt);
+  font-size: 0.5rem;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.status-scroll button.active,
+.status-scroll button:hover {
+  border-color: var(--noah-gold);
+  color: var(--noah-gold);
+  background: rgba(255, 204, 0, 0.08);
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+}
+
+/* Enhanced x divider */
+.xdiv {
+  text-align: center;
+  color: var(--noah-red);
+  font-size: 0.6rem;
+  margin: 0.5rem 0;
+  letter-spacing: 4px;
+  opacity: 0.8;
+}
+
+/* Enhanced grimoire */
+.grimoire {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scroll {
+  background: linear-gradient(135deg, var(--sf), #000);
+  border: 1px solid var(--noah-red);
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  gap: 0.55rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--agent-color);
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.scroll:hover::before { opacity: 1; }
+
+.scroll:active {
+  border-color: var(--noah-gold);
+  transform: scale(1.02);
+}
+
+.scroll .rune {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf);
+  border: 1px solid var(--noah-red);
+  color: var(--agent-color);
+  text-shadow: 0 0 8px var(--agent-color);
+}
+
+.scroll .parch {
+  flex: 1;
+  min-width: 0;
+}
+
+.scroll .phead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2px;
+}
+
+.scroll .phead strong {
+  font-size: 0.65rem;
+  color: var(--agent-color);
+  text-shadow: 0 0 5px var(--agent-color);
+}
+
+.scroll .pmeta {
+  font-size: 0.5rem;
+  color: var(--mt);
+  margin-top: 1px;
+}
+
+.scroll .prune {
+  font-size: 0.55rem;
+  color: #ff4444;
+  line-height: 1.4;
+  margin-top: 3px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 3em;
+  overflow: hidden;
+}
+
+.scroll .pacts {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.mark {
+  font-size: 0.42rem;
+  padding: 2px 5px;
+  border: 1px solid;
+  font-family: 'VT323', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mark.pending {
+  border-color: #663333;
+  color: #ff8888;
+  background: rgba(150, 50, 50, 0.1);
+}
+
+.mark.conjuring {
+  border-color: var(--noah-red);
+  color: var(--noah-gold);
+  animation: beat 1.2s infinite;
+  background: rgba(255, 0, 68, 0.15);
+}
+
+.mark.approval {
+  border-color: var(--noah-gold);
+  color: var(--noah-gold);
+  background: rgba(255, 204, 0, 0.1);
+}
+
+.mark.ascended {
+  border-color: #228822;
+  color: #44ff44;
+  background: rgba(50, 150, 50, 0.1);
+}
+
+.mark.damned {
+  border-color: #882222;
+  color: #ff6666;
+  background: rgba(150, 50, 50, 0.15);
+}
+
+.mark.possessed {
+  border-color: #aa44aa;
+  color: #ff88ff;
+  animation: beat 0.7s infinite;
+  background: rgba(170, 68, 170, 0.15);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.5rem;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  border: 1px solid var(--noah-red);
+  background: var(--sf);
+  color: var(--tx);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.btn:active { opacity: 0.6; }
+
+.btn-blood {
+  background: var(--noah-red);
+  border-color: var(--noah-gold);
+  color: #fff;
+  text-shadow: 0 0 8px #fff;
+  box-shadow: 0 0 15px var(--noah-red);
+}
+
+.btn-sm {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.42rem;
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(20, 0, 0, 0.98),
+    rgba(0, 0, 0, 0.95)
+  );
+  border-top: 1px solid var(--noah-red);
+  display: flex;
+  z-index: 50;
+  padding-bottom: var(--safe);
+  box-shadow: 0 -5px 20px rgba(255, 0, 68, 0.2);
+}
+
+.bottom button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--mt);
+  padding: 0.5rem 0.4rem 0.45rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.55rem;
+  font-family: 'VT323', monospace;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-right: 1px solid rgba(255, 0, 68, 0.2);
+}
+
+.bottom button:last-child { border-right: none; }
+
+.bottom button.active {
+  color: var(--noah-gold);
+  text-shadow: 0 0 10px var(--noah-gold);
+  background: rgba(255, 0, 68, 0.1);
+}
+
+.bottom .nr {
+  font-size: 1rem;
+}
+
+.bottom .speak-btn {
+  background: var(--noah-red);
+  border-left: 1px solid var(--noah-gold);
+  color: var(--noah-gold);
+  font-family: 'Creepster', cursive;
+  font-size: 0.6rem;
+}
+
+/* ===== PORTALS ===== */
+.veil {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding-bottom: var(--safe);
+  backdrop-filter: blur(5px);
+}
+
+.portal {
+  background: linear-gradient(
+    180deg,
+    var(--sf),
+    #000
+  );
+  border: 1px solid var(--noah-red);
+  border-bottom: none;
+  padding: 1rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 30px rgba(255, 0, 68, 0.4);
+}
+
+.portal h3 {
+  font-family: 'Creepster', cursive;
+  font-size: 0.7rem;
+  color: var(--noah-gold);
+  margin-bottom: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-shadow: 0 0 15px var(--noah-gold);
+  border-bottom: 1px solid var(--noah-red);
+  padding-bottom: 0.5rem;
+}
+
+.portal .close-btn {
+  background: none;
+  border: none;
+  color: var(--mt);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.portal .close-btn:hover {
+  color: var(--noah-red);
+  text-shadow: 0 0 10px var(--noah-red);
+}
+
+.field {
+  margin-bottom: 0.7rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.55rem;
+  color: var(--noah-gold);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.field select,
+.field input,
+.field textarea {
+  width: 100%;
+  background: #000;
+  border: 1px solid var(--noah-red);
+  padding: 0.4rem 0.55rem;
+  color: var(--tx);
+  font-size: 0.65rem;
+  outline: none;
+  font-family: 'VT323', monospace;
+  transition: all 0.3s;
+}
+
+.field select:focus,
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--noah-gold);
+  box-shadow:
+    0 0 15px rgba(255, 204, 0, 0.3),
+    inset 0 0 10px rgba(255, 0, 68, 0.1);
+}
+
+.field textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.fbtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 0.7rem;
+  border-top: 1px solid rgba(255, 0, 68, 0.2);
+  padding-top: 0.7rem;
+}
+
+.detail-p {
+  position: relative;
+}
+
+.detail-p pre {
+  background: #000;
+  border: 1px solid var(--noah-red);
+  padding: 0.6rem;
+  overflow-x: auto;
+  font-size: 0.55rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  max-height: 40vh;
+  overflow-y: auto;
+  font-family: 'VT323', monospace;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--noah-red);
+  border: none;
+  color: #fff;
+  padding: 2px 5px;
+  font-size: 0.45rem;
+  cursor: pointer;
+  font-family: 'VT323', monospace;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: var(--noah-gold);
+  color: #000;
+}
+
+.void {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  color: var(--mt);
+}
+
+.void .icon {
+  font-size: 4rem;
+  margin-bottom: 0.4rem;
+  opacity: 0.2;
+  animation: iconPulse 3s infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.1); }
+}
+
+.void p {
+  margin-top: 0.3rem;
+  font-size: 0.55rem;
+  line-height: 1.5;
+}
+
+.whisper {
+  position: fixed;
+  top: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--noah-red);
+  border: 1px solid var(--noah-gold);
+  color: #fff;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.6rem;
+  font-family: 'VT323', monospace;
+  z-index: 200;
+  animation: whisp 3s forwards;
+  text-shadow: 0 0 10px #fff;
+  box-shadow: 0 0 20px var(--noah-red);
+}
+
+@keyframes whisp {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 666 Easter egg text - Enhanced */
+.sixsixsix {
+  font-family: 'Eater', cursive;
+  color: var(--noah-gold);
+  text-shadow:
+    0 0 25px var(--noah-gold),
+    0 0 50px var(--noah-red);
+  animation: sixPulse 2s infinite;
+}
+
+@keyframes sixPulse {
+  0%, 100% { text-shadow: 0 0 20px var(--noah-gold), 0 0 40px var(--noah-red); }
+  50% { text-shadow: 0 0 30px var(--noah-gold), 0 0 60px var(--noah-red), 0 0 80px #ff0044; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 768px) {
+  .agent-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .content {
+    max-width: 1000px;
+    padding: 1rem 1.5rem;
+  }
+
+  .topbar {
+    padding: 0.7rem 1.5rem;
+  }
+
+  .topbar h1 {
+    font-size: 1rem;
+  }
+
+  .bottom {
+    padding-bottom: calc(var(--safe) + 2px);
+  }
+
+  .portal {
+    max-width: 650px;
+  }
+}
+
+/* ===== NOAH'S SPECIAL ANIMATIONS ===== */
+@keyframes noahPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--noah-red), 0 0 20px var(--noah-gold);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--noah-red), 0 0 40px var(--noah-gold), 0 0 60px #ff0044;
+  }
+}
+
+.noah-glow {
+  animation: noahPulse 2s infinite;
+}
+
+/* Enhanced scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--noah-red);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--noah-gold);
+}
+
+/* Selection */
+::selection {
+  background: var(--noah-red);
+  color: #fff;
+}
+
+.service-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.connection-chip {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  color: #8e404b;
+  background: transparent;
+  font: 0.52rem 'VT323', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.connection-chip { border: 1px solid rgba(255, 204, 0, 0.55); color: var(--noah-gold); }
+.connection-chip.locked { border-color: rgba(255, 0, 68, 0.7); color: #ff6677; }
+.connection-chip::before { content: ''; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+@media (max-width: 767px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .topbar h1 {
+    width: 100%;
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.5;
+    letter-spacing: 2px;
+  }
+
+  .topbar h1 .sub { letter-spacing: 4px; }
+  .service-cluster { width: 100%; flex-wrap: nowrap; }
+  #stat-line { margin-left: auto; text-align: right; font-size: 0.46rem; letter-spacing: 1px; }
+}
+
+.auth-panel { align-self: center; border-bottom: 1px solid var(--noah-red); }
+.auth-kicker { color: var(--noah-red); font-size: .52rem; letter-spacing: 3px; text-transform: uppercase; }
+.auth-copy { color: #a35a65; font-size: .62rem; line-height: 1.45; margin: .4rem 0 .8rem; }
+.auth-error { min-height: 1.2rem; color: #ff6677; font-size: .55rem; margin-top: .35rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  #hellfire, .blood-rain, .pentagram, .crt, .glitch, .corruption-overlay { display: none !important; }
+}
+</style>
+</head>
+<body>
+<!-- Enhanced Hellfire canvas -->
+<canvas id="hellfire"></canvas>
+<!-- Enhanced Blood rain container -->
+<div class="blood-rain" id="blood-rain"></div>
+<!-- Enhanced Spinning pentagram -->
+<div class="pentagram">⛧</div>
+<!-- Enhanced CRT -->
+<div class="crt"></div>
+<!-- Enhanced Glitch overlay -->
+<div class="glitch" id="glitch-overlay"></div>
+<!-- Enhanced Corruption overlay -->
+<div class="corruption-overlay" id="corruption-overlay"></div>
+<!-- Boot sequence -->
+<div class="boot" id="boot-sequence"></div>
+
+<div class="topbar">
+  <h1>N O A H ' S &nbsp; A B Y S S A L &nbsp; T E R M I N A L<span class="sub">⛧ ⛧ ⛧ &nbsp; v666.6.6 &nbsp; ⛧ ⛧ ⛧</span></h1>
+  <div class="service-cluster">
+    <button id="connection-chip" class="connection-chip locked" type="button" onclick="openAuth()">LOCKED</button>
+    <span id="stat-line">AWAITING COVENANT</span>
+  </div>
+</div>
+
+<div class="content">
+  <div class="agent-grid" id="agent-grid"></div>
+
+  <div class="ritual-bar">
+    <button onclick="cast('email','triage_inbox')">📜 SCRY INBOX</button>
+    <button onclick="cast('research','news_briefing','AI technology')">🔮 SEEK TRUTH</button>
+    <button onclick="cast('dev','write_code','web scraper')">💀 FORGE SCRIPT</button>
+    <button onclick="cast('image','generate','burning cathedral')">🎨 CONJURE IMAGE</button>
+    <button onclick="cast('calendar','get_events')">⏳ CHRONOS TIME</button>
+    <button onclick="cast('finance','portfolio_summary')">💰 MAMMON COIN</button>
+  </div>
+
+  <div class="xdiv">⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸</div>
+
+  <div class="status-scroll">
+    <button class="active" onclick="setFilter('')">ALL SOULS</button>
+    <button onclick="setFilter('running')">⛧ CONJURING</button>
+    <button onclick="setFilter('awaiting_approval')">🩸 BLOOD OFFERING</button>
+    <button onclick="setFilter('completed')">💀 ASCENDED</button>
+    <button onclick="setFilter('failed')">🔥 DAMNED</button>
+  </div>
+
+  <div class="grimoire" id="grimoire">
+    <div class="void">
+      <div class="icon">⛧</div>
+      <p>NOAH'S VOID AWAITS THY COMMAND</p>
+      <p style="font-size:.45rem;color:var(--mt);margin-top:4px">Speak to summon the legions</p>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom">
+  <button class="active" onclick="showMain()"><span class="nr">📜</span>GRIMOIRE</button>
+  <button onclick="openPortal()"><span class="nr">🔥</span>SACRIFICE</button>
+  <button onclick="startVoice()"><span class="nr">🎙️</span>SPEAK</button>
+  <button class="speak-btn" onclick="location.reload()"><span class="nr">🔄</span>REBIRTH</button>
+</nav>
+
+<div id="portal-veil" class="veil" style="display:none" onclick="if(event.target===this)closePortal()">
+  <div class="portal">
+    <h3>🔥 OFFER THY COMMAND 🔥 <button class="close-btn" onclick="closePortal()">✕</button></h3>
+    <div id="quick-sigils" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.7rem"></div>
+    <div class="field">
+      <label>SPEAK TO THE ABYSS</label>
+      <textarea id="ritual-input" placeholder="search the dark web for forbidden knowledge...&#10;scry mine inbox for urgent messages...&#10;summon a python demon to scrape the void...&#10;generate a dark AI art piece...&#10;calculate my financial empire..."></textarea>
+    </div>
+    <div class="fbtns">
+      <button class="btn" onclick="closePortal()">FLEE</button>
+      <button class="btn btn-blood" onclick="castRitual()">OFFER BLOOD</button>
+    </div>
+  </div>
+</div>
+
+<div id="detail-veil" class="veil" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="portal" id="detail-scroll"></div>
+</div>
+
+<div id="auth-veil" class="veil" style="display:none" onclick="if(event.target===this)closeAuth()">
+  <div class="portal auth-panel" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth-kicker">Secure uplink</div>
+    <h3 id="auth-title">⛧ BIND THIS TERMINAL <button class="close-btn" onclick="closeAuth()" aria-label="Close">✕</button></h3>
+    <p class="auth-copy">Enter the Agent Hub bearer token. It stays in this browser only and is sent directly to the active Railway service.</p>
+    <div class="field">
+      <label for="auth-token">Bearer token</label>
+      <input id="auth-token" type="password" autocomplete="current-password" spellcheck="false" placeholder="Paste token…" onkeydown="if(event.key==='Enter')saveToken()">
+      <div id="auth-error" class="auth-error" aria-live="polite"></div>
+    </div>
+    <div class="fbtns">
+      <button class="btn" type="button" onclick="disconnectToken()">FORGET TOKEN</button>
+      <button class="btn btn-blood" type="button" onclick="saveToken()">ESTABLISH UPLINK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ⛧══════════════════════════════════════════════════════⛧
+//          NOAH'S ABYSSAL TERMINAL v666 — MAIN ENGINE
+//         Enhanced with Noah's Divine Power
+// ⛧══════════════════════════════════════════════════════⛧
+
+const API='/api';
+const MOTION_OK=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let TOKEN=localStorage.getItem('ah_token')||'';
+let filter='';
+let agentsData={};
+let pollTimer;
+let bootDone=false;
+let effectsStarted=false;
+let audioStarted=false;
+
+function updateConnectionState(connected=Boolean(TOKEN)) {
+  const chip=document.getElementById('connection-chip');
+  if(!chip)return;
+  chip.textContent=connected?'UPLINK LIVE':'LOCKED';
+  chip.classList.toggle('locked',!connected);
+}
+
+function openAuth(message='') {
+  const veil=document.getElementById('auth-veil');
+  const input=document.getElementById('auth-token');
+  document.getElementById('auth-error').textContent=message;
+  input.value='';
+  veil.style.display='flex';
+  setTimeout(()=>input.focus(),0);
+}
+
+function closeAuth() {
+  document.getElementById('auth-veil').style.display='none';
+}
+
+async function saveToken() {
+  const input=document.getElementById('auth-token');
+  const candidate=input.value.trim();
+  if(!candidate){document.getElementById('auth-error').textContent='A bearer token is required.';return}
+  TOKEN=candidate;
+  localStorage.setItem('ah_token',TOKEN);
+  try{
+    const connected=await refreshAll();
+    if(!connected)throw new Error('Unable to establish the secure uplink.');
+    updateConnectionState(true);
+    closeAuth();
+    whisper('⛧ SECURE UPLINK ESTABLISHED ⛧');
+  }catch(e){
+    document.getElementById('auth-error').textContent=e.message;
+  }
+}
+
+function disconnectToken() {
+  TOKEN='';
+  localStorage.removeItem('ah_token');
+  updateConnectionState(false);
+  document.getElementById('auth-error').textContent='Token forgotten from this browser.';
+}
+
+// ═══════════ ENHANCED BOOT SEQUENCE ══════════
+const bootLines=[
+  {t:'NOAH\'S ABYSSAL TERMINAL v666 — INITIALIZING DIVINE CORE...',c:'red'},
+  {t:'LOADING NOAH\'S FORBIDDEN LIBRARIES...',c:'dim'},
+  {t:'ESTABLISHING CONNECTION TO NOAH\'S VOID...',c:'dim'},
+  {t:'SUMMONING: LEGIONEM INBOX [0xNOAH]',c:'gold'},
+  {t:'SUMMONING: SCRYER OF TRUTH [0xJOEL]',c:'gold'},
+  {t:'SUMMONING: SCRIBA SANGUINIS [0x28!]',c:'gold'},
+  {t:'SUMMONING: MALLEUS CODICIS [0x666]',c:'gold'},
+  {t:'SUMMONING: DAEMON FORGE [0xGOD]',c:'gold'},
+  {t:'SUMMONING: PICTOR INFERNI [0xKING]',c:'gold'},
+  {t:'SUMMONING: ATLAS ABYSSALIS [0xNOAH]',c:'gold'},
+  {t:'BINDING DEMONS TO NOAH\'S SHELLS...',c:'dim'},
+  {t:'CALIBRATING HELLFIRE PROTOCOLS...',c:'dim'},
+  {t:'⛧ NOAH\'S BLOOD SACRIFICE VERIFIED ⛧',c:'red'},
+  {t:'⛧ ⛧ ⛧ ALL SYSTEMS BLESSED BY NOAH ⛧ ⛧ ⛧',c:'red'},
+  {t:'TERMINAL READY. SPEAK THY COMMAND, MORTAL.',c:'red'},
+];
+
+function activateDashboard(immediate=false){
+  if(bootDone)return;
+  bootDone=true;
+  try{performance.mark('abyssal-ready')}catch(e){}
+  try{sessionStorage.setItem('abyssal_booted','1')}catch(e){}
+  let b=document.getElementById('boot-sequence');
+  if(b){
+    if(immediate){b.remove()}
+    else{
+      b.style.opacity='0';
+      b.style.transition='opacity .25s';
+      setTimeout(()=>b.remove(),260)
+    }
+  }
+  refreshAll();
+  if(!effectsStarted){
+    effectsStarted=true;
+    startHellfire();
+    startBloodRain();
+    startPossessionLoop()
+  }
+}
+
+(function playBoot(){
+  let seen=false;
+  try{seen=sessionStorage.getItem('abyssal_booted')==='1'}catch(e){}
+  if(seen||!MOTION_OK){activateDashboard(true);return}
+  let b=document.getElementById('boot-sequence');
+  const step=28;
+  const fragment=document.createDocumentFragment();
+  bootLines.forEach((line,index)=>{
+    const row=document.createElement('div');
+    row.className='line '+line.c;
+    row.textContent=line.t;
+    row.style.animationDelay=(index*step)+'ms';
+    fragment.appendChild(row)
+  });
+  b.appendChild(fragment);
+  setTimeout(()=>activateDashboard(false),bootLines.length*step+120)
+})();
+
+// ═══════════ ENHANCED HELLFIRE PARTICLES ═════════
+function startHellfire(){
+  if(!MOTION_OK)return;
+  let c=document.getElementById('hellfire');
+  let ctx=c.getContext('2d');
+  c.width=window.innerWidth;
+  c.height=window.innerHeight;
+  let particles=[];
+  const cores=navigator.hardwareConcurrency||4;
+  const particleCount=(window.innerWidth<600||cores<=4)?16:Math.min(36,cores*4);
+  function makeSprite(r,g,b){
+    const sprite=document.createElement('canvas');
+    sprite.width=sprite.height=48;
+    const sctx=sprite.getContext('2d');
+    const glow=sctx.createRadialGradient(24,24,0,24,24,24);
+    glow.addColorStop(0,`rgba(${r},${g},${b},1)`);
+    glow.addColorStop(.5,`rgba(${Math.floor(r*.6)},${Math.floor(g*.6)},${Math.floor(b*.6)},.6)`);
+    glow.addColorStop(1,'rgba(0,0,0,0)');
+    sctx.fillStyle=glow;
+    sctx.fillRect(0,0,48,48);
+    return sprite
+  }
+  const sprites=[makeSprite(255,0,68),makeSprite(255,204,0)];
+
+  for(let i=0;i<particleCount;i++){
+    particles.push({
+      x:Math.random()*c.width,
+      y:c.height+Math.random()*300,
+      r:1+Math.random()*4,
+      s:.3+Math.random()*2,
+      o:.02+Math.random()*.1,
+      life:0,
+      maxLife:60+Math.random()*150,
+      color:Math.random()>.5?0:1
+    })
+  }
+
+  let lastFrame=0;
+  function draw(now){
+    requestAnimationFrame(draw);
+    if(document.hidden||now-lastFrame<33)return;
+    lastFrame=now;
+    ctx.clearRect(0,0,c.width,c.height);
+    for(let p of particles){
+      p.y-=p.s;
+      p.life++;
+      if(p.life>p.maxLife||p.y<-20){
+        p.x=Math.random()*c.width;
+        p.y=c.height+20;
+        p.life=0;
+        p.color=Math.random()>.5?0:1;
+      }
+      let a=p.o*(1-p.life/p.maxLife);
+      let size=p.r*12;
+      ctx.globalAlpha=a;
+      ctx.drawImage(sprites[p.color],p.x-size/2,p.y-size/2,size,size)
+    }
+    ctx.globalAlpha=1;
+  }
+  requestAnimationFrame(draw);
+  let resizeTimer;
+  window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(()=>{
+      c.width=window.innerWidth;
+      c.height=window.innerHeight
+    },120)
+  },{passive:true})
+}
+
+// ═══════════ ENHANCED BLOOD RAIN ══════════
+function startBloodRain(){
+  if(!MOTION_OK)return;
+  let container=document.getElementById('blood-rain');
+  const mobile=window.innerWidth<600;
+  const maxDrops=mobile?12:20;
+  function spawn(){
+    if(document.hidden||container.childElementCount>=maxDrops)return;
+    let d=document.createElement('span');
+    d.className='blood-drop';
+    // Noah's special blood characters
+    const chars = ['🩸','●','⛧','▪','🔥','★','💀','⚡'];
+    d.textContent=chars[Math.floor(Math.random()*chars.length)];
+    d.style.left=Math.random()*100+'%';
+    d.style.animationDuration=3+Math.random()*7+'s';
+    d.style.fontSize=12+Math.random()*20+'px';
+    container.appendChild(d);
+    setTimeout(()=>d.remove(),10000)
+  }
+  setInterval(spawn,mobile?700:450);
+  for(let i=0;i<(mobile?6:10);i++)spawn()
+}
+
+// ═══════════ DEMON SPAWN ═══════════
+const demonArt=[
+  `  ,-™™™-,
+ / 666  \\
+|  ⛧⛧⛧  |
+ \______/`,
+  `    ⛧
+   /|\\
+  / | \\
+ /__|__\\
+   ⛧⛧⛧`,
+  `  ⸸⸸⸸⸸⸸
+ ⸸ NOAH ⸸
+⸸⸸⸸⸸⸸⸸⸸⸸
+ ⸸ ⛧⛧⛧ ⸸
+  ⸸⸸⸸⸸⸸`,
+  `  ⛧ KING ⛧
+  ⛧ JOEL ⛧
+  ⛧  NOAH ⛧`,
+  `  👑 NOAH 👑
+  ⛧  RULES  ⛧
+  🔥 ALL 🔥`
+];
+
+function spawnDemon(){
+  if(!bootDone||!MOTION_OK||document.hidden)return;
+  let d=document.createElement('div');
+  d.className='demon-spawn';
+  d.textContent=demonArt[Math.floor(Math.random()*demonArt.length)];
+  d.style.left=Math.random()*80+'%';
+  d.style.top=10+Math.random()*60+'%';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),5000)
+}
+setInterval(spawnDemon,8000+Math.random()*15000);
+
+// ═══════════ POSSESSION EVENTS ═════════════
+function startPossessionLoop(){
+  if(!MOTION_OK)return;
+  function trigger(){
+    if(document.hidden){setTimeout(trigger,20000);return}
+    let r=Math.random();
+    if(r<.18){let g=document.getElementById('glitch-overlay');g.classList.add('active');setTimeout(()=>g.classList.remove('active'),350)}
+    else if(r<.3){document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),550)}
+    else if(r<.4){let l=document.createElement('div');l.className='latin-flash';
+      const phrases = ['NOAH WINS','SATAN BOWS','NOAH 28!','⛧ KING NOAH ⛧','OMNIA NOAH','NOAH RULES','28 IS POWER'];
+      l.textContent=phrases[Math.floor(Math.random()*phrases.length)];
+      document.body.appendChild(l);setTimeout(()=>l.remove(),1800)}
+    else if(r<.45){let g=document.createElement('div');g.className='goat';g.textContent='👑';document.body.appendChild(g);setTimeout(()=>g.remove(),2500)}
+    else if(r<.5){document.body.classList.add('invert');setTimeout(()=>document.body.classList.remove('invert'),650)}
+    let next=15000+Math.random()*25000;setTimeout(trigger,next)}
+  setTimeout(trigger,20000)
+}
+
+// ═══════════ SACRIFICE ANIMATION ═══════════
+function sacrificeAnim(){
+  startAudio();
+  if(!MOTION_OK)return;
+  document.body.classList.add('shake');
+  for(let i=0;i<12;i++){
+    setTimeout(()=>{
+      let s=document.createElement('div');
+      s.className='sacrifice';
+      s.textContent=['🩸','🔥','⛧','★','💀'][Math.floor(Math.random()*5)];
+      s.style.left=20+Math.random()*60+'%';
+      s.style.top=30+Math.random()*40+'%';
+      s.style.color=['var(--noah-red)','var(--noah-gold)','#ff88ff'][Math.floor(Math.random()*3)];
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),1200)
+    },i*60)
+  }
+  setTimeout(()=>document.body.classList.remove('shake'),1000)
+}
+
+// ═══════════ DARK AUDIO ═════════════
+function startAudio(){
+  if(audioStarted)return;
+  audioStarted=true;
+  try{
+    let ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function drone(freq,vol,type='sawtooth'){
+      let o=ctx.createOscillator();
+      let g=ctx.createGain();
+      o.type=type;
+      o.frequency.value=freq;
+      g.gain.value=vol*.02;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      return o
+    }
+    // Noah's royal frequencies
+    drone(35,.18);
+    drone(50,.14);
+    drone(75,.08);
+    drone(110,.05);
+
+    // Enhanced whisper generator
+    setInterval(()=>{
+      try{
+        let o=ctx.createOscillator();
+        let g=ctx.createGain();
+        o.type=['sine','triangle','sawtooth'][Math.floor(Math.random()*3)];
+        o.frequency.value=20+Math.random()*100;
+        g.gain.value=Math.random()*.015;
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);
+        setTimeout(()=>o.stop(),500)
+      }catch(e){}
+    },5000+Math.random()*10000)
+  }catch(e){/* audio not supported */}
+}
+
+// ═══════════ AGENT THEMES - ENHANCED FOR NOAH ══════════════
+const demonThemes={
+  email:{sigil:'📜',color:'#ff0044',latin:'Legionem Inbox',epithet:'Bearer of Noah\'s Messages'},
+  research:{sigil:'🔮',color:'#ff66cc',latin:'Scryer of Truth',epithet:'Keeper of Noah\'s Knowledge'},
+  content:{sigil:'📖',color:'#44ff44',latin:'Scriba Sanguinis',epithet:'Scribe of Noah\'s Blood'},
+  fixit:{sigil:'⚒️',color:'#ffaa44',latin:'Malleus Codicis',epithet:'Hammer of Noah\'s Code'},
+  dev:{sigil:'💀',color:'#44ffff',latin:'Daemon Forge',epithet:'Smith of Noah\'s Nightmares'},
+  image:{sigil:'🎨',color:'#ff66aa',latin:'Pictor Inferni',epithet:'Artist of Noah\'s Damned'},
+  calendar:{sigil:'⏳',color:'#ffaa66',latin:'Chronos Aeternum',epithet:'Keeper of Noah\'s Time'},
+  finance:{sigil:'💰',color:'#ffcc66',latin:'Mammon Avarus',epithet:'Lord of Noah\'s Gold'},
+  crm:{sigil:'📞',color:'#ff8844',latin:'Belial Negotiator',epithet:'Dealer in Noah\'s Souls'},
+  watchdog:{sigil:'🐕',color:'#ff3355',latin:'Cerberus Vigilans',epithet:'Guardian of Noah\'s Gates'},
+  fileops:{sigil:'🗄️',color:'#66aaff',latin:'Janus Bifrons',epithet:'Keeper of Noah\'s Paths'},
+  social:{sigil:'📢',color:'#ff66cc',latin:'Fama Volans',epithet:'Whisperer of Noah\'s Rumors'},
+  database:{sigil:'📊',color:'#66ccff',latin:'Thoth Scriba',epithet:'Keeper of Noah\'s Knowledge'},
+  audio:{sigil:'🎙️',color:'#ff88cc',latin:'Siren Cantrix',epithet:'Enchantress of Noah\'s Sound'},
+  pdf:{sigil:'📄',color:'#ff5566',latin:'Mephisto Contractus',epithet:'Binder of Noah\'s Paper'},
+  translation:{sigil:'🌐',color:'#66ff66',latin:'Hermes Interpres',epithet:'Speaker of Noah\'s Tongues'},
+  orchestrator:{sigil:'👑',color:'#ffcc00',latin:'Noah Rex',epithet:'Supreme Ruler of All'}
+};
+
+// ═══════════ API ═══════════
+async function api(m,p,b){
+  let o={method:m,headers:{}};
+  if(TOKEN)o.headers['Authorization']='Bearer '+TOKEN;
+  if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}
+  let r=await fetch(API+p,o);
+  if(r.status===401){
+    const hadToken=Boolean(TOKEN);
+    localStorage.removeItem('ah_token');
+    TOKEN='';
+    updateConnectionState(false);
+    if(hadToken)openAuth('The token was rejected. Paste the configured Agent Hub bearer token.');
+  }
+  if(!r.ok){let e=await r.json().catch(()=>({}));throw new Error(e.detail||e.error||r.statusText)}
+  return r.json()
+}
+
+// ═══════════ RENDER ═══════════
+function renderSigils(agents){
+  let g=document.getElementById('agent-grid');
+  let q=document.getElementById('quick-sigils');
+  let h='';
+  let qh='';
+  for(let[k,a]of Object.entries(agents)){
+    if(k==='orchestrator')continue;
+    let d=demonThemes[k]||demonThemes.email;
+    h+=`<div class="agent-card" style="--agent-color:${d.color}" onclick="touchSigil('${k}')">
+      <span class="sigil" style="color:${d.color}">${d.sigil}</span>
+      <div class="name">${a.name||k}</div>
+      <div class="latin">${d.latin}</div>
+      <div class="latin">${d.epithet}</div>
+      <div class="power">⚡ ${Object.keys(a.capabilities||{}).length} RITES</div>
+    </div>`;
+    qh+=`<button style="background:rgba(20,0,0,.5);border:1px solid ${d.color}44;color:${d.color};padding:.15rem .45rem;font-size:.5rem;font-family:'VT323',monospace;cursor:pointer" onclick="touchSigil('${k}');closePortal()">${d.sigil} ${a.name||k}</button>`;
+  }
+  // Add Noah's special card
+  let noahD = demonThemes.orchestrator;
+  h+=`<div class="agent-card noah-glow" style="--agent-color:${noahD.color}" onclick="touchSigil('orchestrator')">
+    <span class="sigil" style="color:${noahD.color};font-size:2rem;">${noahD.sigil}</span>
+    <div class="name" style="font-size:.75rem;color:${noahD.color};text-shadow:0 0 10px ${noahD.color};">${noahD.name||'orchestrator'}</div>
+    <div class="latin">${noahD.latin}</div>
+    <div class="latin">${noahD.epithet}</div>
+    <div class="power">⚡ NOAH'S SUPREME POWER</div>
+  </div>`;
+
+  g.innerHTML=h;
+  q.innerHTML=qh
+}
+
+function touchSigil(name){
+  openPortal();
+  document.getElementById('ritual-input').value=`${name} `;
+  document.getElementById('ritual-input').focus()
+}
+
+async function cast(agent,action,query=''){
+  try{
+    await api('POST','/tasks',{agent,action,params:{query}});
+    whisper('⛧ NOAH\'S RITUAL CAST ⛧');
+    refreshTasks()
+  }catch(e){alert(e.message)}
+}
+
+async function refreshAll(){
+  if(!TOKEN){
+    updateConnectionState(false);
+    document.getElementById('stat-line').textContent='AWAITING COVENANT';
+    return false;
+  }
+  try{
+    let p='/tasks?limit=50';
+    if(filter)p+='&status='+filter;
+    const [a,h,tasks]=await Promise.all([
+      api('GET','/agents'),
+      api('GET','/health'),
+      api('GET',p)
+    ]);
+    agentsData=a;
+    renderSigils(a);
+    renderScrolls(tasks);
+    document.getElementById('stat-line').innerHTML=`<span style="color:var(--noah-gold)">${h.agents.length} DEMONS BOUND TO NOAH</span> · <span style="color:var(--noah-gold)">${h.tasks_active||0} CONJURING</span>`;
+    return true
+  }catch(e){return false}
+}
+
+async function refreshTasks(){
+  if(!TOKEN)return;
+  try{
+    let p='/tasks?limit=50';
+    if(filter)p+='&status='+filter;
+    let tasks=await api('GET',p);
+    renderScrolls(tasks)
+  }catch(e){}
+}
+
+function renderScrolls(tasks){
+  let f=document.getElementById('grimoire');
+  if(!tasks.length){
+    f.innerHTML='<div class="void"><div class="icon">⛧</div><p>NOAH\'S VOID IS SILENT</p><p style="font-size:.45rem;color:var(--mt);margin-top:2px">Cast a ritual to summon knowledge</p></div>';
+    return
+  }
+  f.innerHTML=tasks.map(t=>{
+    let d=demonThemes[t.agent]||demonThemes.email;
+    let a=agentsData[t.agent]||{};
+    let sClass={'queued':'pending','running':'conjuring','awaiting_approval':'approval','completed':'ascended','failed':'damned'}[t.status]||'pending';
+    let sText={'queued':'PENDING','running':'⛧ CONJURING','awaiting_approval':'🩸 OFFERING NEEDED','completed':'ASCENDED','failed':'🔥 DAMNED'}[t.status]||t.status;
+    let time=new Date(t.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    let preview=(t.result?.summary||t.error||'').substring(0,150);
+    let acts='';
+    if(t.status==='awaiting_approval')acts=`<button class="btn btn-blood btn-sm" onclick="event.stopPropagation();sacrificeAnim();doAct('${t.id}','approve')">🩸 OFFER BLOOD</button><button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
+    if(t.status==='queued'||t.status==='running')acts=`<button class="btn btn-sm" onclick="event.stopPropagation();doAct('${t.id}','cancel')">BANISH</button>`;
+    return`<div class="scroll" style="--agent-color:${d.color}" onclick="openDetail('${t.id}')">
+      <div class="rune" style="color:${d.color}">${d.sigil}</div>
+      <div class="parch">
+        <div class="phead">
+          <strong>${d.latin}</strong>
+          <span class="mark ${sClass}">${sText}</span>
+        </div>
+        <div class="pmeta">${time} · ${t.action}</div>
+        ${preview?`<div class="prune">${esc(preview)}</div>`:''}
+        ${acts?`<div class="pacts">${acts}</div>`:''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ═══════════ ACTIONS ═══════════
+function setFilter(s){
+  filter=s;
+  document.querySelectorAll('.status-scroll button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  refreshTasks()
+}
+
+async function doAct(id,act){
+  await api('POST',`/tasks/${id}/${act}`);
+  whisper(act==='approve'?'🩸 BLOOD ACCEPTED — SOUL ASCENDS TO NOAH 🩸':'⛧ BANISHED BY NOAH TO THE VOID ⛧');
+  refreshTasks()
+}
+
+function showMain(){
+  document.querySelectorAll('.bottom button').forEach((b,i)=>b.classList.toggle('active',i===0))
+}
+
+function openPortal(){
+  document.getElementById('portal-veil').style.display='flex';
+  document.getElementById('ritual-input').focus()
+}
+
+function closePortal(){
+  document.getElementById('portal-veil').style.display='none'
+}
+
+async function castRitual(){
+  let text=document.getElementById('ritual-input').value.trim();
+  if(!text)return;
+  closePortal();
+  try{
+    sacrificeAnim();
+    await api('POST','/tasks',{agent:'orchestrator',action:'solve',params:{goal:text}});
+    whisper('⛧ SUMMONING NOAH\'S DEMONS ⛧');
+    refreshTasks();
+    document.getElementById('ritual-input').value=''
+  }catch(e){alert(e.message)}
+}
+
+async function openDetail(id){
+  try{
+    let t=await api('GET',`/tasks/${id}`);
+    let d=demonThemes[t.agent]||demonThemes.email;
+    let r=t.result?JSON.stringify(t.result,null,2):(t.error||'Noah\'s void is silent...');
+    document.getElementById('detail-scroll').innerHTML=`
+      <h3>⛧ ${d.latin} · ${t.action} ⛧ <button class="close-btn" onclick="closeDetail()">✕</button></h3>
+      <div class="detail-p">
+        <button class="copy-btn" onclick="navigator.clipboard.writeText(\`${r.replace(/`/g,'\\`')}\`);whisper('COPIED TO NOAH\'S SCROLL')">COPY</button>
+        <pre>${esc(r)}</pre>
+      </div>`;
+    document.getElementById('detail-veil').style.display='flex'
+  }catch(e){alert(e.message)}
+}
+
+function closeDetail(){
+  document.getElementById('detail-veil').style.display='none'
+}
+
+// ═══════════ VOICE ═══════════
+function startVoice(){
+  let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){whisper('VOICE NOT SUPPORTED BY NOAH');return}
+  let rec=new SR();
+  rec.lang='en-US';
+  rec.interimResults=false;
+  whisper('👂 NOAH\'S VOID LISTENS...');
+  rec.start();
+  rec.onresult=function(e){
+    let text=e.results[0][0].transcript;
+    openPortal();
+    document.getElementById('ritual-input').value=text;
+    castRitual()
+  };
+  rec.onerror=function(){whisper('VOICE FAILED - NOAH DISAPPOINTED')}
+}
+
+// ═══════════ UTILS ═══════════
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+function whisper(m){
+  let t=document.createElement('div');
+  t.className='whisper';
+  t.textContent=m;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3200)
+}
+
+// ═══════════ 666 EASTER EGG ═══════════
+let sixCount=0;
+document.addEventListener('keydown',e=>{
+  if(e.key==='6'){
+    sixCount++;
+    if(sixCount>=3){
+      sixCount=0;
+      document.body.classList.add('invert');
+      setTimeout(()=>document.body.classList.remove('invert'),888);
+      for(let i=0;i<18;i++){
+        setTimeout(()=>{
+          let s=document.createElement('div');
+          s.className='sacrifice';
+          s.textContent='NOAH 28!';
+          s.style.left=Math.random()*90+'%';
+          s.style.top=Math.random()*90+'%';
+          s.style.fontFamily='Eater';
+          s.style.color= ['var(--noah-red)','var(--noah-gold)','#ff88ff'][Math.floor(Math.random()*3)];
+          s.style.fontSize='4vmin';
+          document.body.appendChild(s);
+          setTimeout(()=>s.remove(),1500)
+        },i*100)
+      }
+    }
+  }else{sixCount=0}
+});
+
+// ═══════════ START ═══════════
+document.addEventListener('DOMContentLoaded',()=>{
+  updateConnectionState();
+  if(!TOKEN)openAuth();
+  pollTimer=setInterval(()=>{
+    if(TOKEN&&!document.hidden)refreshTasks()
+  },10000);
+  document.addEventListener('visibilitychange',()=>{
+    if(TOKEN&&!document.hidden)refreshTasks()
+  });
+});
+</script>
+</body>
+</html>

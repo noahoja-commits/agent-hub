@@ -12,7 +12,7 @@ from agents.base import BaseAgent
 logger = logging.getLogger("agent-hub.agents.watchdog")
 
 DEFAULT_TARGETS = [
-    "https://agent-hub-production-5ccf.up.railway.app/api/health",
+    "https://abyssal-terminal-production.up.railway.app/api/health",
     "https://google.com",
 ]
 

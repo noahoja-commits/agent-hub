@@ -23,8 +23,8 @@ DISPLAY_NAME = "Agent Hub — Local PC Agent"
 DESCRIPTION = "Connects to Agent Hub cloud and executes local tasks (file ops, git, CodeWhale, verifiers)"
 
 # Default config
-HUB_URL = os.environ.get("AGENT_HUB_URL", "wss://agent-hub-production-5ccf.up.railway.app/ws")
-HUB_TOKEN = os.environ.get("AGENT_HUB_TOKEN", "agent-hub-2026-secure")
+HUB_URL = os.environ.get("AGENT_HUB_URL", "wss://abyssal-terminal-production.up.railway.app/ws")
+HUB_TOKEN = os.environ.get("AGENT_HUB_TOKEN", "")
 
 logging.basicConfig(
     filename=Path.home() / ".agent-hub" / "service.log",

@@ -21,7 +21,7 @@ The fastest way to command your agents from your phone. Free, no accounts needed
 
 Replace `<TOKEN>` with your bot token and run:
 ```
-curl https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://agent-hub-production-5ccf.up.railway.app/api/bot/telegram
+curl https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://abyssal-terminal-production.up.railway.app/api/bot/telegram
 ```
 
 You should see: `{"ok":true,"result":true,"description":"Webhook was set"}`

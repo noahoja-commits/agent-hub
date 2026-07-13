@@ -8,11 +8,13 @@ Phase 3: Auth middleware, mobile dashboard, Lark bot setup, local agent auto-sta
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.responses import Response
 
 import db
@@ -66,6 +69,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=5)
 
 # ---------------------------------------------------------------------------
 # Auth middleware (simple bearer token)
@@ -83,9 +87,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Skip auth if no token configured
         if not API_TOKEN:
             return await call_next(request)
-        # Check Authorization header
+        # Check the configured bearer token only.
         auth = request.headers.get("Authorization", "")
-        if not auth.startswith("Bearer ") or auth.removeprefix("Bearer ") != API_TOKEN:
+        token = auth.removeprefix("Bearer ") if auth.startswith("Bearer ") else ""
+        if not token or token != API_TOKEN:
             return Response(
                 content='{"error":"unauthorized","hint":"Set Authorization: Bearer <token> header"}',
                 status_code=401,
@@ -457,7 +462,7 @@ async def _send_telegram(chat_id: str | int, text: str) -> None:
 
 @app.get("/api/bot/telegram/setup")
 async def telegram_setup_info() -> JSONResponse:
-    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    base_url = os.environ.get("BASE_URL", "https://abyssal-terminal-production.up.railway.app")
     return JSONResponse({
         "setup_steps": [
             "1. Open Telegram and message @BotFather",
@@ -559,7 +564,7 @@ async def lark_bot_webhook(request: Request) -> JSONResponse:
 @app.get("/api/bot/lark/setup")
 async def lark_bot_setup_info() -> JSONResponse:
     """Return Lark bot setup instructions and event subscription info."""
-    base_url = os.environ.get("BASE_URL", "https://agent-hub.railway.app")
+    base_url = os.environ.get("BASE_URL", "https://abyssal-terminal-production.up.railway.app")
     return JSONResponse({
         "webhook_url": f"{base_url}/api/bot/lark",
         "verification_note": "This endpoint handles Lark's URL verification challenge automatically.",
@@ -1097,10 +1102,38 @@ async def on_shutdown() -> None:
 # ---------------------------------------------------------------------------
 # Dashboard
 # ---------------------------------------------------------------------------
+@lru_cache(maxsize=1)
+def _dashboard_document() -> tuple[str, str]:
+    """Load the dashboard once per process and return its content plus ETag."""
+    template_path = Path(__file__).parent / "templates" / "dashboard_v2.html"
+    if not template_path.exists():
+        template_path = Path(__file__).parent / "templates" / "dashboard.html"
+    document = template_path.read_text(encoding="utf-8")
+    etag = f'"{hashlib.sha256(document.encode("utf-8")).hexdigest()[:20]}"'
+    return document, etag
+
+
 @app.get("/", response_class=HTMLResponse)
-async def dashboard() -> HTMLResponse:
-    template_path = Path(__file__).parent / "templates" / "dashboard.html"
-    return HTMLResponse(template_path.read_text(encoding="utf-8"))
+async def dashboard(request: Request) -> Response:
+    document, etag = _dashboard_document()
+    headers = {
+        "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+        "ETag": etag,
+    }
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=headers)
+    return HTMLResponse(document, headers=headers)
+
+
+@app.get("/favicon.ico")
+async def favicon() -> Response:
+    """Serve a compact vector sigil without an extra static asset."""
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="12" fill="#050002"/>
+    <path d="M32 6 38 25 58 25 42 37 48 57 32 45 16 57 22 37 6 25 26 25Z" fill="none" stroke="#ff244d" stroke-width="4"/>
+    <circle cx="32" cy="32" r="5" fill="#dfb86b"/>
+    </svg>"""
+    return Response(content=svg, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
 
 
 # ---------------------------------------------------------------------------
