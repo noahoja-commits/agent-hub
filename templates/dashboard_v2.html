@@ -96,7 +96,7 @@ body {
   pointer-events: none;
   z-index: 0;
   animation: spin 40s linear infinite;
-  text-shadow: 
+  text-shadow:
     0 0 30px var(--noah-red),
     0 0 60px var(--noah-gold);
 }
@@ -116,7 +116,7 @@ body {
   font-size: 8px;
   opacity: 0.2;
   animation: posses 4s ease-in-out forwards;
-  text-shadow: 
+  text-shadow:
     0 0 8px var(--noah-red),
     0 0 16px var(--noah-gold);
 }
@@ -175,7 +175,7 @@ body {
   font-family: 'Nosifer', cursive;
   font-size: 2.5rem;
   color: var(--noah-gold);
-  text-shadow: 
+  text-shadow:
     0 0 30px var(--noah-gold),
     0 0 60px var(--noah-red);
   pointer-events: none;
@@ -287,7 +287,7 @@ body {
   font-family: 'Nosifer', cursive;
   font-size: 0.85rem;
   color: var(--noah-gold);
-  text-shadow: 
+  text-shadow:
     0 0 10px var(--noah-gold),
     0 0 30px var(--noah-red),
     0 0 60px #300;
@@ -355,7 +355,7 @@ body {
   position: relative;
   overflow: hidden;
   clip-path: polygon(
-    50% 0%, 100% 10%, 95% 90%, 50% 100%, 
+    50% 0%, 100% 10%, 95% 90%, 50% 100%,
     5% 90%, 0% 10%
   );
   box-shadow: 0 0 10px rgba(255, 0, 68, 0.1);
@@ -385,7 +385,7 @@ body {
 
 .agent-card:hover {
   border-color: var(--noah-gold);
-  box-shadow: 
+  box-shadow:
     0 0 35px var(--agent-color),
     inset 0 0 40px rgba(0, 0, 0, 0.7);
   transform: scale(1.1) translateY(-4px);
@@ -829,7 +829,7 @@ body {
 .field input:focus,
 .field textarea:focus {
   border-color: var(--noah-gold);
-  box-shadow: 
+  box-shadow:
     0 0 15px rgba(255, 204, 0, 0.3),
     inset 0 0 10px rgba(255, 0, 68, 0.1);
 }
@@ -937,7 +937,7 @@ body {
 .sixsixsix {
   font-family: 'Eater', cursive;
   color: var(--noah-gold);
-  text-shadow: 
+  text-shadow:
     0 0 25px var(--noah-gold),
     0 0 50px var(--noah-red);
   animation: sixPulse 2s infinite;
@@ -954,24 +954,24 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 10px;
   }
-  
+
   .content {
     max-width: 1000px;
     padding: 1rem 1.5rem;
   }
-  
+
   .topbar {
     padding: 0.7rem 1.5rem;
   }
-  
+
   .topbar h1 {
     font-size: 1rem;
   }
-  
+
   .bottom {
     padding-bottom: calc(var(--safe) + 2px);
   }
-  
+
   .portal {
     max-width: 650px;
   }
@@ -979,10 +979,10 @@ body {
 
 /* ===== NOAH'S SPECIAL ANIMATIONS ===== */
 @keyframes noahPulse {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 0 10px var(--noah-red), 0 0 20px var(--noah-gold);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 20px var(--noah-red), 0 0 40px var(--noah-gold), 0 0 60px #ff0044;
   }
 }
@@ -1100,7 +1100,7 @@ body {
 
 <div class="content">
   <div class="agent-grid" id="agent-grid"></div>
-  
+
   <div class="ritual-bar">
     <button onclick="cast('email','triage_inbox')">📜 SCRY INBOX</button>
     <button onclick="cast('research','news_briefing','AI technology')">🔮 SEEK TRUTH</button>
@@ -1109,9 +1109,9 @@ body {
     <button onclick="cast('calendar','get_events')">⏳ CHRONOS TIME</button>
     <button onclick="cast('finance','portfolio_summary')">💰 MAMMON COIN</button>
   </div>
-  
+
   <div class="xdiv">⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸ ⸸</div>
-  
+
   <div class="status-scroll">
     <button class="active" onclick="setFilter('')">ALL SOULS</button>
     <button onclick="setFilter('running')">⛧ CONJURING</button>
@@ -1119,7 +1119,7 @@ body {
     <button onclick="setFilter('completed')">💀 ASCENDED</button>
     <button onclick="setFilter('failed')">🔥 DAMNED</button>
   </div>
-  
+
   <div class="grimoire" id="grimoire">
     <div class="void">
       <div class="icon">⛧</div>
@@ -1315,7 +1315,7 @@ function startHellfire(){
     return sprite
   }
   const sprites=[makeSprite(255,0,68),makeSprite(255,204,0)];
-  
+
   for(let i=0;i<particleCount;i++){
     particles.push({
       x:Math.random()*c.width,
@@ -1328,7 +1328,7 @@ function startHellfire(){
       color:Math.random()>.5?0:1
     })
   }
-  
+
   let lastFrame=0;
   function draw(now){
     requestAnimationFrame(draw);
@@ -1481,7 +1481,7 @@ function startAudio(){
     drone(50,.14);
     drone(75,.08);
     drone(110,.05);
-    
+
     // Enhanced whisper generator
     setInterval(()=>{
       try{
@@ -1565,7 +1565,7 @@ function renderSigils(agents){
     <div class="latin">${noahD.epithet}</div>
     <div class="power">⚡ NOAH'S SUPREME POWER</div>
   </div>`;
-  
+
   g.innerHTML=h;
   q.innerHTML=qh
 }
