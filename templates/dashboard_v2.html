@@ -5,9 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000">
-<meta name="description" content="A unified command deck for the Agent Hub and Abyssal Terminal.">
-<title>⛧ NOAH'S ABYSSAL TERMINAL v666 ⛧</title>
+<meta name="apple-mobile-web-app-title" content="ABYSS//OS">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="ABYSS//OS">
+<meta name="theme-color" content="#090003">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="ABYSS//OS is Noah's infernal command operating system for seventeen bound AI agents.">
+<title>⛧ ABYSS//OS · NOAH'S AGENT LEGION ⛧</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/pwa/abyss-os.svg" type="image/svg+xml">
+<link rel="icon" href="/pwa/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png" sizes="180x180">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Creepster&family=Eater&family=Nosifer&family=VT323&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -265,7 +273,7 @@ body {
 .boot .dim { color: #ff004488; }
 .boot .gold { color: var(--noah-gold); }
 
-/* ===== TOP BAR - NOAH'S BRANDING ===== */
+/* ===== TOP BAR - ABYSS//OS BRANDING ===== */
 .topbar {
   position: sticky;
   top: 0;
@@ -283,28 +291,35 @@ body {
   box-shadow: 0 0 20px rgba(255, 0, 68, 0.3);
 }
 
-.topbar h1 {
-  font-family: 'Nosifer', cursive;
-  font-size: 0.85rem;
-  color: var(--noah-gold);
-  text-shadow:
-    0 0 10px var(--noah-gold),
-    0 0 30px var(--noah-red),
-    0 0 60px #300;
+.brand-lockup { display: inline-flex; align-items: center; gap: .72rem; min-width: 0; color: inherit; text-decoration: none; }
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  filter: drop-shadow(0 0 8px rgba(255, 0, 68, .8)) drop-shadow(0 0 18px rgba(255, 187, 51, .24));
+  animation: brandBreath 3.2s ease-in-out infinite;
+}
+.brand-wordmark { display: flex; flex-direction: column; min-width: 0; }
+.brand-title {
+  color: #fff2d5;
+  font: 900 1.05rem/1 'Cinzel', Georgia, serif;
   letter-spacing: 4px;
+  text-shadow: 0 0 9px rgba(255, 255, 255, .18), 0 0 22px var(--noah-red);
   animation: titleFlick 3s infinite;
 }
-
-.topbar h1 .sub {
-  font-family: 'VT323', monospace;
-  font-size: 0.5rem;
-  display: block;
-  color: var(--mt);
-  letter-spacing: 6px;
-  text-shadow: none;
-  margin-top: -2px;
+.brand-title span { color: var(--noah-gold); text-shadow: 0 0 12px rgba(255, 211, 78, .75); }
+.brand-sub {
+  margin-top: .28rem;
+  color: #a64a5a;
+  font: .58rem/1 'VT323', monospace;
+  letter-spacing: 3px;
   text-transform: uppercase;
 }
+.install-pwa { min-height: 32px; padding: .35rem .6rem; border: 1px solid rgba(255, 211, 78, .55); background: rgba(255, 211, 78, .06); color: var(--noah-gold); font: .65rem 'VT323', monospace; letter-spacing: 1.4px; cursor: pointer; box-shadow: 0 0 14px rgba(255, 211, 78, .08); }
+.install-pwa:hover { border-color: var(--noah-gold); box-shadow: 0 0 20px rgba(255, 211, 78, .25); }
+.pwa-standalone .topbar { padding-top: calc(.6rem + env(safe-area-inset-top, 0px)); }
+@keyframes brandBreath { 50% { transform: scale(1.035); filter: drop-shadow(0 0 13px rgba(255, 0, 68, .95)) drop-shadow(0 0 24px rgba(255, 187, 51, .35)); } }
 
 @keyframes titleFlick {
   0%, 98% { opacity: 1; text-shadow: 0 0 10px var(--noah-gold), 0 0 30px var(--noah-red); }
@@ -1379,9 +1394,7 @@ body::after {
   animation: auraBreath 3.2s ease-in-out infinite;
 }
 
-.abyss-sigil { width: 100%; height: 100%; animation: orbitSpin 48s linear infinite, sigilBreath 3.2s ease-in-out infinite; }
-.abyss-sigil path, .abyss-sigil circle, .abyss-sigil ellipse { fill: none; stroke: var(--noah-red); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
-.abyss-sigil circle:nth-child(2) { stroke: var(--noah-gold); stroke-width: .65; stroke-dasharray: 3 7; }
+.abyss-sigil { width: 100%; height: 100%; border-radius: 23%; animation: sigilBreath 3.2s ease-in-out infinite; }
 @keyframes orbitSpin { to { transform: rotate(360deg); } }
 @keyframes sigilBreath { 50% { filter: drop-shadow(0 0 16px var(--noah-red)) brightness(1.35); } }
 @keyframes auraBreath { 50% { transform: scale(1.14); opacity: .72; } }
@@ -1555,8 +1568,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 @media (max-width: 767px) {
   body { padding-bottom: calc(74px + var(--safe)); }
   .topbar { min-height: 0; gap: .65rem; padding: .75rem 1rem; }
-  .topbar h1 { overflow: hidden; font-size: .63rem; line-height: 1.35; letter-spacing: 1px; white-space: nowrap; }
-  .topbar h1 .sub { font-size: .56rem; letter-spacing: 3px; }
+  .brand-lockup { gap: .5rem; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 11px; }
+  .brand-title { overflow: hidden; font-size: .78rem; letter-spacing: 2px; white-space: nowrap; }
+  .brand-sub { font-size: .5rem; letter-spacing: 1.5px; white-space: nowrap; }
+  .install-pwa { min-height: 30px; padding: .3rem .45rem; font-size: .58rem; }
   .service-cluster { align-items: center; }
   .connection-chip { min-height: 34px; font-size: .66rem; }
   #stat-line { font-size: .62rem; line-height: 1.2; }
@@ -1624,21 +1640,25 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 <div class="boot" id="boot-sequence"></div>
 
 <div class="topbar">
-  <h1>N O A H ' S &nbsp; A B Y S S A L &nbsp; T E R M I N A L<span class="sub">⛧ ⛧ ⛧ &nbsp; v666.6.6 &nbsp; ⛧ ⛧ ⛧</span></h1>
+  <a class="brand-lockup" href="/" aria-label="ABYSS OS home">
+    <img class="brand-mark" src="/pwa/abyss-os.svg" alt="">
+    <span class="brand-wordmark"><span class="brand-title">ABYSS<span>//</span>OS</span><span class="brand-sub">NOAH'S AGENT LEGION · v17</span></span>
+  </a>
   <div class="service-cluster">
+    <button id="install-pwa" class="install-pwa" type="button" onclick="installPWA()" hidden>BIND APP</button>
     <button id="connection-chip" class="connection-chip locked" type="button" onclick="openAuth()">LOCKED</button>
     <span id="stat-line">AWAITING COVENANT</span>
   </div>
 </div>
 
 <div class="content">
-  <section class="abyss-hero" aria-label="Abyssal command throne">
+  <section class="abyss-hero" aria-label="ABYSS OS command throne">
     <div class="hero-copy">
       <div class="hero-eyebrow"><span id="hero-rune" class="live-rune locked"></span><span id="hero-eyebrow-text">AUTHENTICATION REQUIRED</span></div>
-      <h2 class="abyss-title" data-text="ABYSSAL COMMAND">ABYSSAL COMMAND</h2>
-      <p class="hero-decree">One terminal. Seventeen bound agents. Every system answers from this throne.</p>
+      <h2 class="abyss-title" data-text="ABYSS//OS" aria-label="ABYSS OS">ABYSS//OS</h2>
+      <p class="hero-decree">Seventeen bound agents. One infernal operating system. Every system answers from this throne.</p>
       <button class="command-line" type="button" onclick="openPortal()" aria-label="Open command altar">
-        <span class="command-prompt">root@abyss:~$</span>
+        <span class="command-prompt">root@abyss-os:~$</span>
         <span class="command-text">summon the legion</span>
         <span class="command-cursor" aria-hidden="true"></span>
       </button>
@@ -1650,17 +1670,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
     <div class="sigil-throne" aria-hidden="true">
       <div class="sigil-aura"></div>
-      <svg class="abyss-sigil" viewBox="0 0 200 200">
-        <circle cx="100" cy="100" r="94"/>
-        <circle cx="100" cy="100" r="71"/>
-        <path d="M100,14 L16,170 L185,170 Z"/>
-        <path d="M100,186 L16,30 L185,30 Z"/>
-        <ellipse cx="100" cy="100" rx="21" ry="12"/>
-        <circle cx="100" cy="100" r="6"/>
-        <path d="M100,4 L100,15 M100,185 L100,196 M4,100 L15,100 M185,100 L196,100"/>
-        <path d="M48,50 Q100,27 152,50 M48,150 Q100,173 152,150"/>
-      </svg>
-      <div class="sigil-eye"><span></span></div>
+      <img class="abyss-sigil" src="/pwa/abyss-os.svg" alt="ABYSS OS horned agent sigil">
     </div>
 
     <div class="hero-telemetry" aria-label="System telemetry">
@@ -1756,7 +1766,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 <script>
 // ⛧══════════════════════════════════════════════════════⛧
-//          NOAH'S ABYSSAL TERMINAL v666 — MAIN ENGINE
+//                   ABYSS//OS — MAIN ENGINE
 //         Enhanced with Noah's Divine Power
 // ⛧══════════════════════════════════════════════════════⛧
 
@@ -1822,7 +1832,7 @@ function disconnectToken() {
 
 // ═══════════ ENHANCED BOOT SEQUENCE ══════════
 const bootLines=[
-  {t:'NOAH\'S ABYSSAL TERMINAL v666 — INITIALIZING DIVINE CORE...',c:'red'},
+  {t:'ABYSS//OS — INITIALIZING LEGION CORE...',c:'red'},
   {t:'LOADING NOAH\'S FORBIDDEN LIBRARIES...',c:'dim'},
   {t:'ESTABLISHING CONNECTION TO NOAH\'S VOID...',c:'dim'},
   {t:'SUMMONING: LEGIONEM INBOX [0xNOAH]',c:'gold'},
@@ -2412,6 +2422,7 @@ document.addEventListener('keydown',e=>{
 
 // ═══════════ START ═══════════
 document.addEventListener('DOMContentLoaded',()=>{
+  if(window.matchMedia('(display-mode: standalone)').matches)document.body.classList.add('pwa-standalone');
   updateConnectionState();
   if(!TOKEN)openAuth();
   pollTimer=setInterval(()=>{
@@ -2421,6 +2432,31 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(TOKEN&&!document.hidden)refreshTasks()
   });
 });
+
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',event=>{
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  document.getElementById('install-pwa').hidden=false;
+});
+
+async function installPWA(){
+  if(!deferredInstallPrompt)return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  document.getElementById('install-pwa').hidden=true;
+}
+
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  document.getElementById('install-pwa').hidden=true;
+  whisper('⛧ ABYSS//OS BOUND TO THIS DEVICE ⛧');
+});
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ABYSS//OS infernal agent sigil</title>
+  <desc id="desc">A horned angular A surrounds a watchful eye inside a seventeen-node command ring.</desc>
+  <defs>
+    <radialGradient id="void" cx="50%" cy="42%" r="72%">
+      <stop offset="0" stop-color="#25030d"/>
+      <stop offset=".48" stop-color="#0d0005"/>
+      <stop offset="1" stop-color="#020001"/>
+    </radialGradient>
+    <linearGradient id="blood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff315d"/>
+      <stop offset=".42" stop-color="#e4003b"/>
+      <stop offset="1" stop-color="#650018"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff0a2"/>
+      <stop offset=".5" stop-color="#f0bb3d"/>
+      <stop offset="1" stop-color="#7f4700"/>
+    </linearGradient>
+    <filter id="redGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feFlood flood-color="#ff003f" flood-opacity=".82"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="goldGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#ffd35a" flood-opacity=".7"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" fill="none" stroke="#ff174f" stroke-opacity=".045" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <rect width="1024" height="1024" rx="220" fill="url(#void)"/>
+  <rect x="18" y="18" width="988" height="988" rx="205" fill="url(#grid)" stroke="#8d0024" stroke-width="5"/>
+  <circle cx="512" cy="512" r="366" fill="none" stroke="#ff174f" stroke-opacity=".26" stroke-width="5"/>
+  <circle cx="512" cy="512" r="337" fill="none" stroke="#f0bb3d" stroke-opacity=".42" stroke-width="3" stroke-dasharray="9 17"/>
+
+  <g fill="url(#gold)" filter="url(#goldGlow)">
+    <circle cx="512" cy="138" r="9"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(21.176 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(42.353 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(63.529 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(84.706 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(105.882 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(127.059 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(148.235 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(169.412 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(190.588 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(211.765 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(232.941 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(254.118 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(275.294 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(296.471 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(317.647 512 512)"/>
+    <circle cx="512" cy="138" r="9" transform="rotate(338.824 512 512)"/>
+  </g>
+
+  <g fill="none" stroke="url(#blood)" stroke-linecap="round" stroke-linejoin="round" filter="url(#redGlow)">
+    <path d="M395 328C299 311 218 242 195 126c79 75 172 39 224 116" stroke-width="42"/>
+    <path d="M629 328c96-17 177-86 200-202-79 75-172 39-224 116" stroke-width="42"/>
+    <path d="M286 770 512 222 738 770" stroke-width="66"/>
+    <path d="M369 606h286" stroke-width="48"/>
+  </g>
+
+  <path d="M392 513Q512 416 632 513Q512 610 392 513Z" fill="#020001" stroke="url(#gold)" stroke-width="17" filter="url(#goldGlow)"/>
+  <circle cx="512" cy="513" r="54" fill="url(#blood)" stroke="#ffed9b" stroke-width="10" filter="url(#redGlow)"/>
+  <circle cx="512" cy="513" r="20" fill="#050002"/>
+  <path d="m512 477 12 25 27 4-20 19 5 27-24-13-24 13 5-27-20-19 27-4Z" fill="url(#gold)"/>
+
+  <path d="M512 752v116M475 821l37 47 37-47" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" filter="url(#goldGlow)"/>
+  <path d="M203 512h54M767 512h54" stroke="#ff315d" stroke-width="8" stroke-linecap="round"/>
+</svg>

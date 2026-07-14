@@ -20,7 +20,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.gzip import GZipMiddleware
@@ -59,9 +59,9 @@ logger = logging.getLogger("agent-hub")
 # App
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Agent Hub",
+    title="ABYSS//OS",
     version="0.3.0",
-    description="Cloud agent orchestrator — email, research, content, fixes, local PC bridge, Lark bot",
+    description="Noah's infernal command operating system for seventeen bound AI agents.",
 )
 app.add_middleware(
     CORSMiddleware,
@@ -75,7 +75,12 @@ app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=5)
 # Auth middleware (simple bearer token)
 # ---------------------------------------------------------------------------
 API_TOKEN = os.environ.get("AGENT_HUB_TOKEN", "")
-PUBLIC_PATHS = {"/", "/api/health", "/api/bot/lark", "/api/bot/lark/setup", "/ws", "/favicon.ico"}
+PUBLIC_PATHS = {
+    "/", "/api/health", "/api/bot/lark", "/api/bot/lark/setup", "/ws",
+    "/favicon.ico", "/manifest.webmanifest", "/service-worker.js",
+    "/pwa/abyss-os.svg", "/pwa/icon-192.png", "/pwa/icon-512.png",
+    "/pwa/icon-maskable-512.png", "/pwa/apple-touch-icon.png",
+}
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -1126,14 +1131,49 @@ async def dashboard(request: Request) -> Response:
 
 
 @app.get("/favicon.ico")
-async def favicon() -> Response:
-    """Serve a compact vector sigil without an extra static asset."""
-    svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <rect width="64" height="64" rx="12" fill="#050002"/>
-    <path d="M32 6 38 25 58 25 42 37 48 57 32 45 16 57 22 37 6 25 26 25Z" fill="none" stroke="#ff244d" stroke-width="4"/>
-    <circle cx="32" cy="32" r="5" fill="#dfb86b"/>
-    </svg>"""
-    return Response(content=svg, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+async def favicon() -> FileResponse:
+    return FileResponse(
+        Path(__file__).parent / "pwa" / "abyss-os.svg",
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@app.get("/manifest.webmanifest")
+async def pwa_manifest() -> FileResponse:
+    return FileResponse(
+        Path(__file__).parent / "pwa" / "manifest.webmanifest",
+        media_type="application/manifest+json",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@app.get("/service-worker.js")
+async def service_worker() -> FileResponse:
+    return FileResponse(
+        Path(__file__).parent / "pwa" / "service-worker.js",
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"},
+    )
+
+
+@app.get("/pwa/{asset_name}", include_in_schema=False)
+async def pwa_asset(asset_name: str) -> FileResponse:
+    allowed = {
+        "abyss-os.svg": "image/svg+xml",
+        "icon-192.png": "image/png",
+        "icon-512.png": "image/png",
+        "icon-maskable-512.png": "image/png",
+        "apple-touch-icon.png": "image/png",
+    }
+    media_type = allowed.get(asset_name)
+    if not media_type:
+        raise HTTPException(status_code=404, detail="PWA asset not found")
+    return FileResponse(
+        Path(__file__).parent / "pwa" / asset_name,
+        media_type=media_type,
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
 
 
 # ---------------------------------------------------------------------------
